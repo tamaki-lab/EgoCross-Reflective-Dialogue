@@ -185,3 +185,5 @@ predictions_score.json
 .venv
 data
 models
+EgoCross_test
+EgoCross_support
