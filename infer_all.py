@@ -1,10 +1,12 @@
 import argparse
 import json
 import re
+import time
 import torch
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
+from tqdm import tqdm
 from transformers import Qwen3VLForConditionalGeneration, Qwen3VLProcessor
 from qwen_vl_utils import process_vision_info
 
@@ -67,7 +69,7 @@ def load_eval_items() -> list[dict]:
     return items
 
 
-def run_domain(model_name: str, items: list, log_lines: list) -> dict:
+def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 360000) -> dict:
     model_path = str(MODEL_BASE / model_name)
     msg = f"\n=== Loading model: {model_name} ({len(items)} questions) ==="
     print(msg)
@@ -82,40 +84,56 @@ def run_domain(model_name: str, items: list, log_lines: list) -> dict:
     model.eval()
 
     answers = {}
-    for i, item in enumerate(items):
-        content = [{"type": "image", "image": p} for p in item["images"]]
-        content.append({"type": "text", "text": item["prompt"]})
-        messages = [{"role": "user", "content": content}]
+    pbar = tqdm(items, desc=model_name, unit="q")
+    for item in pbar:
+        t0 = time.time()
+        image_paths = item["images"]
 
-        text = processor.apply_chat_template(
-            messages, tokenize=False, add_generation_prompt=True,
-            enable_thinking=False,
-        )
-        image_inputs, _ = process_vision_info(messages)
-        inputs = processor(
-            text=[text],
-            images=image_inputs,
-            padding=True,
-            return_tensors="pt",
-        ).to(model.device)
+        raw = None
+        for attempt in range(3):
+            try:
+                content = [{"type": "image", "image": p} for p in image_paths]
+                content.append({"type": "text", "text": item["prompt"]})
+                messages = [{"role": "user", "content": content}]
 
-        with torch.no_grad():
-            output_ids = model.generate(
-                **inputs, max_new_tokens=4, do_sample=False)
+                text = processor.apply_chat_template(
+                    messages, tokenize=False, add_generation_prompt=True,
+                    enable_thinking=False,
+                )
+                image_inputs, _ = process_vision_info(messages)
+                inputs = processor(
+                    text=[text],
+                    images=image_inputs,
+                    padding=True,
+                    return_tensors="pt",
+                    min_pixels=50176,
+                    max_pixels=max_pixels,
+                ).to(model.device)
 
-        generated = output_ids[0][inputs.input_ids.shape[1]:]
-        raw = processor.decode(generated, skip_special_tokens=True).strip()
+                with torch.no_grad():
+                    output_ids = model.generate(
+                        **inputs, max_new_tokens=4, do_sample=False)
+
+                generated = output_ids[0][inputs.input_ids.shape[1]:]
+                raw = processor.decode(generated, skip_special_tokens=True).strip()
+                break
+            except torch.OutOfMemoryError:
+                torch.cuda.empty_cache()
+                image_paths = image_paths[::2] or image_paths[:1]  # フレームを半分に
+                pbar.write(f"  OOM id={item['id']}, retry with {len(image_paths)} frames")
+
+        if raw is None:
+            raw = ""
         answer = raw[0].upper() if raw else "A"
 
         gt = item["ground_truth"]
-        correct = f" ✓" if gt and answer == gt else (
-            f" ✗(gt={gt})" if gt else "")
+        correct = " ✓" if gt and answer == gt else (f" ✗(gt={gt})" if gt else "")
         answers[item["id"]] = answer
 
-        if (i + 1) % 10 == 0 or i == 0:
-            line = f"  [{i+1}/{len(items)}] id={item['id']} raw='{raw}' → {answer}{correct}"
-            print(line)
-            log_lines.append(line)
+        elapsed = time.time() - t0
+        line = f"id={item['id']} raw='{raw}' → {answer}{correct} ({elapsed:.1f}s)"
+        pbar.write(line)
+        log_lines.append(line)
 
     del model
     torch.cuda.empty_cache()
@@ -150,11 +168,13 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--mode", choices=["test", "eval"], default="test",
                         help="test: 提出用予測 / eval: サポートセットで正解率確認")
+    parser.add_argument("--max-pixels", type=int, default=128000,
+                        help="1フレームあたりの最大ピクセル数 (default: 128000)")
     args = parser.parse_args()
 
     OUTPUT_DIR.mkdir(exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    log_lines = [f"Run started: {timestamp}  mode={args.mode}"]
+    log_lines = [f"Run started: {timestamp}  mode={args.mode}  max_pixels={args.max_pixels}"]
 
     if args.mode == "test":
         items = load_test_items()
@@ -170,7 +190,7 @@ def main():
 
     all_answers = {}
     for model_name, domain_items in by_model.items():
-        domain_answers = run_domain(model_name, domain_items, log_lines)
+        domain_answers = run_domain(model_name, domain_items, log_lines, args.max_pixels)
         all_answers.update(domain_answers)
 
     if args.mode == "test":
