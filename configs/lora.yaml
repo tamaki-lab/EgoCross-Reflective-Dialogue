@@ -1,0 +1,39 @@
+### Model
+model_name_or_path: Qwen/Qwen3-VL-4B-Instruct
+trust_remote_code: true
+
+### Method
+stage: sft
+do_train: true
+finetuning_type: lora
+
+### LoRA Config
+lora_rank: 64
+lora_alpha: 128
+lora_dropout: 0.05
+lora_target: all
+
+### Dataset
+dataset: egocross_train
+dataset_dir: ./data
+template: qwen3_vl
+cutoff_len: 32768
+
+### Image/Video Processing
+image_max_pixels: 360000
+video_max_pixels: 360000
+image_min_pixels: 50176
+
+### Training Hyperparameters
+per_device_train_batch_size: 2
+gradient_accumulation_steps: 4
+learning_rate: 2.0e-4
+num_train_epochs: 2
+lr_scheduler_type: cosine
+warmup_ratio: 0.1
+bf16: true
+
+### Output
+output_dir: ./output/egocross_lora
+logging_steps: 10
+save_steps: 500

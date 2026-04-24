@@ -1,4 +1,12 @@
 {
+  "egocross_train": {
+    "file_name": "egocross/train.json",
+    "formatting": "sharegpt",
+    "columns": {
+      "messages": "messages",
+      "images": "images"
+    }
+  },
   "identity": {
     "file_name": "identity.json"
   },
