@@ -72,9 +72,10 @@ def load_eval_items() -> list[dict]:
     return items
 
 
-def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 360000, input_mode: str = "image") -> dict:
-    model_path = str(MODEL_BASE / model_name)
-    msg = f"\n=== Loading model: {model_name} ({len(items)} questions) ==="
+def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 360000, input_mode: str = "image", thinking: bool = False, baseline: bool = False) -> dict:
+    model_path = "Qwen/Qwen3-VL-4B-Instruct" if baseline else str(
+        MODEL_BASE / model_name)
+    msg = f"\n=== Loading model: {model_path} ({len(items)} questions) ==="
     print(msg)
     log_lines.append(msg)
 
@@ -106,7 +107,7 @@ def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 
 
                 text = processor.apply_chat_template(
                     messages, tokenize=False, add_generation_prompt=True,
-                    enable_thinking=False,
+                    enable_thinking=thinking,
                 )
                 image_inputs, video_inputs, video_kwargs = process_vision_info(
                     messages, return_video_kwargs=True
@@ -127,7 +128,7 @@ def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 
 
                 with torch.no_grad():
                     output_ids = model.generate(
-                        **inputs, max_new_tokens=4, do_sample=False, use_cache=False)
+                        **inputs, max_new_tokens=2048 if thinking else 4, do_sample=False, use_cache=False)
 
                 generated = output_ids[0][inputs.input_ids.shape[1]:]
                 raw = processor.decode(
@@ -142,7 +143,11 @@ def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 
 
         if raw is None:
             raw = ""
-        answer = raw[0].upper() if raw else "A"
+        answer_text = re.sub(r"<think>.*?</think>", "",
+                             raw, flags=re.DOTALL).strip()
+        m = re.search(r"\b([A-D])\b", answer_text)
+        answer = m.group(1) if m else (
+            answer_text[0].upper() if answer_text else "A")
 
         gt = item["ground_truth"]
         correct = " ✓" if gt and answer == gt else (
@@ -197,12 +202,16 @@ def main():
                         help="1フレームあたりの最大ピクセル数 (default: 128000)")
     parser.add_argument("--input-mode", choices=["image", "video"], default="image",
                         help="image: フレームを個別画像として入力 / video: 動画として入力")
+    parser.add_argument("--thinking", action="store_true",
+                        help="thinkingモードを有効化")
+    parser.add_argument("--baseline", action="store_true",
+                        help="fine-tunedモデルではなくベースモデル(Qwen3-VL-4B-Instruct)を使用")
     args = parser.parse_args()
 
     OUTPUT_DIR.mkdir(exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     log_lines = [
-        f"Run started: {timestamp}  mode={args.mode}  max_pixels={args.max_pixels}  input_mode={args.input_mode}"]
+        f"Run started: {timestamp}  mode={args.mode}  max_pixels={args.max_pixels}  input_mode={args.input_mode}  thinking={args.thinking}  baseline={args.baseline}"]
 
     if args.mode == "test":
         items = load_test_items()
@@ -219,7 +228,8 @@ def main():
     all_answers = {}
     for model_name, domain_items in by_model.items():
         domain_answers = run_domain(
-            model_name, domain_items, log_lines, args.max_pixels, args.input_mode)
+            model_name, domain_items, log_lines, args.max_pixels, args.input_mode,
+            thinking=args.thinking, baseline=args.baseline)
         all_answers.update(domain_answers)
 
     if args.mode == "test":
