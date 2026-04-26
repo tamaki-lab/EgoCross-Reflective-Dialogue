@@ -127,13 +127,24 @@ def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 
                 ).to(model.device)
 
                 with torch.no_grad():
-                    output_ids = model.generate(
-                        **inputs, max_new_tokens=2048 if thinking else 4, do_sample=False, use_cache=False)
-
-                generated = output_ids[0][inputs.input_ids.shape[1]:]
-                raw = processor.decode(
-                    generated, skip_special_tokens=True).strip()
-                del inputs, image_inputs, video_inputs, output_ids, generated
+                    if thinking:
+                        output_ids = model.generate(
+                            **inputs, max_new_tokens=2048, do_sample=False, use_cache=False)
+                        generated = output_ids[0][inputs.input_ids.shape[1]:]
+                        raw = processor.decode(
+                            generated, skip_special_tokens=True).strip()
+                        del output_ids, generated
+                    else:
+                        choice_ids = [
+                            processor.tokenizer.encode(
+                                c, add_special_tokens=False)[0]
+                            for c in ["A", "B", "C", "D"]
+                        ]
+                        out = model(**inputs)
+                        raw = "ABCD"[
+                            out.logits[0, -1, choice_ids].argmax().item()]
+                        del out
+                del inputs, image_inputs, video_inputs
                 break
             except torch.OutOfMemoryError:
                 torch.cuda.empty_cache()
@@ -143,11 +154,14 @@ def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 
 
         if raw is None:
             raw = ""
-        answer_text = re.sub(r"<think>.*?</think>", "",
-                             raw, flags=re.DOTALL).strip()
-        m = re.search(r"\b([A-D])\b", answer_text)
-        answer = m.group(1) if m else (
-            answer_text[0].upper() if answer_text else "A")
+        if thinking:
+            answer_text = re.sub(r"<think>.*?</think>", "",
+                                 raw, flags=re.DOTALL).strip()
+            m = re.search(r"\b([A-D])\b", answer_text)
+            answer = m.group(1) if m else (
+                answer_text[0].upper() if answer_text else "A")
+        else:
+            answer = raw  # logit比較で既にA/B/C/Dが確定している
 
         gt = item["ground_truth"]
         correct = " ✓" if gt and answer == gt else (
