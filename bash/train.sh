@@ -1,0 +1,1 @@
+PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True CUDA_VISIBLE_DEVICES=3 llamafactory-cli train configs/lora.yaml

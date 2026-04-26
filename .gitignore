@@ -183,6 +183,7 @@ generated_predictions.jsonl
 predictions_score.json
 
 .venv
+.venv312
 data
 models
 EgoCross_test

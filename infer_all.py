@@ -1,4 +1,5 @@
 import argparse
+import gc
 import json
 import re
 import time
@@ -112,10 +113,11 @@ def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 
 
                 with torch.no_grad():
                     output_ids = model.generate(
-                        **inputs, max_new_tokens=4, do_sample=False)
+                        **inputs, max_new_tokens=4, do_sample=False, use_cache=False)
 
                 generated = output_ids[0][inputs.input_ids.shape[1]:]
                 raw = processor.decode(generated, skip_special_tokens=True).strip()
+                del inputs, image_inputs, output_ids, generated
                 break
             except torch.OutOfMemoryError:
                 torch.cuda.empty_cache()
@@ -130,12 +132,18 @@ def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 
         correct = " ✓" if gt and answer == gt else (f" ✗(gt={gt})" if gt else "")
         answers[item["id"]] = answer
 
+        gc.collect()
+        torch.cuda.empty_cache()
+
+        alloc = torch.cuda.memory_allocated() / 1024**3
+        reserved = torch.cuda.memory_reserved() / 1024**3
         elapsed = time.time() - t0
-        line = f"id={item['id']} raw='{raw}' → {answer}{correct} ({elapsed:.1f}s)"
+        line = f"id={item['id']} raw='{raw}' → {answer}{correct} ({elapsed:.1f}s) VRAM alloc={alloc:.1f}GB reserved={reserved:.1f}GB"
         pbar.write(line)
         log_lines.append(line)
 
-    del model
+    del model, processor
+    gc.collect()
     torch.cuda.empty_cache()
     return answers
 

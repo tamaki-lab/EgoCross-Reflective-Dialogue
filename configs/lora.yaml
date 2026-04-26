@@ -14,19 +14,20 @@ lora_dropout: 0.05
 lora_target: all
 
 ### Dataset
-dataset: egocross_train
-dataset_dir: ./data
-template: qwen3_vl
+dataset: egocross
+dataset_dir: ./data/egocross
+template: qwen3_vl_nothink
 cutoff_len: 32768
+preprocessing_num_workers: 4
 
 ### Image/Video Processing
-image_max_pixels: 360000
-video_max_pixels: 360000
+image_max_pixels: 128000
+video_max_pixels: 128000
 image_min_pixels: 50176
 
 ### Training Hyperparameters
-per_device_train_batch_size: 2
-gradient_accumulation_steps: 4
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 8
 learning_rate: 2.0e-4
 num_train_epochs: 2
 lr_scheduler_type: cosine
