@@ -49,6 +49,7 @@ def load_test_items() -> list[dict]:
             "prompt": prompt,
             "domain": model_name,
             "ground_truth": None,
+            "fps": d.get("original_video_fps", 1.0),
         })
     return items
 
@@ -66,11 +67,12 @@ def load_eval_items() -> list[dict]:
             "prompt": prompt,
             "domain": d["domain"],
             "ground_truth": d["messages"][-1]["content"].strip().upper(),
+            "fps": 1.0,
         })
     return items
 
 
-def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 360000) -> dict:
+def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 360000, input_mode: str = "image") -> dict:
     model_path = str(MODEL_BASE / model_name)
     msg = f"\n=== Loading model: {model_name} ({len(items)} questions) ==="
     print(msg)
@@ -93,7 +95,12 @@ def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 
         raw = None
         for attempt in range(3):
             try:
-                content = [{"type": "image", "image": p} for p in image_paths]
+                if input_mode == "video":
+                    content = [
+                        {"type": "video", "video": image_paths, "fps": item.get("fps", 1.0)}]
+                else:
+                    content = [{"type": "image", "image": p}
+                               for p in image_paths]
                 content.append({"type": "text", "text": item["prompt"]})
                 messages = [{"role": "user", "content": content}]
 
@@ -101,14 +108,21 @@ def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 
                     messages, tokenize=False, add_generation_prompt=True,
                     enable_thinking=False,
                 )
-                image_inputs, _ = process_vision_info(messages)
+                image_inputs, video_inputs, video_kwargs = process_vision_info(
+                    messages, return_video_kwargs=True
+                )
+                # process_vision_info returns fps as a list; processor expects a scalar
+                if isinstance(video_kwargs.get("fps"), list):
+                    video_kwargs["fps"] = video_kwargs["fps"][0] if video_kwargs["fps"] else None
                 inputs = processor(
                     text=[text],
                     images=image_inputs,
+                    videos=video_inputs,
                     padding=True,
                     return_tensors="pt",
                     min_pixels=50176,
                     max_pixels=max_pixels,
+                    **video_kwargs,
                 ).to(model.device)
 
                 with torch.no_grad():
@@ -116,20 +130,23 @@ def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 
                         **inputs, max_new_tokens=4, do_sample=False, use_cache=False)
 
                 generated = output_ids[0][inputs.input_ids.shape[1]:]
-                raw = processor.decode(generated, skip_special_tokens=True).strip()
-                del inputs, image_inputs, output_ids, generated
+                raw = processor.decode(
+                    generated, skip_special_tokens=True).strip()
+                del inputs, image_inputs, video_inputs, output_ids, generated
                 break
             except torch.OutOfMemoryError:
                 torch.cuda.empty_cache()
                 image_paths = image_paths[::2] or image_paths[:1]  # フレームを半分に
-                pbar.write(f"  OOM id={item['id']}, retry with {len(image_paths)} frames")
+                pbar.write(
+                    f"  OOM id={item['id']}, retry with {len(image_paths)} frames")
 
         if raw is None:
             raw = ""
         answer = raw[0].upper() if raw else "A"
 
         gt = item["ground_truth"]
-        correct = " ✓" if gt and answer == gt else (f" ✗(gt={gt})" if gt else "")
+        correct = " ✓" if gt and answer == gt else (
+            f" ✗(gt={gt})" if gt else "")
         answers[item["id"]] = answer
 
         gc.collect()
@@ -178,11 +195,14 @@ def main():
                         help="test: 提出用予測 / eval: サポートセットで正解率確認")
     parser.add_argument("--max-pixels", type=int, default=128000,
                         help="1フレームあたりの最大ピクセル数 (default: 128000)")
+    parser.add_argument("--input-mode", choices=["image", "video"], default="image",
+                        help="image: フレームを個別画像として入力 / video: 動画として入力")
     args = parser.parse_args()
 
     OUTPUT_DIR.mkdir(exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    log_lines = [f"Run started: {timestamp}  mode={args.mode}  max_pixels={args.max_pixels}"]
+    log_lines = [
+        f"Run started: {timestamp}  mode={args.mode}  max_pixels={args.max_pixels}  input_mode={args.input_mode}"]
 
     if args.mode == "test":
         items = load_test_items()
@@ -198,7 +218,8 @@ def main():
 
     all_answers = {}
     for model_name, domain_items in by_model.items():
-        domain_answers = run_domain(model_name, domain_items, log_lines, args.max_pixels)
+        domain_answers = run_domain(
+            model_name, domain_items, log_lines, args.max_pixels, args.input_mode)
         all_answers.update(domain_answers)
 
     if args.mode == "test":
