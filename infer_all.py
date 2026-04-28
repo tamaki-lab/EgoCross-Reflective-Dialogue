@@ -36,7 +36,21 @@ DATASET_MODEL = {
 }
 
 
-def load_test_items() -> list[dict]:
+def load_test_items(fewshot: bool = False) -> list[dict]:
+    # train.json全件をtrain bankとして構築
+    train_bank: dict[str, list] = {}
+    if fewshot:
+        with open(SUPPORT_JSON) as f:
+            train_raw = json.load(f)
+        for d in train_raw:
+            user_text = re.sub(
+                r"<image>", "", d["messages"][0]["content"]).strip()
+            q_key = user_text.split("\nA.")[0].strip()
+            train_bank.setdefault(q_key, []).append({
+                "prompt": user_text,
+                "answer": d["messages"][-1]["content"].strip().upper(),
+            })
+
     with open(TEST_JSON) as f:
         raw = json.load(f)
     items = []
@@ -50,6 +64,7 @@ def load_test_items() -> list[dict]:
             f"{d['question_text']}\n{options}\n"
             "Answer with only a single letter: A, B, C, or D."
         )
+        q_key = d["question_text"].strip()
         items.append({
             "id": d["id"],
             "images": [str(IMAGE_BASE / p.lstrip("/")) for p in d["video_path"]],
@@ -57,6 +72,7 @@ def load_test_items() -> list[dict]:
             "domain": model_name,
             "ground_truth": None,
             "fps": d.get("original_video_fps", 1.0),
+            "fewshot_examples": train_bank.get(q_key, []),
         })
     return items
 
@@ -294,7 +310,7 @@ def main():
     parser.add_argument("--prompt-style", choices=["default", "clean", "domain"], default="default",
                         help="default: 末尾に指示あり / clean: 学習時と同じ形式 / domain: ドメイン別システムプロンプト付き")
     parser.add_argument("--fewshot", action="store_true",
-                        help="同じ問題文の学習例をテキストfew-shotとして使用（evalのみ・前半train/後半evalに自動分割）")
+                        help="同じ問題文の学習例をテキストfew-shotとして使用（eval: 前半train/後半eval分割, test: train.json全件をbank）")
     parser.add_argument("--single-model", default="",
                         help="全ドメインで同一モデルを使用 (例: --single-model egocross)")
     args = parser.parse_args()
@@ -305,7 +321,7 @@ def main():
         f"Run started: {timestamp}  mode={args.mode}  max_pixels={args.max_pixels}  input_mode={args.input_mode}  thinking={args.thinking}  baseline={args.baseline}  prompt_style={args.prompt_style}  fewshot={args.fewshot}  single_model={args.single_model!r}"]
 
     if args.mode == "test":
-        items = load_test_items()
+        items = load_test_items(fewshot=args.fewshot)
         with open(SUBMISSION_TEMPLATE) as f:
             submission = json.load(f)
         id_to_entry = {e["id"]: e for e in submission}
