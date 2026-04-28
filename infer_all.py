@@ -19,6 +19,13 @@ IMAGE_BASE = BASE / "EgoCross_test"
 MODEL_BASE = BASE / "models"
 OUTPUT_DIR = BASE / "outputs"
 
+DOMAIN_SYSTEM = {
+    "animal":   "You are an expert analyzing egocentric video frames featuring animals. Carefully observe the animal species and behaviors shown.",
+    "industry": "You are an expert analyzing egocentric video frames from industrial or factory settings. Carefully observe the tools, machinery, and work activities shown.",
+    "xsports":  "You are an expert analyzing egocentric video frames from extreme sports. Carefully observe the sport type, actions, and environment shown.",
+    "surgery":  "You are an expert analyzing egocentric video frames from surgical procedures. Carefully observe the instruments, tissues, and surgical actions shown.",
+}
+
 # test set: dataset name → model name
 DATASET_MODEL = {
     "CholecTrack20":   "surgery",
@@ -54,13 +61,54 @@ def load_test_items() -> list[dict]:
     return items
 
 
-def load_eval_items() -> list[dict]:
+def load_eval_items(prompt_style: str = "default", fewshot: bool = False) -> list[dict]:
     with open(SUPPORT_JSON) as f:
         raw = json.load(f)
+
+    if fewshot:
+        # 問題文でグループ化し、前半をtrain bank・後半をevalに分割
+        by_question = defaultdict(list)
+        for i, d in enumerate(raw):
+            user_text = re.sub(
+                r"<image>", "", d["messages"][0]["content"]).strip()
+            q_key = user_text.split("\nA.")[0].strip()
+            by_question[q_key].append((i, d, user_text))
+
+        train_bank: dict[str, list] = {}
+        eval_entries = []
+        for q_key, group in by_question.items():
+            mid = max(1, len(group) // 2)
+            for (i, d, user_text) in group[:mid]:
+                train_bank.setdefault(q_key, []).append({
+                    "prompt": user_text,
+                    "answer": d["messages"][-1]["content"].strip().upper(),
+                })
+            for (i, d, user_text) in group[mid:]:
+                eval_entries.append(
+                    (i, d, user_text, train_bank.get(q_key, [])))
+
+        items = []
+        for (i, d, user_text, examples) in eval_entries:
+            prompt = user_text if prompt_style != "default" else user_text + \
+                "\nAnswer with only a single letter: A, B, C, or D."
+            items.append({
+                "id": i,
+                "images": d["images"],
+                "prompt": prompt,
+                "domain": d["domain"],
+                "ground_truth": d["messages"][-1]["content"].strip().upper(),
+                "fps": 1.0,
+                "fewshot_examples": examples,
+            })
+        return items
+
     items = []
     for i, d in enumerate(raw):
         user_text = re.sub(r"<image>", "", d["messages"][0]["content"]).strip()
-        prompt = user_text + "\nAnswer with only a single letter: A, B, C, or D."
+        if prompt_style == "default":
+            prompt = user_text + "\nAnswer with only a single letter: A, B, C, or D."
+        else:
+            prompt = user_text
         items.append({
             "id": i,
             "images": d["images"],
@@ -68,13 +116,18 @@ def load_eval_items() -> list[dict]:
             "domain": d["domain"],
             "ground_truth": d["messages"][-1]["content"].strip().upper(),
             "fps": 1.0,
+            "fewshot_examples": [],
         })
     return items
 
 
-def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 360000, input_mode: str = "image", thinking: bool = False, baseline: bool = False) -> dict:
-    model_path = "Qwen/Qwen3-VL-4B-Instruct" if baseline else str(
-        MODEL_BASE / model_name)
+def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 360000, input_mode: str = "image", thinking: bool = False, baseline: bool = False, prompt_style: str = "default", single_model: str = "") -> dict:
+    if baseline:
+        model_path = "Qwen/Qwen3-VL-4B-Instruct"
+    elif single_model:
+        model_path = str(MODEL_BASE / single_model)
+    else:
+        model_path = str(MODEL_BASE / model_name)
     msg = f"\n=== Loading model: {model_path} ({len(items)} questions) ==="
     print(msg)
     log_lines.append(msg)
@@ -96,14 +149,26 @@ def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 
         raw = None
         for attempt in range(3):
             try:
+                # few-shot examples をテキストのみでプロンプト先頭に付加
+                fewshot_text = ""
+                for ex in item.get("fewshot_examples", []):
+                    fewshot_text += f"{ex['prompt']}\nAnswer: {ex['answer']}\n\n"
+
                 if input_mode == "video":
                     content = [
                         {"type": "video", "video": image_paths, "fps": item.get("fps", 1.0)}]
                 else:
                     content = [{"type": "image", "image": p}
                                for p in image_paths]
+                if fewshot_text:
+                    content.insert(0, {"type": "text", "text": fewshot_text})
                 content.append({"type": "text", "text": item["prompt"]})
-                messages = [{"role": "user", "content": content}]
+                if prompt_style == "domain":
+                    system_text = DOMAIN_SYSTEM.get(item["domain"], "")
+                    messages = [{"role": "system", "content": system_text}, {
+                        "role": "user", "content": content}]
+                else:
+                    messages = [{"role": "user", "content": content}]
 
                 text = processor.apply_chat_template(
                     messages, tokenize=False, add_generation_prompt=True,
@@ -141,9 +206,13 @@ def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 
                             for c in ["A", "B", "C", "D"]
                         ]
                         out = model(**inputs)
-                        raw = "ABCD"[
-                            out.logits[0, -1, choice_ids].argmax().item()]
-                        del out
+                        choice_logits = out.logits[0, -1, choice_ids]
+                        probs = torch.softmax(choice_logits, dim=0)
+                        best_idx = choice_logits.argmax().item()
+                        raw = "ABCD"[best_idx]
+                        item["_probs"] = {
+                            c: f"{probs[i].item():.1%}" for i, c in enumerate("ABCD")}
+                        del out, choice_logits, probs
                 del inputs, image_inputs, video_inputs
                 break
             except torch.OutOfMemoryError:
@@ -174,7 +243,9 @@ def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 
         alloc = torch.cuda.memory_allocated() / 1024**3
         reserved = torch.cuda.memory_reserved() / 1024**3
         elapsed = time.time() - t0
-        line = f"id={item['id']} raw='{raw}' → {answer}{correct} ({elapsed:.1f}s) VRAM alloc={alloc:.1f}GB reserved={reserved:.1f}GB"
+        probs_str = " probs=" + \
+            str(item.get("_probs", {})) if "_probs" in item else ""
+        line = f"id={item['id']} raw='{raw}' → {answer}{correct}{probs_str} ({elapsed:.1f}s) VRAM alloc={alloc:.1f}GB reserved={reserved:.1f}GB"
         pbar.write(line)
         log_lines.append(line)
 
@@ -220,12 +291,18 @@ def main():
                         help="thinkingモードを有効化")
     parser.add_argument("--baseline", action="store_true",
                         help="fine-tunedモデルではなくベースモデル(Qwen3-VL-4B-Instruct)を使用")
+    parser.add_argument("--prompt-style", choices=["default", "clean", "domain"], default="default",
+                        help="default: 末尾に指示あり / clean: 学習時と同じ形式 / domain: ドメイン別システムプロンプト付き")
+    parser.add_argument("--fewshot", action="store_true",
+                        help="同じ問題文の学習例をテキストfew-shotとして使用（evalのみ・前半train/後半evalに自動分割）")
+    parser.add_argument("--single-model", default="",
+                        help="全ドメインで同一モデルを使用 (例: --single-model egocross)")
     args = parser.parse_args()
 
     OUTPUT_DIR.mkdir(exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     log_lines = [
-        f"Run started: {timestamp}  mode={args.mode}  max_pixels={args.max_pixels}  input_mode={args.input_mode}  thinking={args.thinking}  baseline={args.baseline}"]
+        f"Run started: {timestamp}  mode={args.mode}  max_pixels={args.max_pixels}  input_mode={args.input_mode}  thinking={args.thinking}  baseline={args.baseline}  prompt_style={args.prompt_style}  fewshot={args.fewshot}  single_model={args.single_model!r}"]
 
     if args.mode == "test":
         items = load_test_items()
@@ -233,7 +310,7 @@ def main():
             submission = json.load(f)
         id_to_entry = {e["id"]: e for e in submission}
     else:
-        items = load_eval_items()
+        items = load_eval_items(args.prompt_style, fewshot=args.fewshot)
 
     by_model = defaultdict(list)
     for item in items:
@@ -243,7 +320,8 @@ def main():
     for model_name, domain_items in by_model.items():
         domain_answers = run_domain(
             model_name, domain_items, log_lines, args.max_pixels, args.input_mode,
-            thinking=args.thinking, baseline=args.baseline)
+            thinking=args.thinking, baseline=args.baseline, prompt_style=args.prompt_style,
+            single_model=args.single_model)
         all_answers.update(domain_answers)
 
     if args.mode == "test":
