@@ -188,3 +188,5 @@ data
 models
 EgoCross_test
 EgoCross_support
+
+.env
