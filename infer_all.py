@@ -19,11 +19,13 @@ IMAGE_BASE = BASE / "EgoCross_test"
 MODEL_BASE = BASE / "models"
 OUTPUT_DIR = BASE / "outputs"
 
+_DOMAIN_FORMAT = " You must always commit to exactly one of the given options (A, B, C, or D) and end your response with a single line in the format: 'Final Answer: X' (X is one of A, B, C, or D). Do not refuse, do not say 'none of the above', and do not output multiple letters."
+
 DOMAIN_SYSTEM = {
-    "animal":   "You are an expert analyzing egocentric video frames featuring animals. Carefully observe the animal species and behaviors shown.",
-    "industry": "You are an expert analyzing egocentric video frames from industrial or factory settings. Carefully observe the tools, machinery, and work activities shown.",
-    "xsports":  "You are an expert analyzing egocentric video frames from extreme sports. Carefully observe the sport type, actions, and environment shown.",
-    "surgery":  "You are an expert analyzing egocentric video frames from surgical procedures. Carefully observe the instruments, tissues, and surgical actions shown.",
+    "animal":   "You are an expert analyzing egocentric video frames featuring animals. Carefully observe the animal species and behaviors shown." + _DOMAIN_FORMAT,
+    "industry": "You are an expert analyzing egocentric video frames from industrial or factory settings. Carefully observe the tools, machinery, and work activities shown." + _DOMAIN_FORMAT,
+    "xsports":  "You are an expert analyzing egocentric video frames from extreme sports. Carefully observe the sport type, actions, and environment shown." + _DOMAIN_FORMAT,
+    "surgery":  "You are an expert analyzing egocentric video frames from surgical procedures. Carefully observe the instruments, tissues, and surgical actions shown." + _DOMAIN_FORMAT,
 }
 
 # test set: dataset name → model name
@@ -105,8 +107,12 @@ def load_eval_items(prompt_style: str = "default", fewshot: bool = False) -> lis
 
         items = []
         for (i, d, user_text, examples) in eval_entries:
-            prompt = user_text if prompt_style != "default" else user_text + \
-                "\nAnswer with only a single letter: A, B, C, or D."
+            if prompt_style == "default":
+                prompt = user_text + "\nAnswer with only a single letter: A, B, C, or D."
+            elif prompt_style == "domain":
+                prompt = user_text + "\nYou MUST pick exactly one option. End your response with a single line: 'Final Answer: X' where X is one of A, B, C, or D."
+            else:
+                prompt = user_text
             items.append({
                 "id": i,
                 "images": d["images"],
@@ -123,6 +129,8 @@ def load_eval_items(prompt_style: str = "default", fewshot: bool = False) -> lis
         user_text = re.sub(r"<image>", "", d["messages"][0]["content"]).strip()
         if prompt_style == "default":
             prompt = user_text + "\nAnswer with only a single letter: A, B, C, or D."
+        elif prompt_style == "domain":
+            prompt = user_text + "\nYou MUST pick exactly one option. End your response with a single line: 'Final Answer: X' where X is one of A, B, C, or D."
         else:
             prompt = user_text
         items.append({
@@ -154,10 +162,12 @@ def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 
     model = AutoModelForImageTextToText.from_pretrained(
         model_path,
         dtype=torch.bfloat16,
-        device_map={"": 0},  # force single GPU; multi-GPU split causes NaN on Turing
+        # force single GPU; multi-GPU split causes NaN on Turing
+        device_map={"": 0},
     )
     model.eval()
-    print(f"Model: {model.__class__.__name__}, device_map: {getattr(model, 'hf_device_map', None)}")
+    print(
+        f"Model: {model.__class__.__name__}, device_map: {getattr(model, 'hf_device_map', None)}")
 
     answers = {}
     pbar = tqdm(items, desc=model_name, unit="q")
@@ -231,15 +241,19 @@ def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 
                         last_logits = out.logits[0, -1, :]
                         choice_logits = last_logits[choice_ids]
                         # logitが NaN または ABCD間の差が小さすぎる場合は generate にフォールバック
-                        cl_diff = (choice_logits.max() - choice_logits.min()).abs().item()
-                        cl_has_nan = bool(torch.isnan(choice_logits).any().item())
-                        cl_vals = ", ".join(f"{c}={v.item():.3f}" for c, v in zip("ABCD", choice_logits))
+                        cl_diff = (choice_logits.max() -
+                                   choice_logits.min()).abs().item()
+                        cl_has_nan = bool(torch.isnan(
+                            choice_logits).any().item())
+                        cl_vals = ", ".join(
+                            f"{c}={v.item():.3f}" for c, v in zip("ABCD", choice_logits))
                         if cl_has_nan or cl_diff < 0.3:
                             top_v, top_i = torch.topk(last_logits, 5)
                             top_str = ", ".join(
                                 f"{processor.tokenizer.decode([i.item()])!r}={v.item():.2f}"
                                 for v, i in zip(top_v, top_i))
-                            pbar.write(f"  weak/nan logits ({cl_vals}, diff={cl_diff:.3f}, nan={cl_has_nan}), top5: {top_str}, falling back to generate")
+                            pbar.write(
+                                f"  weak/nan logits ({cl_vals}, diff={cl_diff:.3f}, nan={cl_has_nan}), top5: {top_str}, falling back to generate")
                             del out, last_logits, choice_logits
                             output_ids = model.generate(
                                 **inputs, max_new_tokens=8, do_sample=False, use_cache=True)
@@ -271,9 +285,21 @@ def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 
         if thinking:
             answer_text = re.sub(r"<think>.*?</think>", "",
                                  raw, flags=re.DOTALL).strip()
-            m = re.search(r"\b([A-D])\b", answer_text)
-            answer = m.group(1) if m else (
-                answer_text[0].upper() if answer_text else "A")
+            answer = None
+            for pat in (
+                r"Final\s*Answer\s*[:：]\s*\**\s*\(?\s*([A-D])",
+                r"answer\s+is\s*[:：]?\s*\**\s*\(?\s*([A-D])",
+                r"correct\s+(?:option|choice)\s+is\s*[:：]?\s*\**\s*\(?\s*([A-D])",
+            ):
+                m = re.search(pat, answer_text, re.IGNORECASE)
+                if m:
+                    answer = m.group(1).upper()
+                    break
+            if answer is None:
+                # 結論は末尾に来やすいので最後のA-Dを採用
+                matches = re.findall(r"\b([A-D])\b", answer_text)
+                answer = matches[-1] if matches else (
+                    answer_text[0].upper() if answer_text and answer_text[0].upper() in "ABCD" else "A")
         else:
             answer = raw  # logit比較で既にA/B/C/Dが確定している
 
