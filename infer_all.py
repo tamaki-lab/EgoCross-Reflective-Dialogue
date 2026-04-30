@@ -8,7 +8,7 @@ from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
 from tqdm import tqdm
-from transformers import Qwen3VLForConditionalGeneration, Qwen3VLProcessor
+from transformers import AutoModelForImageTextToText, AutoProcessor
 from qwen_vl_utils import process_vision_info
 
 BASE = Path(__file__).parent
@@ -137,8 +137,10 @@ def load_eval_items(prompt_style: str = "default", fewshot: bool = False) -> lis
     return items
 
 
-def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 360000, input_mode: str = "image", thinking: bool = False, baseline: bool = False, prompt_style: str = "default", single_model: str = "") -> dict:
-    if baseline:
+def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 360000, input_mode: str = "image", thinking: bool = False, baseline: bool = False, prompt_style: str = "default", single_model: str = "", model_id: str = "") -> dict:
+    if model_id:
+        model_path = model_id
+    elif baseline:
         model_path = "Qwen/Qwen3-VL-4B-Instruct"
     elif single_model:
         model_path = str(MODEL_BASE / single_model)
@@ -148,13 +150,14 @@ def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 
     print(msg)
     log_lines.append(msg)
 
-    processor = Qwen3VLProcessor.from_pretrained(model_path)
-    model = Qwen3VLForConditionalGeneration.from_pretrained(
+    processor = AutoProcessor.from_pretrained(model_path)
+    model = AutoModelForImageTextToText.from_pretrained(
         model_path,
-        torch_dtype=torch.bfloat16,
-        device_map="auto",
+        dtype=torch.bfloat16,
+        device_map={"": 0},  # force single GPU; multi-GPU split causes NaN on Turing
     )
     model.eval()
+    print(f"Model: {model.__class__.__name__}, device_map: {getattr(model, 'hf_device_map', None)}")
 
     answers = {}
     pbar = tqdm(items, desc=model_name, unit="q")
@@ -171,11 +174,16 @@ def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 
                     fewshot_text += f"{ex['prompt']}\nAnswer: {ex['answer']}\n\n"
 
                 if input_mode == "video":
-                    content = [
-                        {"type": "video", "video": image_paths, "fps": item.get("fps", 1.0)}]
+                    content = [{
+                        "type": "video", "video": image_paths,
+                        "fps": item.get("fps", 1.0),
+                        "min_pixels": 50176, "max_pixels": max_pixels,
+                    }]
                 else:
-                    content = [{"type": "image", "image": p}
-                               for p in image_paths]
+                    content = [{
+                        "type": "image", "image": p,
+                        "min_pixels": 50176, "max_pixels": max_pixels,
+                    } for p in image_paths]
                 if fewshot_text:
                     content.insert(0, {"type": "text", "text": fewshot_text})
                 content.append({"type": "text", "text": item["prompt"]})
@@ -202,15 +210,13 @@ def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 
                     videos=video_inputs,
                     padding=True,
                     return_tensors="pt",
-                    min_pixels=50176,
-                    max_pixels=max_pixels,
                     **video_kwargs,
                 ).to(model.device)
 
                 with torch.no_grad():
                     if thinking:
                         output_ids = model.generate(
-                            **inputs, max_new_tokens=2048, do_sample=False, use_cache=False)
+                            **inputs, max_new_tokens=2048, do_sample=False, use_cache=True)
                         generated = output_ids[0][inputs.input_ids.shape[1]:]
                         raw = processor.decode(
                             generated, skip_special_tokens=True).strip()
@@ -222,13 +228,36 @@ def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 
                             for c in ["A", "B", "C", "D"]
                         ]
                         out = model(**inputs)
-                        choice_logits = out.logits[0, -1, choice_ids]
-                        probs = torch.softmax(choice_logits, dim=0)
-                        best_idx = choice_logits.argmax().item()
-                        raw = "ABCD"[best_idx]
-                        item["_probs"] = {
-                            c: f"{probs[i].item():.1%}" for i, c in enumerate("ABCD")}
-                        del out, choice_logits, probs
+                        last_logits = out.logits[0, -1, :]
+                        choice_logits = last_logits[choice_ids]
+                        # logitが NaN または ABCD間の差が小さすぎる場合は generate にフォールバック
+                        cl_diff = (choice_logits.max() - choice_logits.min()).abs().item()
+                        cl_has_nan = bool(torch.isnan(choice_logits).any().item())
+                        cl_vals = ", ".join(f"{c}={v.item():.3f}" for c, v in zip("ABCD", choice_logits))
+                        if cl_has_nan or cl_diff < 0.3:
+                            top_v, top_i = torch.topk(last_logits, 5)
+                            top_str = ", ".join(
+                                f"{processor.tokenizer.decode([i.item()])!r}={v.item():.2f}"
+                                for v, i in zip(top_v, top_i))
+                            pbar.write(f"  weak/nan logits ({cl_vals}, diff={cl_diff:.3f}, nan={cl_has_nan}), top5: {top_str}, falling back to generate")
+                            del out, last_logits, choice_logits
+                            output_ids = model.generate(
+                                **inputs, max_new_tokens=8, do_sample=False, use_cache=True)
+                            generated = output_ids[0][inputs.input_ids.shape[1]:]
+                            gen_text = processor.decode(
+                                generated, skip_special_tokens=True).strip()
+                            m = re.search(r"\b([A-D])\b", gen_text)
+                            raw = m.group(1) if m else (
+                                gen_text[0].upper() if gen_text and gen_text[0].upper() in "ABCD" else "A")
+                            item["_probs"] = {"gen": gen_text[:30]}
+                            del output_ids, generated
+                        else:
+                            probs = torch.softmax(choice_logits, dim=0)
+                            best_idx = choice_logits.argmax().item()
+                            raw = "ABCD"[best_idx]
+                            item["_probs"] = {
+                                c: f"{probs[i].item():.1%}" for i, c in enumerate("ABCD")}
+                            del out, last_logits, choice_logits, probs
                 del inputs, image_inputs, video_inputs
                 break
             except torch.OutOfMemoryError:
@@ -313,12 +342,14 @@ def main():
                         help="同じ問題文の学習例をテキストfew-shotとして使用（eval: 前半train/後半eval分割, test: train.json全件をbank）")
     parser.add_argument("--single-model", default="",
                         help="全ドメインで同一モデルを使用 (例: --single-model egocross)")
+    parser.add_argument("--model-id", default="",
+                        help="HuggingFace HubのモデルIDを直接指定 (例: --model-id Qwen/Qwen3.6-27B)。指定時は --baseline / --single-model より優先")
     args = parser.parse_args()
 
     OUTPUT_DIR.mkdir(exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     log_lines = [
-        f"Run started: {timestamp}  mode={args.mode}  max_pixels={args.max_pixels}  input_mode={args.input_mode}  thinking={args.thinking}  baseline={args.baseline}  prompt_style={args.prompt_style}  fewshot={args.fewshot}  single_model={args.single_model!r}"]
+        f"Run started: {timestamp}  mode={args.mode}  max_pixels={args.max_pixels}  input_mode={args.input_mode}  thinking={args.thinking}  baseline={args.baseline}  prompt_style={args.prompt_style}  fewshot={args.fewshot}  single_model={args.single_model!r}  model_id={args.model_id!r}"]
 
     if args.mode == "test":
         items = load_test_items(fewshot=args.fewshot)
@@ -337,7 +368,7 @@ def main():
         domain_answers = run_domain(
             model_name, domain_items, log_lines, args.max_pixels, args.input_mode,
             thinking=args.thinking, baseline=args.baseline, prompt_style=args.prompt_style,
-            single_model=args.single_model)
+            single_model=args.single_model, model_id=args.model_id)
         all_answers.update(domain_answers)
 
     if args.mode == "test":
