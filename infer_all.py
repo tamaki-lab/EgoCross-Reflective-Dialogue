@@ -224,54 +224,13 @@ def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 
                 ).to(model.device)
 
                 with torch.no_grad():
-                    if thinking:
-                        output_ids = model.generate(
-                            **inputs, max_new_tokens=2048, do_sample=False, use_cache=True)
-                        generated = output_ids[0][inputs.input_ids.shape[1]:]
-                        raw = processor.decode(
-                            generated, skip_special_tokens=True).strip()
-                        del output_ids, generated
-                    else:
-                        choice_ids = [
-                            processor.tokenizer.encode(
-                                c, add_special_tokens=False)[0]
-                            for c in ["A", "B", "C", "D"]
-                        ]
-                        out = model(**inputs)
-                        last_logits = out.logits[0, -1, :]
-                        choice_logits = last_logits[choice_ids]
-                        # logitが NaN または ABCD間の差が小さすぎる場合は generate にフォールバック
-                        cl_diff = (choice_logits.max() -
-                                   choice_logits.min()).abs().item()
-                        cl_has_nan = bool(torch.isnan(
-                            choice_logits).any().item())
-                        cl_vals = ", ".join(
-                            f"{c}={v.item():.3f}" for c, v in zip("ABCD", choice_logits))
-                        if cl_has_nan or cl_diff < 0.3:
-                            top_v, top_i = torch.topk(last_logits, 5)
-                            top_str = ", ".join(
-                                f"{processor.tokenizer.decode([i.item()])!r}={v.item():.2f}"
-                                for v, i in zip(top_v, top_i))
-                            pbar.write(
-                                f"  weak/nan logits ({cl_vals}, diff={cl_diff:.3f}, nan={cl_has_nan}), top5: {top_str}, falling back to generate")
-                            del out, last_logits, choice_logits
-                            output_ids = model.generate(
-                                **inputs, max_new_tokens=8, do_sample=False, use_cache=True)
-                            generated = output_ids[0][inputs.input_ids.shape[1]:]
-                            gen_text = processor.decode(
-                                generated, skip_special_tokens=True).strip()
-                            m = re.search(r"\b([A-D])\b", gen_text)
-                            raw = m.group(1) if m else (
-                                gen_text[0].upper() if gen_text and gen_text[0].upper() in "ABCD" else "A")
-                            item["_probs"] = {"gen": gen_text[:30]}
-                            del output_ids, generated
-                        else:
-                            probs = torch.softmax(choice_logits, dim=0)
-                            best_idx = choice_logits.argmax().item()
-                            raw = "ABCD"[best_idx]
-                            item["_probs"] = {
-                                c: f"{probs[i].item():.1%}" for i, c in enumerate("ABCD")}
-                            del out, last_logits, choice_logits, probs
+                    max_new = 2048 if thinking else 32
+                    output_ids = model.generate(
+                        **inputs, max_new_tokens=max_new, do_sample=False, use_cache=True)
+                    generated = output_ids[0][inputs.input_ids.shape[1]:]
+                    raw = processor.decode(
+                        generated, skip_special_tokens=True).strip()
+                    del output_ids, generated
                 del inputs, image_inputs, video_inputs
                 break
             except torch.OutOfMemoryError:
@@ -282,26 +241,22 @@ def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 
 
         if raw is None:
             raw = ""
-        if thinking:
-            answer_text = re.sub(r"<think>.*?</think>", "",
-                                 raw, flags=re.DOTALL).strip()
-            answer = None
-            for pat in (
-                r"Final\s*Answer\s*[:：]\s*\**\s*\(?\s*([A-D])",
-                r"answer\s+is\s*[:：]?\s*\**\s*\(?\s*([A-D])",
-                r"correct\s+(?:option|choice)\s+is\s*[:：]?\s*\**\s*\(?\s*([A-D])",
-            ):
-                m = re.search(pat, answer_text, re.IGNORECASE)
-                if m:
-                    answer = m.group(1).upper()
-                    break
-            if answer is None:
-                # 結論は末尾に来やすいので最後のA-Dを採用
-                matches = re.findall(r"\b([A-D])\b", answer_text)
-                answer = matches[-1] if matches else (
-                    answer_text[0].upper() if answer_text and answer_text[0].upper() in "ABCD" else "A")
-        else:
-            answer = raw  # logit比較で既にA/B/C/Dが確定している
+        answer_text = re.sub(
+            r"<think>.*?</think>", "", raw, flags=re.DOTALL).strip()
+        answer = None
+        for pat in (
+            r"Final\s*Answer\s*[:：]\s*\**\s*\(?\s*([A-D])",
+            r"answer\s+is\s*[:：]?\s*\**\s*\(?\s*([A-D])",
+            r"correct\s+(?:option|choice)\s+is\s*[:：]?\s*\**\s*\(?\s*([A-D])",
+        ):
+            m = re.search(pat, answer_text, re.IGNORECASE)
+            if m:
+                answer = m.group(1).upper()
+                break
+        if answer is None:
+            matches = re.findall(r"\b([A-D])\b", answer_text)
+            answer = matches[-1] if matches else (
+                answer_text[0].upper() if answer_text and answer_text[0].upper() in "ABCD" else "A")
 
         gt = item["ground_truth"]
         correct = " ✓" if gt and answer == gt else (
