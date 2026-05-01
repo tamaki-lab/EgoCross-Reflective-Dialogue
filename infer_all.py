@@ -254,6 +254,37 @@ def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 
                 answer = m.group(1).upper()
                 break
         if answer is None:
+            # No Final Answer pattern — follow-up text-only query to get a committed letter
+            try:
+                followup_messages = [
+                    {"role": "user", "content": [
+                        {"type": "text", "text": item["prompt"]}]},
+                    {"role": "assistant", "content": answer_text[:500]},
+                    {"role": "user", "content": [
+                        {"type": "text", "text": "Answer with only a single letter: A, B, C, or D."}]},
+                ]
+                fu_text = processor.apply_chat_template(
+                    followup_messages, tokenize=False, add_generation_prompt=True,
+                    enable_thinking=False,
+                )
+                fu_inputs = processor(
+                    text=[fu_text], padding=True, return_tensors="pt",
+                ).to(model.device)
+                with torch.no_grad():
+                    fu_ids = model.generate(
+                        **fu_inputs, max_new_tokens=10, do_sample=False)
+                    fu_gen = fu_ids[0][fu_inputs.input_ids.shape[1]:]
+                    fu_raw = processor.decode(
+                        fu_gen, skip_special_tokens=True).strip()
+                del fu_ids, fu_gen, fu_inputs
+                pbar.write(f"  follow-up id={item['id']} raw='{fu_raw}'")
+                log_lines.append(f"  follow-up id={item['id']} raw='{fu_raw}'")
+                m = re.search(r"\b([A-D])\b", fu_raw, re.IGNORECASE)
+                if m:
+                    answer = m.group(1).upper()
+            except Exception as e:
+                pbar.write(f"  follow-up failed id={item['id']}: {e}")
+        if answer is None:
             matches = re.findall(r"\b([A-D])\b", answer_text)
             answer = matches[-1] if matches else (
                 answer_text[0].upper() if answer_text and answer_text[0].upper() in "ABCD" else "A")
