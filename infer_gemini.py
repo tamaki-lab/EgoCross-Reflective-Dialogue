@@ -238,6 +238,7 @@ def run_domain(
     thinking_budget: int,
     rate_limit_sleep: float,
     input_mode: str = "image",
+    use_vertex: bool = False,
 ) -> dict:
     msg = f"\n=== Domain: {domain} ({len(items)} questions) ==="
     print(msg)
@@ -269,9 +270,13 @@ def run_domain(
                 file_name = None
                 if input_mode == "video" and len(item["images"]) > 1:
                     video_path = frames_to_video(item["images"])
-                    file_name, file_uri = upload_video(client, video_path)
-                    parts.append(types.Part.from_uri(
-                        file_uri=file_uri, mime_type="video/mp4"))
+                    if use_vertex:
+                        parts.append(types.Part.from_bytes(
+                            data=Path(video_path).read_bytes(), mime_type="video/mp4"))
+                    else:
+                        file_name, file_uri = upload_video(client, video_path)
+                        parts.append(types.Part.from_uri(
+                            file_uri=file_uri, mime_type="video/mp4"))
                 else:
                     for img_path in item["images"]:
                         parts.append(load_image_part(img_path))
@@ -480,6 +485,7 @@ def main():
             thinking_budget=args.thinking_budget,
             rate_limit_sleep=args.rate_limit_sleep,
             input_mode=args.input_mode,
+            use_vertex=args.use_vertex,
         )
         all_answers.update(domain_answers)
         grand_in += in_tok
