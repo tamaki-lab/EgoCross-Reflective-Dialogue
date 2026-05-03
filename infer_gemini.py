@@ -23,12 +23,30 @@ _DOMAIN_FORMAT = (
     " Output only: 'Final Answer: X' where X is A, B, C, or D. No explanation."
 )
 
-DOMAIN_SYSTEM = {
-    "animal":   "You are an expert analyzing egocentric video frames featuring animals. Carefully observe the animal species and behaviors shown." + _DOMAIN_FORMAT,
-    "industry": "You are an expert analyzing egocentric video frames from industrial or factory settings. Carefully observe the tools, machinery, and work activities shown." + _DOMAIN_FORMAT,
-    "xsports":  "You are an expert analyzing egocentric video frames from extreme sports. Carefully observe the sport type, actions, and environment shown." + _DOMAIN_FORMAT,
-    "surgery":  "You are an expert analyzing egocentric video frames from surgical procedures. Carefully observe the instruments, tissues, and surgical actions shown." + _DOMAIN_FORMAT,
+_DOMAIN_BASE = {
+    "animal":   "You are an expert analyzing egocentric video frames featuring animals. Carefully observe the animal species and behaviors shown.",
+    "industry": "You are an expert analyzing egocentric video frames from industrial or factory settings. Carefully observe the tools, machinery, and work activities shown.",
+    "xsports":  "You are an expert analyzing egocentric video frames from extreme sports. Carefully observe the sport type, actions, and environment shown.",
+    "surgery":  "You are an expert analyzing egocentric video frames from surgical procedures. Carefully observe the instruments, tissues, and surgical actions shown.",
 }
+
+DOMAIN_SYSTEM = {k: v + _DOMAIN_FORMAT for k, v in _DOMAIN_BASE.items()}
+
+
+def build_warmup_system(domain: str, question_type: str) -> str:
+    base = _DOMAIN_BASE.get(
+        domain, f"You are an expert analyzing egocentric video frames from the '{domain}' domain.")
+    return (
+        f"{base}\n\n"
+        f"The conversation begins with warm-up practice questions of type '{question_type}'. "
+        "Each warm-up question is followed by correct/incorrect feedback and, if the answer was wrong, "
+        "a reflection on the mistake. "
+        "Learn from these reflections to improve your performance on similar questions.\n\n"
+        "After the warm-up you will see 'Warm-up complete. Now answer the following question:' — "
+        "that is the actual question you must answer."
+        + _DOMAIN_FORMAT
+    )
+
 
 DATASET_MODEL = {
     "CholecTrack20":   "surgery",
@@ -345,8 +363,13 @@ def run_domain(
                 # Question
                 parts.append(types.Part.from_text(text=item["prompt"]))
 
-                system_instruction = DOMAIN_SYSTEM.get(
-                    item["domain"]) if prompt_style == "domain" else None
+                if warmup_contents and item.get("question_type"):
+                    system_instruction = build_warmup_system(
+                        item["domain"], item["question_type"])
+                elif prompt_style == "domain":
+                    system_instruction = DOMAIN_SYSTEM.get(item["domain"])
+                else:
+                    system_instruction = None
 
                 effective_budget = thinking_budget
                 if effective_budget == 0 and requires_thinking(gemini_model):
