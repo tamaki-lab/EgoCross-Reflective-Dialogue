@@ -296,7 +296,7 @@ def run_domain(
         answer = "A"
         usage = None
 
-        for attempt in range(3):
+        for attempt in range(8):
             try:
                 parts: list[types.Part] = []
 
@@ -349,8 +349,10 @@ def run_domain(
                     warmup_key = f"{item['domain']}::{item.get('question_type', '')}"
                     prefix = list(warmup_contents.get(warmup_key, []))
                     if not prefix and attempt == 0:
-                        pbar.write(f"  WARNING: no warmup found for key='{warmup_key}'")
-                    contents = prefix + [types.Content(role="user", parts=parts)]
+                        pbar.write(
+                            f"  WARNING: no warmup found for key='{warmup_key}'")
+                    contents = prefix + \
+                        [types.Content(role="user", parts=parts)]
                 else:
                     contents = [types.Content(role="user", parts=parts)]
 
@@ -366,7 +368,9 @@ def run_domain(
                 break
 
             except Exception as e:
-                wait = 2 ** attempt
+                is_rate_limit = "429" in str(
+                    e) or "RESOURCE_EXHAUSTED" in str(e)
+                wait = min(2 ** attempt * (30 if is_rate_limit else 1), 300)
                 pbar.write(
                     f"  Error id={item['id']} attempt={attempt}: {e}  (retry in {wait}s)")
                 time.sleep(wait)
