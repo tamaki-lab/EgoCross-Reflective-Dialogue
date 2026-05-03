@@ -162,6 +162,7 @@ def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 
     model = AutoModelForImageTextToText.from_pretrained(
         model_path,
         dtype=torch.bfloat16,
+        attn_implementation="sdpa",
         # force single GPU; multi-GPU split causes NaN on Turing
         device_map={"": 0},
     )

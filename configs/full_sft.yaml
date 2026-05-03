@@ -6,6 +6,7 @@ trust_remote_code: true
 stage: sft
 do_train: true
 finetuning_type: full
+flash_attn: sdpa
 
 ### Dataset
 dataset: egocross_train
