@@ -419,12 +419,12 @@ def main():
 
     # Client setup
     if args.use_vertex:
-        project = args.project or os.environ.get("GOOGLE_CLOUD_PROJECT", "")
-        if not project:
-            raise ValueError("--project または GOOGLE_CLOUD_PROJECT 環境変数が必要です")
+        vertex_api_key = os.environ.get("VERTEX_AI_API_KEY", "")
+        if not vertex_api_key:
+            raise ValueError("VERTEX_AI_API_KEY 環境変数が必要です")
         client = genai.Client(
-            vertexai=True, project=project, location=args.location)
-        print(f"Using Vertex AI: project={project}, location={args.location}")
+            vertexai=True, api_key=vertex_api_key)
+        print("Using Vertex AI (API key)")
     else:
         api_key = os.environ.get("GEMINI_API_KEY", "")
         if not api_key:
