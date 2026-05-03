@@ -17,28 +17,42 @@ BASE = Path(__file__).parent
 TRAIN_JSON = BASE / "data/egocross/train.json"
 OUTPUT_PATH = BASE / "outputs/support_question_types.json"
 
-QUESTION_TYPES = [
-    "action sequence identification",
-    "action temporal localization",
-    "animal identification",
-    "dominant held-object identification",
-    "interaction identification",
-    "interaction temporal localization",
-    "next action prediction",
-    "next direction prediction",
-    "next interaction prediction",
-    "next phase prediction",
-    "object counting",
-    "object not visible identification",
-    "object spatial localization",
-    "special action identification",
-    "sport identification",
-]
+DOMAIN_VALID_TYPES: dict[str, list[str]] = {
+    "animal": [
+        "animal identification",
+        "interaction identification",
+        "interaction temporal localization",
+    ],
+    "industry": [
+        "action temporal localization",
+        "dominant held-object identification",
+        "next interaction prediction",
+        "object counting",
+        "object not visible identification",
+        "object spatial localization",
+    ],
+    "surgery": [
+        "action temporal localization",
+        "dominant held-object identification",
+        "next action prediction",
+        "next phase prediction",
+        "object counting",
+        "object not visible identification",
+        "object spatial localization",
+    ],
+    "xsports": [
+        "action sequence identification",
+        "action temporal localization",
+        "next direction prediction",
+        "special action identification",
+        "sport identification",
+    ],
+}
 
 CLASSIFY_PROMPT = """\
 You are classifying questions from an egocentric video QA benchmark.
 
-Classify the following question into exactly one of these question types:
+Classify the following question (including its answer options) into exactly one of these question types:
 {types_list}
 
 Question: "{question}"
@@ -47,26 +61,27 @@ Reply with only the question type string, nothing else."""
 
 
 def extract_question_text(content: str) -> str:
-    return re.sub(r"<image>", "", content).strip().split("\nA.")[0].strip()
+    """<image> タグを除去して質問文＋選択肢を返す。"""
+    return re.sub(r"<image>", "", content).strip()
 
 
-def match_question_type(raw: str) -> str:
+def match_question_type(raw: str, valid_types: list[str]) -> str:
     """完全一致 → 前方部分一致 の順でマッチ。"""
     raw = raw.strip().lower()
-    # 完全一致 or 回答内に含まれる
-    for qt in QUESTION_TYPES:
+    for qt in valid_types:
         if qt in raw:
             return qt
-    # 前方部分一致（モデルが途中で切れた場合のフォールバック）
-    for qt in QUESTION_TYPES:
+    for qt in valid_types:
         if qt.startswith(raw) and len(raw) >= 4:
             return qt
     return raw
 
 
-def classify_question(client, question: str, model: str) -> str:
+def classify_question(client, question: str, domain: str, model: str) -> str:
+    valid_types = DOMAIN_VALID_TYPES.get(
+        domain, list(DOMAIN_VALID_TYPES.keys()))
     prompt = CLASSIFY_PROMPT.format(
-        types_list="\n".join(f"- {t}" for t in QUESTION_TYPES),
+        types_list="\n".join(f"- {t}" for t in valid_types),
         question=question,
     )
     for attempt in range(3):
@@ -75,13 +90,13 @@ def classify_question(client, question: str, model: str) -> str:
                 model=model,
                 contents=prompt,
                 config=types.GenerateContentConfig(
-                    temperature=1.0,       # gemini-3.x はthinking必須のため0.0不可
-                    max_output_tokens=512,  # thinkingトークン消費後に回答が切れないよう余裕を持たせる
+                    temperature=1.0,
+                    max_output_tokens=512,
                     thinking_config=types.ThinkingConfig(thinking_budget=-1),
                 ),
             )
             raw = response.text.strip().lower() if response.text else ""
-            return match_question_type(raw)
+            return match_question_type(raw, valid_types)
         except Exception as e:
             wait = 2 ** attempt
             print(f"  Error attempt={attempt}: {e}  (retry in {wait}s)")
@@ -113,7 +128,8 @@ def main():
     pbar = tqdm(train_data, desc="classifying")
     for i, item in enumerate(pbar):
         question = extract_question_text(item["messages"][0]["content"])
-        predicted_type = classify_question(client, question, model)
+        predicted_type = classify_question(
+            client, question, item["domain"], model)
         results.append({
             "index": i,
             "domain": item["domain"],
@@ -140,7 +156,8 @@ def main():
         for qt, n in Counter(types_list).most_common():
             print(f"  {qt:45s} {n}")
 
-    unknown = [r for r in results if r["predicted_type"] not in QUESTION_TYPES]
+    all_valid = {t for ts in DOMAIN_VALID_TYPES.values() for t in ts}
+    unknown = [r for r in results if r["predicted_type"] not in all_valid]
     if unknown:
         print(f"\n⚠ 想定外の分類: {len(unknown)}件")
         for r in unknown:
