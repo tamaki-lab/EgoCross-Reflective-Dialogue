@@ -131,7 +131,20 @@ def load_warmup_contents(path: str, max_frames: int = 0) -> dict[str, list[types
         data = json.load(f)
     result = {}
     for key, group in data.items():
-        contents = []
+        domain, qt = key.split("::", 1)
+        preamble = (
+            f"The following are warm-up practice questions of type '{qt}' "
+            f"in the '{domain}' domain. "
+            "After each question you will see whether the answer was correct and, "
+            "if incorrect, a reflection on the mistake. "
+            "Study these carefully to improve your performance on similar questions."
+        )
+        contents = [
+            types.Content(role="user", parts=[
+                          types.Part.from_text(text=preamble)]),
+            types.Content(role="model", parts=[types.Part.from_text(
+                text="Understood. I will study these practice questions and reflections carefully.")]),
+        ]
         for turn in group["turns"]:
             if turn["role"] == "user":
                 images = turn.get("images", [])
@@ -356,8 +369,10 @@ def run_domain(
                     if not prefix and attempt == 0:
                         pbar.write(
                             f"  WARNING: no warmup found for key='{warmup_key}'")
-                    contents = prefix + \
-                        [types.Content(role="user", parts=parts)]
+                    separator = types.Part.from_text(
+                        text="Warm-up complete. Now answer the following question:")
+                    contents = prefix + [
+                        types.Content(role="user", parts=[separator] + parts)]
                 else:
                     contents = [types.Content(role="user", parts=parts)]
 
