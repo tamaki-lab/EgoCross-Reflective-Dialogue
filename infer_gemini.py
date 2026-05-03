@@ -166,8 +166,11 @@ def load_warmup_contents(path: str, max_frames: int = 0) -> dict[str, list[types
         for turn in group["turns"]:
             if turn["role"] == "user":
                 images = turn.get("images", [])
-                if max_frames > 0:
-                    images = images[:max_frames]
+                if max_frames > 0 and len(images) > max_frames:
+                    step = (len(images) - 1) / \
+                        (max_frames - 1) if max_frames > 1 else 0
+                    images = [images[round(i * step)]
+                              for i in range(max_frames)]
                 parts = [load_image_part(p) for p in images]
                 if turn.get("text"):
                     parts.append(types.Part.from_text(text=turn["text"]))
