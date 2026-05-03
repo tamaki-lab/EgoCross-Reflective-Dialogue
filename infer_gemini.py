@@ -123,9 +123,10 @@ def upload_video(client, video_path: str) -> str:
     return uploaded.name, info.uri
 
 
-def load_warmup_contents(path: str) -> dict[str, list[types.Content]]:
+def load_warmup_contents(path: str, max_frames: int = 0) -> dict[str, list[types.Content]]:
     """warmup_conversations.json を読み込み、画像バイトを復元して Content リストを返す。
-    key は 'domain::question_type' 形式。"""
+    key は 'domain::question_type' 形式。
+    max_frames > 0 のとき、各ユーザーターンの画像を先頭 max_frames 枚に制限する。"""
     with open(path) as f:
         data = json.load(f)
     result = {}
@@ -133,7 +134,10 @@ def load_warmup_contents(path: str) -> dict[str, list[types.Content]]:
         contents = []
         for turn in group["turns"]:
             if turn["role"] == "user":
-                parts = [load_image_part(p) for p in turn.get("images", [])]
+                images = turn.get("images", [])
+                if max_frames > 0:
+                    images = images[:max_frames]
+                parts = [load_image_part(p) for p in images]
                 if turn.get("text"):
                     parts.append(types.Part.from_text(text=turn["text"]))
                 contents.append(types.Content(role="user", parts=parts))
@@ -143,7 +147,8 @@ def load_warmup_contents(path: str) -> dict[str, list[types.Content]]:
                     parts=[types.Part.from_text(text=turn["text"])],
                 ))
         result[key] = contents
-    print(f"Loaded warmup for {len(result)} groups from {path}")
+    frame_info = f", max_frames={max_frames}" if max_frames > 0 else ""
+    print(f"Loaded warmup for {len(result)} groups from {path}{frame_info}")
     return result
 
 
@@ -368,9 +373,7 @@ def run_domain(
                 break
 
             except Exception as e:
-                is_rate_limit = "429" in str(
-                    e) or "RESOURCE_EXHAUSTED" in str(e)
-                wait = min(2 ** attempt * (30 if is_rate_limit else 1), 300)
+                wait = 2 ** attempt
                 pbar.write(
                     f"  Error id={item['id']} attempt={attempt}: {e}  (retry in {wait}s)")
                 time.sleep(wait)
@@ -479,6 +482,8 @@ def main():
                         help="指定IDのアイテムから末尾まで処理 (途中再開用)")
     parser.add_argument("--warmup-file", default="",
                         help="warmup_conversations.json のパス (指定時: warm-up 会話を前置して推論)")
+    parser.add_argument("--warmup-max-frames", type=int, default=0,
+                        help="warmup 各ターンの画像フレーム上限 (0=制限なし, default: 0)")
     args = parser.parse_args()
 
     # Client setup
@@ -506,7 +511,8 @@ def main():
 
     warmup_contents = None
     if args.warmup_file:
-        warmup_contents = load_warmup_contents(args.warmup_file)
+        warmup_contents = load_warmup_contents(
+            args.warmup_file, max_frames=args.warmup_max_frames)
 
     if args.mode == "test":
         items = load_test_items(fewshot=args.fewshot)
