@@ -123,6 +123,30 @@ def upload_video(client, video_path: str) -> str:
     return uploaded.name, info.uri
 
 
+def load_warmup_contents(path: str) -> dict[str, list[types.Content]]:
+    """warmup_conversations.json を読み込み、画像バイトを復元して Content リストを返す。
+    key は 'domain::question_type' 形式。"""
+    with open(path) as f:
+        data = json.load(f)
+    result = {}
+    for key, group in data.items():
+        contents = []
+        for turn in group["turns"]:
+            if turn["role"] == "user":
+                parts = [load_image_part(p) for p in turn.get("images", [])]
+                if turn.get("text"):
+                    parts.append(types.Part.from_text(text=turn["text"]))
+                contents.append(types.Content(role="user", parts=parts))
+            else:
+                contents.append(types.Content(
+                    role="model",
+                    parts=[types.Part.from_text(text=turn["text"])],
+                ))
+        result[key] = contents
+    print(f"Loaded warmup for {len(result)} groups from {path}")
+    return result
+
+
 def extract_answer(text: str) -> str:
     for pat in (
         r"Final\s*Answer\s*[:：]\s*\**\s*\(?\s*([A-D])",
@@ -169,15 +193,30 @@ def load_test_items(fewshot: bool = False) -> list[dict]:
             "images": [str(IMAGE_BASE / p.lstrip("/")) for p in d["video_path"]],
             "prompt": prompt,
             "domain": model_name,
+            "question_type": d.get("question_type", ""),
             "ground_truth": None,
             "fewshot_examples": train_bank.get(q_key, []),
         })
     return items
 
 
+CLASSIFY_JSON = BASE / "outputs/support_question_types.json"
+
+
+def _load_support_question_types() -> dict[int, str]:
+    """support_question_types.json が存在すれば index→question_type を返す。"""
+    if not CLASSIFY_JSON.exists():
+        return {}
+    with open(CLASSIFY_JSON) as f:
+        data = json.load(f)
+    return {entry["index"]: entry["predicted_type"] for entry in data}
+
+
 def load_eval_items(fewshot: bool = False) -> list[dict]:
     with open(SUPPORT_JSON) as f:
         raw = json.load(f)
+
+    qt_map = _load_support_question_types()
 
     if fewshot:
         by_question = defaultdict(list)
@@ -208,6 +247,7 @@ def load_eval_items(fewshot: bool = False) -> list[dict]:
                 "images": d["images"],
                 "prompt": prompt,
                 "domain": d["domain"],
+                "question_type": qt_map.get(i, ""),
                 "ground_truth": d["messages"][-1]["content"].strip().upper(),
                 "fewshot_examples": examples,
             })
@@ -222,6 +262,7 @@ def load_eval_items(fewshot: bool = False) -> list[dict]:
             "images": d["images"],
             "prompt": prompt,
             "domain": d["domain"],
+            "question_type": qt_map.get(i, ""),
             "ground_truth": d["messages"][-1]["content"].strip().upper(),
             "fewshot_examples": [],
         })
@@ -239,6 +280,7 @@ def run_domain(
     rate_limit_sleep: float,
     input_mode: str = "image",
     use_vertex: bool = False,
+    warmup_contents: dict | None = None,
 ) -> dict:
     msg = f"\n=== Domain: {domain} ({len(items)} questions) ==="
     print(msg)
@@ -258,12 +300,13 @@ def run_domain(
             try:
                 parts: list[types.Part] = []
 
-                # Few-shot examples as leading text
+                # Few-shot examples as leading text (warmup 未使用時のみ)
                 fewshot_text = ""
-                for ex in item.get("fewshot_examples", []):
-                    fewshot_text += f"{ex['prompt']}\nAnswer: {ex['answer']}\n\n"
-                if fewshot_text:
-                    parts.append(types.Part.from_text(text=fewshot_text))
+                if not warmup_contents:
+                    for ex in item.get("fewshot_examples", []):
+                        fewshot_text += f"{ex['prompt']}\nAnswer: {ex['answer']}\n\n"
+                    if fewshot_text:
+                        parts.append(types.Part.from_text(text=fewshot_text))
 
                 # Images or Video
                 video_path = None
@@ -301,9 +344,19 @@ def run_domain(
                     system_instruction=system_instruction,
                 )
 
+                # Warm-up 会話を前置する (test 問題同士は干渉しないようコピー)
+                if warmup_contents:
+                    warmup_key = f"{item['domain']}::{item.get('question_type', '')}"
+                    prefix = list(warmup_contents.get(warmup_key, []))
+                    if not prefix and attempt == 0:
+                        pbar.write(f"  WARNING: no warmup found for key='{warmup_key}'")
+                    contents = prefix + [types.Content(role="user", parts=parts)]
+                else:
+                    contents = [types.Content(role="user", parts=parts)]
+
                 response = client.models.generate_content(
                     model=gemini_model,
-                    contents=[types.Content(role="user", parts=parts)],
+                    contents=contents,
                     config=config,
                 )
 
@@ -412,14 +465,16 @@ def main():
                         help="Vertex AI を使用 (デフォルト: AI Studio API key)")
     parser.add_argument("--project", default="",
                         help="Vertex AI 使用時のGCPプロジェクトID (GOOGLE_CLOUD_PROJECT 環境変数でも可)")
-    parser.add_argument("--location", default="us-central1",
-                        help="Vertex AI ロケーション (default: us-central1)")
+    parser.add_argument("--location", default="global",
+                        help="Vertex AI ロケーション (default: global)")
     parser.add_argument("--limit", type=int, default=0,
                         help="先頭N件だけ処理 (0=全件, default: 0)")
     parser.add_argument("--domain", default="",
                         help="特定ドメインのみ処理 (animal/industry/xsports/surgery, 空=全ドメイン)")
     parser.add_argument("--resume-from-id", default="",
                         help="指定IDのアイテムから末尾まで処理 (途中再開用)")
+    parser.add_argument("--warmup-file", default="",
+                        help="warmup_conversations.json のパス (指定時: warm-up 会話を前置して推論)")
     args = parser.parse_args()
 
     # Client setup
@@ -427,9 +482,8 @@ def main():
         vertex_api_key = os.environ.get("VERTEX_AI_API_KEY", "")
         if not vertex_api_key:
             raise ValueError("VERTEX_AI_API_KEY 環境変数が必要です")
-        client = genai.Client(
-            vertexai=True, api_key=vertex_api_key)
-        print("Using Vertex AI (API key)")
+        client = genai.Client(vertexai=True, api_key=vertex_api_key)
+        print("Using Vertex AI (API key, global endpoint)")
     else:
         api_key = os.environ.get("GEMINI_API_KEY", "")
         if not api_key:
@@ -443,7 +497,12 @@ def main():
         f"Run started: {timestamp}  mode={args.mode}  model={args.model}"
         f"  prompt_style={args.prompt_style}  thinking_budget={args.thinking_budget}"
         f"  fewshot={args.fewshot}  use_vertex={args.use_vertex}"
+        f"  warmup_file={args.warmup_file}"
     ]
+
+    warmup_contents = None
+    if args.warmup_file:
+        warmup_contents = load_warmup_contents(args.warmup_file)
 
     if args.mode == "test":
         items = load_test_items(fewshot=args.fewshot)
@@ -486,6 +545,7 @@ def main():
             rate_limit_sleep=args.rate_limit_sleep,
             input_mode=args.input_mode,
             use_vertex=args.use_vertex,
+            warmup_contents=warmup_contents,
         )
         all_answers.update(domain_answers)
         grand_in += in_tok
