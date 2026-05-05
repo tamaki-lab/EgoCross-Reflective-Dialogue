@@ -152,10 +152,11 @@ def upload_video(client, video_path: str) -> str:
     return uploaded.name, info.uri
 
 
-def load_warmup_contents(path: str, max_frames: int = 0) -> dict[str, list[types.Content]]:
+def load_warmup_contents(path: str, max_frames: int = 0, input_mode: str = "image") -> dict[str, list[types.Content]]:
     """warmup_conversations.json を読み込み、画像バイトを復元して Content リストを返す。
     key は 'domain::question_type' 形式。
-    max_frames > 0 のとき、各ユーザーターンの画像を先頭 max_frames 枚に制限する。"""
+    max_frames > 0 のとき、各ユーザーターンの画像を先頭 max_frames 枚に制限する。
+    input_mode == 'video' のとき、複数フレームをmp4に変換してインラインバイトで渡す。"""
     with open(path) as f:
         data = json.load(f)
     result = {}
@@ -182,7 +183,13 @@ def load_warmup_contents(path: str, max_frames: int = 0) -> dict[str, list[types
                         (max_frames - 1) if max_frames > 1 else 0
                     images = [images[round(i * step)]
                               for i in range(max_frames)]
-                parts = [load_image_part(p) for p in images]
+                if input_mode == "video" and len(images) > 1:
+                    video_path = frames_to_video(images)
+                    parts = [types.Part.from_bytes(
+                        data=Path(video_path).read_bytes(), mime_type="video/mp4")]
+                    os.unlink(video_path)
+                else:
+                    parts = [load_image_part(p) for p in images]
                 if turn.get("text"):
                     parts.append(types.Part.from_text(text=turn["text"]))
                 contents.append(types.Content(role="user", parts=parts))
@@ -193,7 +200,9 @@ def load_warmup_contents(path: str, max_frames: int = 0) -> dict[str, list[types
                 ))
         result[key] = contents
     frame_info = f", max_frames={max_frames}" if max_frames > 0 else ""
-    print(f"Loaded warmup for {len(result)} groups from {path}{frame_info}")
+    mode_info = f", input_mode={input_mode}"
+    print(
+        f"Loaded warmup for {len(result)} groups from {path}{frame_info}{mode_info}")
     return result
 
 
@@ -215,81 +224,139 @@ def upload_file_to_api(client, path: str) -> tuple[str, str]:
 
 
 def load_warmup_with_files_api(
-    client, path: str, max_frames: int = 0
+    client, path: str, max_frames: int = 0, input_mode: str = "image"
 ) -> tuple[dict[str, list[types.Content]], list[str]]:
-    """warmup_conversations.json を読み込み、画像を Files API にアップロードして
+    """warmup_conversations.json を読み込み、画像(またはmp4)を Files API にアップロードして
     URI ベースの Content リストとアップロード済み file_names リストを返す。
-    Context Caching と組み合わせることで warmup input コストを ~75% 削減できる。"""
+    Context Caching と組み合わせることで warmup input コストを ~75% 削減できる。
+    input_mode == 'video' のとき、各ターンのフレームをmp4化してアップロードする。"""
     with open(path) as f:
         data = json.load(f)
 
-    # max_frames 適用後のユニーク画像パスを収集
-    all_image_paths: set[str] = set()
-    for group in data.values():
-        for turn in group["turns"]:
-            if turn["role"] == "user":
-                images = turn.get("images", [])
-                if max_frames > 0 and len(images) > max_frames:
-                    step = (len(images) - 1) / \
-                        (max_frames - 1) if max_frames > 1 else 0
-                    images = [images[round(i * step)]
-                              for i in range(max_frames)]
-                all_image_paths.update(images)
+    def apply_max_frames(images: list[str]) -> list[str]:
+        if max_frames > 0 and len(images) > max_frames:
+            step = (len(images) - 1) / \
+                (max_frames - 1) if max_frames > 1 else 0
+            return [images[round(i * step)] for i in range(max_frames)]
+        return images
 
-    # Files API にアップロード（重複なし）
-    print(f"Uploading {len(all_image_paths)} warmup images to Files API...")
-    path_to_file: dict[str, tuple[str, str]] = {}  # path -> (file_name, uri)
-    for img_path in tqdm(sorted(all_image_paths), desc="Uploading warmup images"):
-        file_name, uri = upload_file_to_api(client, img_path)
-        path_to_file[img_path] = (file_name, uri)
-
-    # URI ベースで Contents 構築
+    all_file_names: list[str] = []
     result: dict[str, list[types.Content]] = {}
-    for key, group in data.items():
-        domain, qt = key.split("::", 1)
-        preamble = (
-            f"The following are warm-up practice questions of type '{qt}' "
-            f"in the '{domain}' domain. "
-            "After each question you will see whether the answer was correct and, "
-            "if incorrect, a reflection on the mistake. "
-            "Study these carefully to improve your performance on similar questions."
-        )
-        contents = [
-            types.Content(role="user", parts=[
-                          types.Part.from_text(text=preamble)]),
-            types.Content(role="model", parts=[types.Part.from_text(
-                text="Understood. I will study these practice questions and reflections carefully.")]),
-        ]
-        for turn in group["turns"]:
-            if turn["role"] == "user":
-                images = turn.get("images", [])
-                if max_frames > 0 and len(images) > max_frames:
-                    step = (len(images) - 1) / \
-                        (max_frames - 1) if max_frames > 1 else 0
-                    images = [images[round(i * step)]
-                              for i in range(max_frames)]
-                parts = []
-                for img_path in images:
-                    _, uri = path_to_file[img_path]
-                    mime = MIME_MAP.get(
-                        Path(img_path).suffix.lower(), "image/jpeg")
-                    parts.append(types.Part.from_uri(
-                        file_uri=uri, mime_type=mime))
-                if turn.get("text"):
-                    parts.append(types.Part.from_text(text=turn["text"]))
-                contents.append(types.Content(role="user", parts=parts))
-            else:
-                contents.append(types.Content(
-                    role="model",
-                    parts=[types.Part.from_text(text=turn["text"])],
-                ))
-        result[key] = contents
 
-    file_names = [fn for fn, _ in path_to_file.values()]
+    if input_mode == "video":
+        # 動画モード: ターンごとにmp4化してアップロード（重複排除不可）
+        total_turns = sum(
+            sum(1 for t in g["turns"] if t["role"]
+                == "user" and t.get("images"))
+            for g in data.values()
+        )
+        print(
+            f"Converting and uploading {total_turns} warmup turns as video to Files API...")
+        with tqdm(total=total_turns, desc="Uploading warmup videos") as pbar:
+            for key, group in data.items():
+                domain, qt = key.split("::", 1)
+                preamble = (
+                    f"The following are warm-up practice questions of type '{qt}' "
+                    f"in the '{domain}' domain. "
+                    "After each question you will see whether the answer was correct and, "
+                    "if incorrect, a reflection on the mistake. "
+                    "Study these carefully to improve your performance on similar questions."
+                )
+                contents = [
+                    types.Content(role="user", parts=[
+                                  types.Part.from_text(text=preamble)]),
+                    types.Content(role="model", parts=[types.Part.from_text(
+                        text="Understood. I will study these practice questions and reflections carefully.")]),
+                ]
+                for turn in group["turns"]:
+                    if turn["role"] == "user":
+                        images = apply_max_frames(turn.get("images", []))
+                        parts = []
+                        if len(images) > 1:
+                            video_path = frames_to_video(images)
+                            file_name, file_uri = upload_video(
+                                client, video_path)
+                            os.unlink(video_path)
+                            all_file_names.append(file_name)
+                            parts.append(types.Part.from_uri(
+                                file_uri=file_uri, mime_type="video/mp4"))
+                        else:
+                            for img_path in images:
+                                file_name, uri = upload_file_to_api(
+                                    client, img_path)
+                                all_file_names.append(file_name)
+                                mime = MIME_MAP.get(
+                                    Path(img_path).suffix.lower(), "image/jpeg")
+                                parts.append(types.Part.from_uri(
+                                    file_uri=uri, mime_type=mime))
+                        if turn.get("text"):
+                            parts.append(
+                                types.Part.from_text(text=turn["text"]))
+                        contents.append(types.Content(
+                            role="user", parts=parts))
+                        pbar.update(1)
+                    else:
+                        contents.append(types.Content(
+                            role="model",
+                            parts=[types.Part.from_text(text=turn["text"])],
+                        ))
+                result[key] = contents
+    else:
+        # 画像モード: ユニーク画像を一括アップロードして再利用
+        all_image_paths: set[str] = set()
+        for group in data.values():
+            for turn in group["turns"]:
+                if turn["role"] == "user":
+                    all_image_paths.update(
+                        apply_max_frames(turn.get("images", [])))
+
+        print(
+            f"Uploading {len(all_image_paths)} warmup images to Files API...")
+        path_to_file: dict[str, tuple[str, str]] = {}
+        for img_path in tqdm(sorted(all_image_paths), desc="Uploading warmup images"):
+            file_name, uri = upload_file_to_api(client, img_path)
+            path_to_file[img_path] = (file_name, uri)
+
+        for key, group in data.items():
+            domain, qt = key.split("::", 1)
+            preamble = (
+                f"The following are warm-up practice questions of type '{qt}' "
+                f"in the '{domain}' domain. "
+                "After each question you will see whether the answer was correct and, "
+                "if incorrect, a reflection on the mistake. "
+                "Study these carefully to improve your performance on similar questions."
+            )
+            contents = [
+                types.Content(role="user", parts=[
+                              types.Part.from_text(text=preamble)]),
+                types.Content(role="model", parts=[types.Part.from_text(
+                    text="Understood. I will study these practice questions and reflections carefully.")]),
+            ]
+            for turn in group["turns"]:
+                if turn["role"] == "user":
+                    images = apply_max_frames(turn.get("images", []))
+                    parts = []
+                    for img_path in images:
+                        _, uri = path_to_file[img_path]
+                        mime = MIME_MAP.get(
+                            Path(img_path).suffix.lower(), "image/jpeg")
+                        parts.append(types.Part.from_uri(
+                            file_uri=uri, mime_type=mime))
+                    if turn.get("text"):
+                        parts.append(types.Part.from_text(text=turn["text"]))
+                    contents.append(types.Content(role="user", parts=parts))
+                else:
+                    contents.append(types.Content(
+                        role="model",
+                        parts=[types.Part.from_text(text=turn["text"])],
+                    ))
+            result[key] = contents
+        all_file_names = [fn for fn, _ in path_to_file.values()]
+
     frame_info = f", max_frames={max_frames}" if max_frames > 0 else ""
     print(
-        f"Loaded warmup for {len(result)} groups from {path}{frame_info}, uploaded {len(file_names)} files")
-    return result, file_names
+        f"Loaded warmup for {len(result)} groups from {path}{frame_info}, input_mode={input_mode}, uploaded {len(all_file_names)} files")
+    return result, all_file_names
 
 
 def extract_answer(text: str) -> str:
@@ -738,10 +805,10 @@ def main():
         if args.use_vertex:
             # Vertex AI は Files API 非対応 — インラインバイトで読み込む
             warmup_contents = load_warmup_contents(
-                args.warmup_file, max_frames=args.warmup_max_frames)
+                args.warmup_file, max_frames=args.warmup_max_frames, input_mode=args.input_mode)
         else:
             warmup_contents, warmup_file_names = load_warmup_with_files_api(
-                client, args.warmup_file, max_frames=args.warmup_max_frames)
+                client, args.warmup_file, max_frames=args.warmup_max_frames, input_mode=args.input_mode)
 
     if args.mode == "test":
         items = load_test_items(fewshot=args.fewshot)
