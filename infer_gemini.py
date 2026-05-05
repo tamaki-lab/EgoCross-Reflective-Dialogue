@@ -72,23 +72,34 @@ DEFAULT_MODEL = "gemini-3.1-flash-image-preview"
 
 # Pricing (USD per 1M tokens) — update if pricing changes
 # https://cloud.google.com/vertex-ai/generative-ai/pricing
-# output price includes reasoning tokens (no separate thinking price)
+# cache_read: context cache read price (typically 25% of input)
+# cache_storage: context cache storage price per 1M tokens per hour
 PRICING = {
-    "gemini-3.1-flash-image-preview": {"input": 0.50, "output": 3.00,  "thinking": 0.0},
-    "gemini-3.1-pro-preview":         {"input": 2.00, "output": 12.00, "thinking": 0.0},
-    "gemini-3-pro-preview":           {"input": 2.00, "output": 12.00, "thinking": 0.0},
-    "gemini-2.5-flash":               {"input": 0.075, "output": 0.30, "thinking": 3.50},
-    "gemini-2.5-pro":                 {"input": 1.25,  "output": 10.00, "thinking": 3.50},
-    "gemini-2.5-flash-lite":          {"input": 0.01,  "output": 0.04,  "thinking": 3.50},
+    "gemini-3.1-flash-image-preview": {"input": 0.50, "output": 3.00,  "thinking": 0.0,  "cache_read": 0.125,   "cache_storage": 1.00},
+    "gemini-3.1-pro-preview":         {"input": 2.00, "output": 12.00, "thinking": 0.0,  "cache_read": 0.50,    "cache_storage": 4.50},
+    "gemini-3-pro-preview":           {"input": 2.00, "output": 12.00, "thinking": 0.0,  "cache_read": 0.50,    "cache_storage": 4.50},
+    "gemini-2.5-flash":               {"input": 0.075, "output": 0.30, "thinking": 3.50, "cache_read": 0.01875, "cache_storage": 1.00},
+    "gemini-2.5-pro":                 {"input": 1.25,  "output": 10.00, "thinking": 3.50, "cache_read": 0.3125,  "cache_storage": 4.50},
+    "gemini-2.5-flash-lite":          {"input": 0.01,  "output": 0.04,  "thinking": 3.50, "cache_read": 0.0025,  "cache_storage": 0.25},
 }
 
 
-def estimate_cost(model: str, input_tokens: int, output_tokens: int, thinking_tokens: int) -> float:
+def estimate_cost(
+    model: str,
+    input_tokens: int,
+    output_tokens: int,
+    thinking_tokens: int,
+    cached_tokens: int = 0,
+    cache_storage_token_hours: float = 0.0,
+) -> float:
     p = PRICING.get(model, PRICING["gemini-2.5-flash"])
+    non_cached = max(0, input_tokens - cached_tokens)
     return (
-        input_tokens / 1_000_000 * p["input"] +
+        non_cached / 1_000_000 * p["input"] +
+        cached_tokens / 1_000_000 * p.get("cache_read", p["input"] * 0.25) +
         output_tokens / 1_000_000 * p["output"] +
-        thinking_tokens / 1_000_000 * p["thinking"]
+        thinking_tokens / 1_000_000 * p["thinking"] +
+        cache_storage_token_hours / 1_000_000 * p.get("cache_storage", 1.00)
     )
 
 
@@ -422,6 +433,8 @@ def run_domain(
 
     answers = {}
     total_input_tokens = total_output_tokens = total_thinking_tokens = 0
+    total_cached_tokens = 0
+    total_storage_token_hours = 0.0
     pbar = tqdm(items, desc=domain, unit="q")
 
     # warmup 使用時は question_type 単位でグループ化してキャッシュを共有する
@@ -450,8 +463,11 @@ def run_domain(
                             ttl="10800s",
                         ),
                     )
+                    cache_token_count = getattr(
+                        getattr(cache, "usage_metadata", None), "total_token_count", 0) or 0
+                    cache_start_time = time.time()
                     pbar.write(
-                        f"  Created cache for '{warmup_key}': {cache.name}")
+                        f"  Created cache for '{warmup_key}': {cache.name} ({cache_token_count} tokens)")
                 except Exception as e:
                     pbar.write(
                         f"  Cache creation failed for '{warmup_key}': {e} — falling back to inline")
@@ -579,12 +595,17 @@ def run_domain(
                     in_tok = usage.prompt_token_count or 0
                     out_tok = usage.candidates_token_count or 0
                     thi_tok = getattr(usage, "thoughts_token_count", 0) or 0
+                    cached_tok = getattr(
+                        usage, "cached_content_token_count", 0) or 0
                     total_input_tokens += in_tok
                     total_output_tokens += out_tok
                     total_thinking_tokens += thi_tok
+                    total_cached_tokens += cached_tok
                     total_cost = estimate_cost(
-                        gemini_model, total_input_tokens, total_output_tokens, total_thinking_tokens)
-                    cost_str = f" | tok={in_tok}in/{out_tok}out/{thi_tok}think  cumulative=${total_cost:.4f}"
+                        gemini_model, total_input_tokens, total_output_tokens,
+                        total_thinking_tokens, total_cached_tokens, total_storage_token_hours)
+                    cache_str = f"/{cached_tok}cached" if cached_tok else ""
+                    cost_str = f" | tok={in_tok}in{cache_str}/{out_tok}out/{thi_tok}think  cumulative=${total_cost:.4f}"
                 else:
                     cost_str = ""
 
@@ -602,24 +623,29 @@ def run_domain(
                 time.sleep(rate_limit_sleep)
 
         finally:
-            # グループ処理完了後にキャッシュを削除
+            # グループ処理完了後にキャッシュを削除、ストレージコストを確定
             if cache:
+                elapsed_hours = (time.time() - cache_start_time) / 3600
+                total_storage_token_hours += cache_token_count * elapsed_hours
                 try:
                     client.caches.delete(name=cache.name)
-                    pbar.write(f"  Deleted cache: {cache.name}")
+                    pbar.write(
+                        f"  Deleted cache: {cache.name} (存在時間: {elapsed_hours*60:.1f}分)")
                 except Exception:
                     pass
 
     domain_cost = estimate_cost(
-        gemini_model, total_input_tokens, total_output_tokens, total_thinking_tokens)
+        gemini_model, total_input_tokens, total_output_tokens,
+        total_thinking_tokens, total_cached_tokens, total_storage_token_hours)
     summary = (
-        f"  [{domain}] tokens: {total_input_tokens}in / {total_output_tokens}out / {total_thinking_tokens}think"
+        f"  [{domain}] tokens: {total_input_tokens}in ({total_cached_tokens}cached)"
+        f" / {total_output_tokens}out / {total_thinking_tokens}think"
         f"  estimated cost: ${domain_cost:.4f}"
     )
     print(summary)
     log_lines.append(summary)
 
-    return answers, total_input_tokens, total_output_tokens, total_thinking_tokens
+    return answers, total_input_tokens, total_output_tokens, total_thinking_tokens, total_cached_tokens, total_storage_token_hours
 
 
 def print_accuracy(items: list, all_answers: dict, log_lines: list):
@@ -708,8 +734,13 @@ def main():
     warmup_contents = None
     warmup_file_names: list[str] = []
     if args.warmup_file:
-        warmup_contents, warmup_file_names = load_warmup_with_files_api(
-            client, args.warmup_file, max_frames=args.warmup_max_frames)
+        if args.use_vertex:
+            # Vertex AI は Files API 非対応 — インラインバイトで読み込む
+            warmup_contents = load_warmup_contents(
+                args.warmup_file, max_frames=args.warmup_max_frames)
+        else:
+            warmup_contents, warmup_file_names = load_warmup_with_files_api(
+                client, args.warmup_file, max_frames=args.warmup_max_frames)
 
     if args.mode == "test":
         items = load_test_items(fewshot=args.fewshot)
@@ -742,9 +773,10 @@ def main():
         by_domain[item["domain"]].append(item)
 
     all_answers = {}
-    grand_in = grand_out = grand_think = 0
+    grand_in = grand_out = grand_think = grand_cached = 0
+    grand_storage_token_hours = 0.0
     for domain, domain_items in by_domain.items():
-        domain_answers, in_tok, out_tok, think_tok = run_domain(
+        domain_answers, in_tok, out_tok, think_tok, cached_tok, storage_th = run_domain(
             client, domain, domain_items, log_lines,
             gemini_model=args.model,
             prompt_style=args.prompt_style,
@@ -758,11 +790,14 @@ def main():
         grand_in += in_tok
         grand_out += out_tok
         grand_think += think_tok
+        grand_cached += cached_tok
+        grand_storage_token_hours += storage_th
 
-    total_cost = estimate_cost(args.model, grand_in, grand_out, grand_think)
+    total_cost = estimate_cost(args.model, grand_in, grand_out,
+                               grand_think, grand_cached, grand_storage_token_hours)
     cost_line = (
         f"\n=== Total token usage ==="
-        f"\n  input={grand_in}  output={grand_out}  thinking={grand_think}"
+        f"\n  input={grand_in} (cached={grand_cached})  output={grand_out}  thinking={grand_think}"
         f"\n  Estimated total cost: ${total_cost:.4f} (~¥{total_cost * 150:.0f})"
     )
     print(cost_line)
