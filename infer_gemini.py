@@ -620,6 +620,7 @@ def run_domain(
                 pbar.write(line)
                 log_lines.append(line)
 
+                pbar.update(1)
                 time.sleep(rate_limit_sleep)
 
         finally:
