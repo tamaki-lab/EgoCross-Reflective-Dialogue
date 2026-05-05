@@ -186,6 +186,101 @@ def load_warmup_contents(path: str, max_frames: int = 0) -> dict[str, list[types
     return result
 
 
+def upload_file_to_api(client, path: str) -> tuple[str, str]:
+    """単一画像ファイルをFiles APIにアップロードし(file_name, uri)を返す。"""
+    p = Path(path)
+    mime = MIME_MAP.get(p.suffix.lower(), "image/jpeg")
+    with open(path, "rb") as f:
+        uploaded = client.files.upload(
+            file=f,
+            config=types.UploadFileConfig(mime_type=mime),
+        )
+    while True:
+        info = client.files.get(name=uploaded.name)
+        if info.state.name != "PROCESSING":
+            break
+        time.sleep(0.5)
+    return uploaded.name, info.uri
+
+
+def load_warmup_with_files_api(
+    client, path: str, max_frames: int = 0
+) -> tuple[dict[str, list[types.Content]], list[str]]:
+    """warmup_conversations.json を読み込み、画像を Files API にアップロードして
+    URI ベースの Content リストとアップロード済み file_names リストを返す。
+    Context Caching と組み合わせることで warmup input コストを ~75% 削減できる。"""
+    with open(path) as f:
+        data = json.load(f)
+
+    # max_frames 適用後のユニーク画像パスを収集
+    all_image_paths: set[str] = set()
+    for group in data.values():
+        for turn in group["turns"]:
+            if turn["role"] == "user":
+                images = turn.get("images", [])
+                if max_frames > 0 and len(images) > max_frames:
+                    step = (len(images) - 1) / \
+                        (max_frames - 1) if max_frames > 1 else 0
+                    images = [images[round(i * step)]
+                              for i in range(max_frames)]
+                all_image_paths.update(images)
+
+    # Files API にアップロード（重複なし）
+    print(f"Uploading {len(all_image_paths)} warmup images to Files API...")
+    path_to_file: dict[str, tuple[str, str]] = {}  # path -> (file_name, uri)
+    for img_path in tqdm(sorted(all_image_paths), desc="Uploading warmup images"):
+        file_name, uri = upload_file_to_api(client, img_path)
+        path_to_file[img_path] = (file_name, uri)
+
+    # URI ベースで Contents 構築
+    result: dict[str, list[types.Content]] = {}
+    for key, group in data.items():
+        domain, qt = key.split("::", 1)
+        preamble = (
+            f"The following are warm-up practice questions of type '{qt}' "
+            f"in the '{domain}' domain. "
+            "After each question you will see whether the answer was correct and, "
+            "if incorrect, a reflection on the mistake. "
+            "Study these carefully to improve your performance on similar questions."
+        )
+        contents = [
+            types.Content(role="user", parts=[
+                          types.Part.from_text(text=preamble)]),
+            types.Content(role="model", parts=[types.Part.from_text(
+                text="Understood. I will study these practice questions and reflections carefully.")]),
+        ]
+        for turn in group["turns"]:
+            if turn["role"] == "user":
+                images = turn.get("images", [])
+                if max_frames > 0 and len(images) > max_frames:
+                    step = (len(images) - 1) / \
+                        (max_frames - 1) if max_frames > 1 else 0
+                    images = [images[round(i * step)]
+                              for i in range(max_frames)]
+                parts = []
+                for img_path in images:
+                    _, uri = path_to_file[img_path]
+                    mime = MIME_MAP.get(
+                        Path(img_path).suffix.lower(), "image/jpeg")
+                    parts.append(types.Part.from_uri(
+                        file_uri=uri, mime_type=mime))
+                if turn.get("text"):
+                    parts.append(types.Part.from_text(text=turn["text"]))
+                contents.append(types.Content(role="user", parts=parts))
+            else:
+                contents.append(types.Content(
+                    role="model",
+                    parts=[types.Part.from_text(text=turn["text"])],
+                ))
+        result[key] = contents
+
+    file_names = [fn for fn, _ in path_to_file.values()]
+    frame_info = f", max_frames={max_frames}" if max_frames > 0 else ""
+    print(
+        f"Loaded warmup for {len(result)} groups from {path}{frame_info}, uploaded {len(file_names)} files")
+    return result, file_names
+
+
 def extract_answer(text: str) -> str:
     for pat in (
         r"Final\s*Answer\s*[:：]\s*\**\s*\(?\s*([A-D])",
@@ -329,133 +424,191 @@ def run_domain(
     total_input_tokens = total_output_tokens = total_thinking_tokens = 0
     pbar = tqdm(items, desc=domain, unit="q")
 
-    for item in pbar:
-        t0 = time.time()
-        raw = ""
-        answer = "A"
-        usage = None
+    # warmup 使用時は question_type 単位でグループ化してキャッシュを共有する
+    if warmup_contents:
+        by_qt: dict[str, list] = defaultdict(list)
+        for item in items:
+            by_qt[item.get("question_type", "")].append(item)
+        qt_groups = list(by_qt.items())
+    else:
+        qt_groups = [("", items)]
 
-        for attempt in range(8):
-            try:
-                parts: list[types.Part] = []
-
-                # Few-shot examples as leading text (warmup 未使用時のみ)
-                fewshot_text = ""
-                if not warmup_contents:
-                    for ex in item.get("fewshot_examples", []):
-                        fewshot_text += f"{ex['prompt']}\nAnswer: {ex['answer']}\n\n"
-                    if fewshot_text:
-                        parts.append(types.Part.from_text(text=fewshot_text))
-
-                # Images or Video
-                video_path = None
-                file_name = None
-                if input_mode == "video" and len(item["images"]) > 1:
-                    video_path = frames_to_video(item["images"])
-                    if use_vertex:
-                        parts.append(types.Part.from_bytes(
-                            data=Path(video_path).read_bytes(), mime_type="video/mp4"))
-                    else:
-                        file_name, file_uri = upload_video(client, video_path)
-                        parts.append(types.Part.from_uri(
-                            file_uri=file_uri, mime_type="video/mp4"))
-                else:
-                    for img_path in item["images"]:
-                        parts.append(load_image_part(img_path))
-
-                # Question
-                parts.append(types.Part.from_text(text=item["prompt"]))
-
-                if warmup_contents and item.get("question_type"):
-                    system_instruction = build_warmup_system(
-                        item["domain"], item["question_type"])
-                elif prompt_style == "domain":
-                    system_instruction = DOMAIN_SYSTEM.get(item["domain"])
-                else:
-                    system_instruction = None
-
-                effective_budget = thinking_budget
-                if effective_budget == 0 and requires_thinking(gemini_model):
-                    effective_budget = -1  # dynamic thinking
-                thinking_cfg = types.ThinkingConfig(
-                    thinking_budget=effective_budget) if effective_budget >= 0 else None
-                max_tokens = 8192 if effective_budget != 0 else 24
-
-                config = types.GenerateContentConfig(
-                    temperature=0.0 if thinking_budget == 0 else 1.0,
-                    max_output_tokens=max_tokens,
-                    thinking_config=thinking_cfg,
-                    system_instruction=system_instruction,
-                )
-
-                # Warm-up 会話を前置する (test 問題同士は干渉しないようコピー)
-                if warmup_contents:
-                    warmup_key = f"{item['domain']}::{item.get('question_type', '')}"
-                    prefix = list(warmup_contents.get(warmup_key, []))
-                    if not prefix and attempt == 0:
-                        pbar.write(
-                            f"  WARNING: no warmup found for key='{warmup_key}'")
-                    separator = types.Part.from_text(
-                        text="Warm-up complete. Now answer the following question:")
-                    contents = prefix + [
-                        types.Content(role="user", parts=[separator] + parts)]
-                else:
-                    contents = [types.Content(role="user", parts=parts)]
-
-                response = client.models.generate_content(
-                    model=gemini_model,
-                    contents=contents,
-                    config=config,
-                )
-
-                raw = response.text.strip() if response.text else ""
-                answer = extract_answer(raw)
-                usage = response.usage_metadata
-                break
-
-            except Exception as e:
-                wait = 2 ** attempt
+    for qt, qt_items in qt_groups:
+        # question_type グループごとに CachedContent を作成
+        cache = None
+        if warmup_contents and qt:
+            warmup_key = f"{domain}::{qt}"
+            prefix = warmup_contents.get(warmup_key, [])
+            if prefix:
+                system_instruction = build_warmup_system(domain, qt)
+                try:
+                    cache = client.caches.create(
+                        model=gemini_model,
+                        config=types.CreateCachedContentConfig(
+                            system_instruction=system_instruction,
+                            contents=prefix,
+                            ttl="10800s",
+                        ),
+                    )
+                    pbar.write(
+                        f"  Created cache for '{warmup_key}': {cache.name}")
+                except Exception as e:
+                    pbar.write(
+                        f"  Cache creation failed for '{warmup_key}': {e} — falling back to inline")
+            else:
                 pbar.write(
-                    f"  Error id={item['id']} attempt={attempt}: {e}  (retry in {wait}s)")
-                time.sleep(wait)
-            finally:
-                # 一時動画ファイルとFiles APIエントリを削除
-                if video_path and os.path.exists(video_path):
-                    os.unlink(video_path)
-                    video_path = None
-                if file_name:
+                    f"  WARNING: no warmup found for key='{warmup_key}'")
+
+        try:
+            for item in qt_items:
+                t0 = time.time()
+                raw = ""
+                answer = "A"
+                usage = None
+
+                for attempt in range(8):
                     try:
-                        client.files.delete(name=file_name)
-                    except Exception:
-                        pass
-                    file_name = None
+                        parts: list[types.Part] = []
 
-        # Token accounting
-        if usage:
-            in_tok = usage.prompt_token_count or 0
-            out_tok = usage.candidates_token_count or 0
-            thi_tok = getattr(usage, "thoughts_token_count", 0) or 0
-            total_input_tokens += in_tok
-            total_output_tokens += out_tok
-            total_thinking_tokens += thi_tok
-            total_cost = estimate_cost(
-                gemini_model, total_input_tokens, total_output_tokens, total_thinking_tokens)
-            cost_str = f" | tok={in_tok}in/{out_tok}out/{thi_tok}think  cumulative=${total_cost:.4f}"
-        else:
-            cost_str = ""
+                        # Few-shot examples as leading text (warmup 未使用時のみ)
+                        if not warmup_contents:
+                            fewshot_text = ""
+                            for ex in item.get("fewshot_examples", []):
+                                fewshot_text += f"{ex['prompt']}\nAnswer: {ex['answer']}\n\n"
+                            if fewshot_text:
+                                parts.append(
+                                    types.Part.from_text(text=fewshot_text))
 
-        gt = item["ground_truth"]
-        correct = " ✓" if gt and answer == gt else (
-            f" ✗(gt={gt})" if gt else "")
-        answers[item["id"]] = answer
+                        # Images or Video
+                        video_path = None
+                        file_name = None
+                        if input_mode == "video" and len(item["images"]) > 1:
+                            video_path = frames_to_video(item["images"])
+                            if use_vertex:
+                                parts.append(types.Part.from_bytes(
+                                    data=Path(video_path).read_bytes(), mime_type="video/mp4"))
+                            else:
+                                file_name, file_uri = upload_video(
+                                    client, video_path)
+                                parts.append(types.Part.from_uri(
+                                    file_uri=file_uri, mime_type="video/mp4"))
+                        else:
+                            for img_path in item["images"]:
+                                parts.append(load_image_part(img_path))
 
-        elapsed = time.time() - t0
-        snippet = raw[:60].replace("\n", " ")
-        line = f"id={item['id']} raw='{snippet}' → {answer}{correct} ({elapsed:.1f}s){cost_str}"
-        pbar.write(line)
-        log_lines.append(line)
+                        # Question
+                        parts.append(types.Part.from_text(text=item["prompt"]))
 
-        time.sleep(rate_limit_sleep)
+                        effective_budget = thinking_budget
+                        if effective_budget == 0 and requires_thinking(gemini_model):
+                            effective_budget = -1  # dynamic thinking
+                        thinking_cfg = types.ThinkingConfig(
+                            thinking_budget=effective_budget) if effective_budget >= 0 else None
+                        max_tokens = 8192 if effective_budget != 0 else 24
+
+                        if cache:
+                            # system_instruction はキャッシュに含まれるので指定不要
+                            separator = types.Part.from_text(
+                                text="Warm-up complete. Now answer the following question:")
+                            contents = [types.Content(
+                                role="user", parts=[separator] + parts)]
+                            config = types.GenerateContentConfig(
+                                cached_content=cache.name,
+                                temperature=0.0 if thinking_budget == 0 else 1.0,
+                                max_output_tokens=max_tokens,
+                                thinking_config=thinking_cfg,
+                            )
+                        elif warmup_contents:
+                            # キャッシュ作成失敗時のインラインフォールバック
+                            wk = f"{domain}::{item.get('question_type', '')}"
+                            prefix_fb = list(warmup_contents.get(wk, []))
+                            si = build_warmup_system(domain, item.get(
+                                "question_type", "")) if prefix_fb else DOMAIN_SYSTEM.get(domain)
+                            separator = types.Part.from_text(
+                                text="Warm-up complete. Now answer the following question:")
+                            contents = prefix_fb + [
+                                types.Content(role="user", parts=[separator] + parts)]
+                            config = types.GenerateContentConfig(
+                                temperature=0.0 if thinking_budget == 0 else 1.0,
+                                max_output_tokens=max_tokens,
+                                thinking_config=thinking_cfg,
+                                system_instruction=si,
+                            )
+                        else:
+                            system_instruction = DOMAIN_SYSTEM.get(
+                                item["domain"]) if prompt_style == "domain" else None
+                            contents = [types.Content(
+                                role="user", parts=parts)]
+                            config = types.GenerateContentConfig(
+                                temperature=0.0 if thinking_budget == 0 else 1.0,
+                                max_output_tokens=max_tokens,
+                                thinking_config=thinking_cfg,
+                                system_instruction=system_instruction,
+                            )
+
+                        response = client.models.generate_content(
+                            model=gemini_model,
+                            contents=contents,
+                            config=config,
+                        )
+
+                        raw = response.text.strip() if response.text else ""
+                        answer = extract_answer(raw)
+                        usage = response.usage_metadata
+                        break
+
+                    except Exception as e:
+                        wait = 2 ** attempt
+                        pbar.write(
+                            f"  Error id={item['id']} attempt={attempt}: {e}  (retry in {wait}s)")
+                        time.sleep(wait)
+                    finally:
+                        # 一時動画ファイルとFiles APIエントリを削除
+                        if video_path and os.path.exists(video_path):
+                            os.unlink(video_path)
+                            video_path = None
+                        if file_name:
+                            try:
+                                client.files.delete(name=file_name)
+                            except Exception:
+                                pass
+                            file_name = None
+
+                # Token accounting
+                if usage:
+                    in_tok = usage.prompt_token_count or 0
+                    out_tok = usage.candidates_token_count or 0
+                    thi_tok = getattr(usage, "thoughts_token_count", 0) or 0
+                    total_input_tokens += in_tok
+                    total_output_tokens += out_tok
+                    total_thinking_tokens += thi_tok
+                    total_cost = estimate_cost(
+                        gemini_model, total_input_tokens, total_output_tokens, total_thinking_tokens)
+                    cost_str = f" | tok={in_tok}in/{out_tok}out/{thi_tok}think  cumulative=${total_cost:.4f}"
+                else:
+                    cost_str = ""
+
+                gt = item["ground_truth"]
+                correct = " ✓" if gt and answer == gt else (
+                    f" ✗(gt={gt})" if gt else "")
+                answers[item["id"]] = answer
+
+                elapsed = time.time() - t0
+                snippet = raw[:60].replace("\n", " ")
+                line = f"id={item['id']} raw='{snippet}' → {answer}{correct} ({elapsed:.1f}s){cost_str}"
+                pbar.write(line)
+                log_lines.append(line)
+
+                time.sleep(rate_limit_sleep)
+
+        finally:
+            # グループ処理完了後にキャッシュを削除
+            if cache:
+                try:
+                    client.caches.delete(name=cache.name)
+                    pbar.write(f"  Deleted cache: {cache.name}")
+                except Exception:
+                    pass
 
     domain_cost = estimate_cost(
         gemini_model, total_input_tokens, total_output_tokens, total_thinking_tokens)
@@ -553,9 +706,10 @@ def main():
     ]
 
     warmup_contents = None
+    warmup_file_names: list[str] = []
     if args.warmup_file:
-        warmup_contents = load_warmup_contents(
-            args.warmup_file, max_frames=args.warmup_max_frames)
+        warmup_contents, warmup_file_names = load_warmup_with_files_api(
+            client, args.warmup_file, max_frames=args.warmup_max_frames)
 
     if args.mode == "test":
         items = load_test_items(fewshot=args.fewshot)
@@ -630,6 +784,17 @@ def main():
     with open(log_path, "w") as f:
         f.write("\n".join(log_lines))
     print(f"Log → {log_path}")
+
+    # warmup でアップロードした Files API ファイルを削除
+    if warmup_file_names:
+        print(
+            f"Cleaning up {len(warmup_file_names)} uploaded Files API files...")
+        for fn in warmup_file_names:
+            try:
+                client.files.delete(name=fn)
+            except Exception:
+                pass
+        print("Cleanup done.")
 
 
 if __name__ == "__main__":
