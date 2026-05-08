@@ -252,6 +252,8 @@ def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 
     print(
         f"Model: {model.__class__.__name__}, device_map: {getattr(model, 'hf_device_map', None)}")
 
+    torch.cuda.reset_peak_memory_stats()
+    domain_t0 = time.time()
     answers = {}
     pbar = tqdm(items, desc=model_name, unit="q")
     for item in pbar:
@@ -415,10 +417,20 @@ def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 
         pbar.write(line)
         log_lines.append(line)
 
+    peak_vram = torch.cuda.max_memory_allocated() / 1024**3
+    domain_elapsed = time.time() - domain_t0
+    summary = (
+        f"  [{model_name}] peak VRAM={peak_vram:.2f}GB"
+        f"  total time={domain_elapsed:.1f}s ({domain_elapsed/60:.1f}min)"
+        f"  questions={len(items)}"
+    )
+    print(summary)
+    log_lines.append(summary)
+
     del model, processor
     gc.collect()
     torch.cuda.empty_cache()
-    return answers
+    return answers, peak_vram, domain_elapsed
 
 
 def print_accuracy(items: list, all_answers: dict, log_lines: list):
@@ -498,9 +510,12 @@ def main():
     for item in items:
         by_model[item["domain"]].append(item)
 
+    run_t0 = time.time()
     all_answers = {}
+    grand_peak_vram = 0.0
+    grand_elapsed = 0.0
     for model_name, domain_items in by_model.items():
-        domain_answers = run_domain(
+        domain_answers, peak_vram, domain_elapsed = run_domain(
             model_name, domain_items, log_lines, args.max_pixels, args.input_mode,
             thinking=args.thinking, baseline=args.baseline, prompt_style=args.prompt_style,
             single_model=args.single_model, model_id=args.model_id,
@@ -508,6 +523,18 @@ def main():
             visual_fewshot=args.visual_fewshot,
             visual_fewshot_max_frames=args.visual_fewshot_max_frames)
         all_answers.update(domain_answers)
+        grand_peak_vram = max(grand_peak_vram, peak_vram)
+        grand_elapsed += domain_elapsed
+
+    total_wall = time.time() - run_t0
+    run_summary = (
+        f"\n=== Run summary ==="
+        f"\n  Peak VRAM (max across domains): {grand_peak_vram:.2f} GB"
+        f"\n  Total inference time: {grand_elapsed:.1f}s ({grand_elapsed/60:.1f}min)"
+        f"\n  Wall time: {total_wall:.1f}s ({total_wall/60:.1f}min)"
+    )
+    print(run_summary)
+    log_lines.append(run_summary)
 
     if args.mode == "test":
         for entry in submission:
