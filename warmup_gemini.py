@@ -19,7 +19,7 @@ from google.genai import types
 BASE = Path(__file__).parent
 TRAIN_JSON = BASE / "data/egocross/train.json"
 CLASSIFY_JSON = BASE / "outputs/support_question_types.json"
-OUTPUT_PATH = BASE / "outputs/warmup_conversations.json"
+DEFAULT_OUTPUT = BASE / "outputs/warmup_conversations_gemini.json"
 
 DEFAULT_MODEL = "gemini-3.1-flash-image-preview"
 
@@ -159,6 +159,8 @@ def main():
                         help="リクエスト間の sleep 秒数 (default: 1.0)")
     parser.add_argument("--use-vertex", action="store_true",
                         help="Vertex AI を使用")
+    parser.add_argument("--output", default=str(DEFAULT_OUTPUT),
+                        help=f"出力 JSON パス (default: {DEFAULT_OUTPUT})")
     args = parser.parse_args()
 
     # Client setup
@@ -211,7 +213,8 @@ def main():
         print(f"  [{domain:10s}] {qt:45s} {len(items)}問")
 
     config = make_config(args.model, args.thinking_budget)
-    OUTPUT_PATH.parent.mkdir(exist_ok=True)
+    output_path = Path(args.output)
+    output_path.parent.mkdir(exist_ok=True)
 
     warmup_data = {}
     grand_correct = grand_total = 0
@@ -232,13 +235,14 @@ def main():
         grand_total += n_total
         print(f"  → {n_correct}/{n_total} correct ({n_correct/n_total*100:.0f}%)")
 
-    with open(OUTPUT_PATH, "w") as f:
-        json.dump(warmup_data, f, ensure_ascii=False, indent=2)
+        # 途中経過を随時保存
+        with open(output_path, "w") as f:
+            json.dump(warmup_data, f, ensure_ascii=False, indent=2)
 
     print(f"\n=== 総合 ===")
     print(
         f"  Warm-up accuracy: {grand_correct}/{grand_total} = {grand_correct/grand_total*100:.1f}%")
-    print(f"  Saved → {OUTPUT_PATH}")
+    print(f"  Saved → {output_path}")
 
 
 if __name__ == "__main__":
