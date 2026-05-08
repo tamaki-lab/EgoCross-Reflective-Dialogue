@@ -359,6 +359,13 @@ def load_warmup_with_files_api(
     return result, all_file_names
 
 
+def _subsample_frames(images: list[str], max_frames: int) -> list[str]:
+    if max_frames <= 0 or len(images) <= max_frames:
+        return images
+    step = (len(images) - 1) / (max_frames - 1) if max_frames > 1 else 0
+    return [images[round(i * step)] for i in range(max_frames)]
+
+
 def extract_answer(text: str) -> str:
     for pat in (
         r"Final\s*Answer\s*[:：]\s*\**\s*\(?\s*([A-D])",
@@ -384,6 +391,7 @@ def load_test_items(fewshot: bool = False) -> list[dict]:
             train_bank.setdefault(q_key, []).append({
                 "prompt": user_text,
                 "answer": d["messages"][-1]["content"].strip().upper(),
+                "images": d["images"],
             })
 
     with open(TEST_JSON) as f:
@@ -446,6 +454,7 @@ def load_eval_items(fewshot: bool = False) -> list[dict]:
                 train_bank.setdefault(q_key, []).append({
                     "prompt": user_text,
                     "answer": d["messages"][-1]["content"].strip().upper(),
+                    "images": d["images"],
                 })
             for (i, d, user_text) in group[mid:]:
                 eval_entries.append(
@@ -493,6 +502,8 @@ def run_domain(
     input_mode: str = "image",
     use_vertex: bool = False,
     warmup_contents: dict | None = None,
+    visual_fewshot: bool = False,
+    visual_fewshot_max_frames: int = 0,
 ) -> dict:
     msg = f"\n=== Domain: {domain} ({len(items)} questions) ==="
     print(msg)
@@ -553,8 +564,8 @@ def run_domain(
                     try:
                         parts: list[types.Part] = []
 
-                        # Few-shot examples as leading text (warmup 未使用時のみ)
-                        if not warmup_contents:
+                        # Few-shot examples as leading text (warmup/visual_fewshot 未使用時のみ)
+                        if not warmup_contents and not visual_fewshot:
                             fewshot_text = ""
                             for ex in item.get("fewshot_examples", []):
                                 fewshot_text += f"{ex['prompt']}\nAnswer: {ex['answer']}\n\n"
@@ -620,8 +631,20 @@ def run_domain(
                         else:
                             system_instruction = DOMAIN_SYSTEM.get(
                                 item["domain"]) if prompt_style == "domain" else None
-                            contents = [types.Content(
-                                role="user", parts=parts)]
+                            if visual_fewshot and item.get("fewshot_examples"):
+                                vf_contents = []
+                                for ex in item["fewshot_examples"]:
+                                    ex_imgs = _subsample_frames(
+                                        ex.get("images", []), visual_fewshot_max_frames)
+                                    ex_parts = [load_image_part(p) for p in ex_imgs]
+                                    ex_parts.append(types.Part.from_text(text=ex["prompt"]))
+                                    vf_contents.append(types.Content(role="user", parts=ex_parts))
+                                    vf_contents.append(types.Content(role="model", parts=[
+                                        types.Part.from_text(text=f"Final Answer: {ex['answer']}")
+                                    ]))
+                                contents = vf_contents + [types.Content(role="user", parts=parts)]
+                            else:
+                                contents = [types.Content(role="user", parts=parts)]
                             config = types.GenerateContentConfig(
                                 temperature=0.0 if thinking_budget == 0 else 1.0,
                                 max_output_tokens=max_tokens,
@@ -772,6 +795,10 @@ def main():
                         help="warmup_conversations.json のパス (指定時: warm-up 会話を前置して推論)")
     parser.add_argument("--warmup-max-frames", type=int, default=0,
                         help="warmup 各ターンの画像フレーム上限 (0=制限なし, default: 0)")
+    parser.add_argument("--visual-fewshot", action="store_true",
+                        help="support setの画像+問題+回答をそのままvisual few-shotとして渡す (reflection/thinkingなし)")
+    parser.add_argument("--visual-fewshot-max-frames", type=int, default=0,
+                        help="visual few-shot 各例の画像フレーム上限 (0=制限なし, default: 0)")
     args = parser.parse_args()
 
     # Client setup
@@ -810,12 +837,13 @@ def main():
             warmup_contents, warmup_file_names = load_warmup_with_files_api(
                 client, args.warmup_file, max_frames=args.warmup_max_frames, input_mode=args.input_mode)
 
+    need_fewshot_bank = args.fewshot or args.visual_fewshot
     if args.mode == "test":
-        items = load_test_items(fewshot=args.fewshot)
+        items = load_test_items(fewshot=need_fewshot_bank)
         with open(SUBMISSION_TEMPLATE) as f:
             submission = json.load(f)
     else:
-        items = load_eval_items(fewshot=args.fewshot)
+        items = load_eval_items(fewshot=need_fewshot_bank)
 
     if args.resume_from_id:
         ids = [str(it["id"]) for it in items]
@@ -853,6 +881,8 @@ def main():
             input_mode=args.input_mode,
             use_vertex=args.use_vertex,
             warmup_contents=warmup_contents,
+            visual_fewshot=args.visual_fewshot,
+            visual_fewshot_max_frames=args.visual_fewshot_max_frames,
         )
         all_answers.update(domain_answers)
         grand_in += in_tok

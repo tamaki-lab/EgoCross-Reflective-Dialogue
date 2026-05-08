@@ -55,6 +55,13 @@ DATASET_MODEL = {
 }
 
 
+def _subsample_frames(images: list[str], max_frames: int) -> list[str]:
+    if max_frames <= 0 or len(images) <= max_frames:
+        return images
+    step = (len(images) - 1) / (max_frames - 1) if max_frames > 1 else 0
+    return [images[round(i * step)] for i in range(max_frames)]
+
+
 CLASSIFY_JSON = BASE / "outputs/support_question_types.json"
 
 
@@ -119,6 +126,7 @@ def load_test_items(fewshot: bool = False) -> list[dict]:
             train_bank.setdefault(q_key, []).append({
                 "prompt": user_text,
                 "answer": d["messages"][-1]["content"].strip().upper(),
+                "images": d["images"],
             })
 
     with open(TEST_JSON) as f:
@@ -171,6 +179,7 @@ def load_eval_items(prompt_style: str = "default", fewshot: bool = False) -> lis
                 train_bank.setdefault(q_key, []).append({
                     "prompt": user_text,
                     "answer": d["messages"][-1]["content"].strip().upper(),
+                    "images": d["images"],
                 })
             for (i, d, user_text) in group[mid:]:
                 eval_entries.append(
@@ -218,7 +227,7 @@ def load_eval_items(prompt_style: str = "default", fewshot: bool = False) -> lis
     return items
 
 
-def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 360000, input_mode: str = "image", thinking: bool = False, baseline: bool = False, prompt_style: str = "default", single_model: str = "", model_id: str = "", warmup_contents: dict | None = None) -> dict:
+def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 360000, input_mode: str = "image", thinking: bool = False, baseline: bool = False, prompt_style: str = "default", single_model: str = "", model_id: str = "", warmup_contents: dict | None = None, visual_fewshot: bool = False, visual_fewshot_max_frames: int = 0) -> dict:
     if model_id:
         model_path = model_id
     elif baseline:
@@ -252,9 +261,9 @@ def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 
         raw = None
         for attempt in range(3):
             try:
-                # few-shot は warmup 未使用時のみ
+                # few-shot は warmup/visual_fewshot 未使用時のみ
                 fewshot_text = ""
-                if not warmup_contents:
+                if not warmup_contents and not visual_fewshot:
                     for ex in item.get("fewshot_examples", []):
                         fewshot_text += f"{ex['prompt']}\nAnswer: {ex['answer']}\n\n"
 
@@ -281,6 +290,22 @@ def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 
                     messages = [{"role": "system", "content": system_text}] + prefix + [
                         {"role": "user", "content": separator + content}
                     ]
+                elif visual_fewshot and item.get("fewshot_examples"):
+                    vf_messages: list[dict] = []
+                    if prompt_style == "domain":
+                        system_text = DOMAIN_SYSTEM.get(item["domain"], "")
+                        vf_messages = [{"role": "system", "content": system_text}]
+                    for ex in item["fewshot_examples"]:
+                        ex_imgs = _subsample_frames(ex.get("images", []), visual_fewshot_max_frames)
+                        ex_content = [
+                            {"type": "image", "image": p, "min_pixels": 50176, "max_pixels": max_pixels}
+                            for p in ex_imgs
+                        ]
+                        ex_content.append({"type": "text", "text": ex["prompt"]})
+                        vf_messages.append({"role": "user", "content": ex_content})
+                        vf_messages.append({"role": "assistant", "content": f"Final Answer: {ex['answer']}"})
+                    vf_messages.append({"role": "user", "content": content})
+                    messages = vf_messages
                 elif prompt_style == "domain":
                     system_text = DOMAIN_SYSTEM.get(item["domain"], "")
                     messages = [{"role": "system", "content": system_text}, {
@@ -444,6 +469,10 @@ def main():
                         help="warmup_conversations.json のパス (指定時: warm-up 会話を前置して推論)")
     parser.add_argument("--warmup-max-frames", type=int, default=0,
                         help="warmup 各ターンの画像フレーム上限 (0=制限なし, default: 0)")
+    parser.add_argument("--visual-fewshot", action="store_true",
+                        help="support setの画像+問題+回答をそのままvisual few-shotとして渡す (reflection/thinkingなし)")
+    parser.add_argument("--visual-fewshot-max-frames", type=int, default=0,
+                        help="visual few-shot 各例の画像フレーム上限 (0=制限なし, default: 0)")
     args = parser.parse_args()
 
     OUTPUT_DIR.mkdir(exist_ok=True)
@@ -456,13 +485,14 @@ def main():
         warmup_contents = load_warmup_contents(
             args.warmup_file, max_frames=args.warmup_max_frames, max_pixels=args.max_pixels)
 
+    need_fewshot_bank = args.fewshot or args.visual_fewshot
     if args.mode == "test":
-        items = load_test_items(fewshot=args.fewshot)
+        items = load_test_items(fewshot=need_fewshot_bank)
         with open(SUBMISSION_TEMPLATE) as f:
             submission = json.load(f)
         id_to_entry = {e["id"]: e for e in submission}
     else:
-        items = load_eval_items(args.prompt_style, fewshot=args.fewshot)
+        items = load_eval_items(args.prompt_style, fewshot=need_fewshot_bank)
 
     by_model = defaultdict(list)
     for item in items:
@@ -474,7 +504,9 @@ def main():
             model_name, domain_items, log_lines, args.max_pixels, args.input_mode,
             thinking=args.thinking, baseline=args.baseline, prompt_style=args.prompt_style,
             single_model=args.single_model, model_id=args.model_id,
-            warmup_contents=warmup_contents)
+            warmup_contents=warmup_contents,
+            visual_fewshot=args.visual_fewshot,
+            visual_fewshot_max_frames=args.visual_fewshot_max_frames)
         all_answers.update(domain_answers)
 
     if args.mode == "test":
