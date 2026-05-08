@@ -21,12 +21,29 @@ OUTPUT_DIR = BASE / "outputs"
 
 _DOMAIN_FORMAT = " You must always commit to exactly one of the given options (A, B, C, or D) and end your response with a single line in the format: 'Final Answer: X' (X is one of A, B, C, or D). Do not refuse, do not say 'none of the above', and do not output multiple letters."
 
-DOMAIN_SYSTEM = {
-    "animal":   "You are an expert analyzing egocentric video frames featuring animals. Carefully observe the animal species and behaviors shown." + _DOMAIN_FORMAT,
-    "industry": "You are an expert analyzing egocentric video frames from industrial or factory settings. Carefully observe the tools, machinery, and work activities shown." + _DOMAIN_FORMAT,
-    "xsports":  "You are an expert analyzing egocentric video frames from extreme sports. Carefully observe the sport type, actions, and environment shown." + _DOMAIN_FORMAT,
-    "surgery":  "You are an expert analyzing egocentric video frames from surgical procedures. Carefully observe the instruments, tissues, and surgical actions shown." + _DOMAIN_FORMAT,
+_DOMAIN_BASE = {
+    "animal":   "You are an expert analyzing egocentric video frames featuring animals. Carefully observe the animal species and behaviors shown.",
+    "industry": "You are an expert analyzing egocentric video frames from industrial or factory settings. Carefully observe the tools, machinery, and work activities shown.",
+    "xsports":  "You are an expert analyzing egocentric video frames from extreme sports. Carefully observe the sport type, actions, and environment shown.",
+    "surgery":  "You are an expert analyzing egocentric video frames from surgical procedures. Carefully observe the instruments, tissues, and surgical actions shown.",
 }
+
+DOMAIN_SYSTEM = {k: v + _DOMAIN_FORMAT for k, v in _DOMAIN_BASE.items()}
+
+
+def build_warmup_system(domain: str, question_type: str) -> str:
+    base = _DOMAIN_BASE.get(
+        domain, f"You are an expert analyzing egocentric video frames from the '{domain}' domain.")
+    return (
+        f"{base}\n\n"
+        f"The conversation begins with warm-up practice questions of type '{question_type}'. "
+        "Each warm-up question is followed by correct/incorrect feedback and, if the answer was wrong, "
+        "a reflection on the mistake. "
+        "Learn from these reflections to improve your performance on similar questions.\n\n"
+        "After the warm-up you will see 'Warm-up complete. Now answer the following question:' — "
+        "that is the actual question you must answer."
+        + _DOMAIN_FORMAT
+    )
 
 # test set: dataset name → model name
 DATASET_MODEL = {
@@ -36,6 +53,57 @@ DATASET_MODEL = {
     "ExtrameSportFPV": "xsports",
     "EgoPet":          "animal",
 }
+
+
+CLASSIFY_JSON = BASE / "outputs/support_question_types.json"
+
+
+def _load_support_question_types() -> dict[int, str]:
+    if not CLASSIFY_JSON.exists():
+        return {}
+    with open(CLASSIFY_JSON) as f:
+        data = json.load(f)
+    return {entry["index"]: entry["predicted_type"] for entry in data}
+
+
+def load_warmup_contents(path: str, max_frames: int = 0, max_pixels: int = 360000) -> dict[str, list[dict]]:
+    """warmup_conversations.json を読み込み、HuggingFace messages 形式を返す。
+    key は 'domain::question_type' 形式。"""
+    with open(path) as f:
+        data = json.load(f)
+    result = {}
+    for key, group in data.items():
+        domain, qt = key.split("::", 1)
+        preamble = (
+            f"The following are warm-up practice questions of type '{qt}' "
+            f"in the '{domain}' domain. "
+            "After each question you will see whether the answer was correct and, "
+            "if incorrect, a reflection on the mistake. "
+            "Study these carefully to improve your performance on similar questions."
+        )
+        messages = [
+            {"role": "user", "content": [{"type": "text", "text": preamble}]},
+            {"role": "assistant", "content": "Understood. I will study these practice questions and reflections carefully."},
+        ]
+        for turn in group["turns"]:
+            if turn["role"] == "user":
+                images = turn.get("images", [])
+                if max_frames > 0 and len(images) > max_frames:
+                    step = (len(images) - 1) / (max_frames - 1) if max_frames > 1 else 0
+                    images = [images[round(i * step)] for i in range(max_frames)]
+                content = [
+                    {"type": "image", "image": p, "min_pixels": 50176, "max_pixels": max_pixels}
+                    for p in images
+                ]
+                if turn.get("text"):
+                    content.append({"type": "text", "text": turn["text"]})
+                messages.append({"role": "user", "content": content})
+            else:
+                messages.append({"role": "assistant", "content": turn["text"]})
+        result[key] = messages
+    frame_info = f", max_frames={max_frames}" if max_frames > 0 else ""
+    print(f"Loaded warmup for {len(result)} groups from {path}{frame_info}")
+    return result
 
 
 def load_test_items(fewshot: bool = False) -> list[dict]:
@@ -72,6 +140,7 @@ def load_test_items(fewshot: bool = False) -> list[dict]:
             "images": [str(IMAGE_BASE / p.lstrip("/")) for p in d["video_path"]],
             "prompt": prompt,
             "domain": model_name,
+            "question_type": d.get("question_type", ""),
             "ground_truth": None,
             "fps": d.get("original_video_fps", 1.0),
             "fewshot_examples": train_bank.get(q_key, []),
@@ -82,6 +151,8 @@ def load_test_items(fewshot: bool = False) -> list[dict]:
 def load_eval_items(prompt_style: str = "default", fewshot: bool = False) -> list[dict]:
     with open(SUPPORT_JSON) as f:
         raw = json.load(f)
+
+    qt_map = _load_support_question_types()
 
     if fewshot:
         # 問題文でグループ化し、前半をtrain bank・後半をevalに分割
@@ -118,6 +189,7 @@ def load_eval_items(prompt_style: str = "default", fewshot: bool = False) -> lis
                 "images": d["images"],
                 "prompt": prompt,
                 "domain": d["domain"],
+                "question_type": qt_map.get(i, ""),
                 "ground_truth": d["messages"][-1]["content"].strip().upper(),
                 "fps": 1.0,
                 "fewshot_examples": examples,
@@ -138,6 +210,7 @@ def load_eval_items(prompt_style: str = "default", fewshot: bool = False) -> lis
             "images": d["images"],
             "prompt": prompt,
             "domain": d["domain"],
+            "question_type": qt_map.get(i, ""),
             "ground_truth": d["messages"][-1]["content"].strip().upper(),
             "fps": 1.0,
             "fewshot_examples": [],
@@ -145,7 +218,7 @@ def load_eval_items(prompt_style: str = "default", fewshot: bool = False) -> lis
     return items
 
 
-def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 360000, input_mode: str = "image", thinking: bool = False, baseline: bool = False, prompt_style: str = "default", single_model: str = "", model_id: str = "") -> dict:
+def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 360000, input_mode: str = "image", thinking: bool = False, baseline: bool = False, prompt_style: str = "default", single_model: str = "", model_id: str = "", warmup_contents: dict | None = None) -> dict:
     if model_id:
         model_path = model_id
     elif baseline:
@@ -179,10 +252,11 @@ def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 
         raw = None
         for attempt in range(3):
             try:
-                # few-shot examples をテキストのみでプロンプト先頭に付加
+                # few-shot は warmup 未使用時のみ
                 fewshot_text = ""
-                for ex in item.get("fewshot_examples", []):
-                    fewshot_text += f"{ex['prompt']}\nAnswer: {ex['answer']}\n\n"
+                if not warmup_contents:
+                    for ex in item.get("fewshot_examples", []):
+                        fewshot_text += f"{ex['prompt']}\nAnswer: {ex['answer']}\n\n"
 
                 if input_mode == "video":
                     content = [{
@@ -198,7 +272,16 @@ def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 
                 if fewshot_text:
                     content.insert(0, {"type": "text", "text": fewshot_text})
                 content.append({"type": "text", "text": item["prompt"]})
-                if prompt_style == "domain":
+
+                warmup_key = f"{item['domain']}::{item.get('question_type', '')}" if warmup_contents else ""
+                prefix = warmup_contents.get(warmup_key, []) if warmup_key else []
+                if prefix:
+                    system_text = build_warmup_system(item["domain"], item.get("question_type", ""))
+                    separator = [{"type": "text", "text": "Warm-up complete. Now answer the following question:"}]
+                    messages = [{"role": "system", "content": system_text}] + prefix + [
+                        {"role": "user", "content": separator + content}
+                    ]
+                elif prompt_style == "domain":
                     system_text = DOMAIN_SYSTEM.get(item["domain"], "")
                     messages = [{"role": "system", "content": system_text}, {
                         "role": "user", "content": content}]
@@ -357,12 +440,21 @@ def main():
                         help="全ドメインで同一モデルを使用 (例: --single-model egocross)")
     parser.add_argument("--model-id", default="",
                         help="HuggingFace HubのモデルIDを直接指定 (例: --model-id Qwen/Qwen3.6-27B)。指定時は --baseline / --single-model より優先")
+    parser.add_argument("--warmup-file", default="",
+                        help="warmup_conversations.json のパス (指定時: warm-up 会話を前置して推論)")
+    parser.add_argument("--warmup-max-frames", type=int, default=0,
+                        help="warmup 各ターンの画像フレーム上限 (0=制限なし, default: 0)")
     args = parser.parse_args()
 
     OUTPUT_DIR.mkdir(exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     log_lines = [
-        f"Run started: {timestamp}  mode={args.mode}  max_pixels={args.max_pixels}  input_mode={args.input_mode}  thinking={args.thinking}  baseline={args.baseline}  prompt_style={args.prompt_style}  fewshot={args.fewshot}  single_model={args.single_model!r}  model_id={args.model_id!r}"]
+        f"Run started: {timestamp}  mode={args.mode}  max_pixels={args.max_pixels}  input_mode={args.input_mode}  thinking={args.thinking}  baseline={args.baseline}  prompt_style={args.prompt_style}  fewshot={args.fewshot}  single_model={args.single_model!r}  model_id={args.model_id!r}  warmup_file={args.warmup_file!r}"]
+
+    warmup_contents = None
+    if args.warmup_file:
+        warmup_contents = load_warmup_contents(
+            args.warmup_file, max_frames=args.warmup_max_frames, max_pixels=args.max_pixels)
 
     if args.mode == "test":
         items = load_test_items(fewshot=args.fewshot)
@@ -381,7 +473,8 @@ def main():
         domain_answers = run_domain(
             model_name, domain_items, log_lines, args.max_pixels, args.input_mode,
             thinking=args.thinking, baseline=args.baseline, prompt_style=args.prompt_style,
-            single_model=args.single_model, model_id=args.model_id)
+            single_model=args.single_model, model_id=args.model_id,
+            warmup_contents=warmup_contents)
         all_answers.update(domain_answers)
 
     if args.mode == "test":
