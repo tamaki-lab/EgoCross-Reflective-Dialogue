@@ -1,0 +1,5744 @@
+[
+  {
+    "id": 1,
+    "question_id": "CholecTrack20_VID01_q1_distinct-instruments-counting",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 2,
+    "question_id": "CholecTrack20_VID01_q2_instrument-region-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 3,
+    "question_id": "CholecTrack20_VID01_q3_instrument-region-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 4,
+    "question_id": "CholecTrack20_VID01_q4_distinct-instruments-counting",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 5,
+    "question_id": "CholecTrack20_VID01_q5_dominant-instrument-operator-identificat",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 6,
+    "question_id": "CholecTrack20_VID01_q6_distinct-instruments-counting",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 7,
+    "question_id": "CholecTrack20_VID01_q7_dominant-instrument-operator-identificat",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 8,
+    "question_id": "CholecTrack20_VID01_q8_instrument-region-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 9,
+    "question_id": "CholecTrack20_VID01_q9_instrument-region-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 10,
+    "question_id": "CholecTrack20_VID01_q10_instrument-not-visible-identification",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 11,
+    "question_id": "CholecTrack20_VID01_q11_instrument-not-visible-identification",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 12,
+    "question_id": "CholecTrack20_VID01_q12_dominant-instrument-operator-identificat",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 13,
+    "question_id": "CholecTrack20_VID06_q1_action-temporal-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 14,
+    "question_id": "CholecTrack20_VID06_q2_action-temporal-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 15,
+    "question_id": "CholecTrack20_VID06_q3_action-temporal-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 16,
+    "question_id": "CholecTrack20_VID06_q4_action-temporal-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 17,
+    "question_id": "CholecTrack20_VID06_q5_action-temporal-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 18,
+    "question_id": "CholecTrack20_VID06_q6_next-phase-prediction",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 19,
+    "question_id": "CholecTrack20_VID06_q7_next-action-prediction",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 20,
+    "question_id": "CholecTrack20_VID06_q8_next-phase-prediction",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 21,
+    "question_id": "CholecTrack20_VID06_q9_next-action-prediction",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 22,
+    "question_id": "CholecTrack20_VID06_q10_next-phase-prediction",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 23,
+    "question_id": "CholecTrack20_VID06_q11_next-action-prediction",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 24,
+    "question_id": "CholecTrack20_VID06_q12_next-phase-prediction",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 25,
+    "question_id": "CholecTrack20_VID06_q13_next-action-prediction",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 26,
+    "question_id": "CholecTrack20_VID06_q14_next-phase-prediction",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 27,
+    "question_id": "CholecTrack20_VID06_q15_next-action-prediction",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 28,
+    "question_id": "CholecTrack20_VID06_q16_next-phase-prediction",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 29,
+    "question_id": "CholecTrack20_VID06_q17_next-action-prediction",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 30,
+    "question_id": "CholecTrack20_VID06_q18_instrument-region-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 31,
+    "question_id": "CholecTrack20_VID06_q19_distinct-instruments-counting",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 32,
+    "question_id": "CholecTrack20_VID06_q20_distinct-instruments-counting",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 33,
+    "question_id": "CholecTrack20_VID06_q21_instrument-not-visible-identification",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 34,
+    "question_id": "CholecTrack20_VID06_q22_dominant-instrument-operator-identificat",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 35,
+    "question_id": "CholecTrack20_VID06_q23_instrument-region-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 36,
+    "question_id": "CholecTrack20_VID06_q24_distinct-instruments-counting",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 37,
+    "question_id": "CholecTrack20_VID06_q25_dominant-instrument-operator-identificat",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 38,
+    "question_id": "CholecTrack20_VID06_q26_instrument-region-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 39,
+    "question_id": "CholecTrack20_VID06_q27_instrument-not-visible-identification",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 40,
+    "question_id": "CholecTrack20_VID06_q28_instrument-region-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 41,
+    "question_id": "CholecTrack20_VID06_q29_dominant-instrument-operator-identificat",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 42,
+    "question_id": "CholecTrack20_VID07_q1_distinct-instruments-counting",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 43,
+    "question_id": "CholecTrack20_VID07_q2_instrument-not-visible-identification",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 44,
+    "question_id": "CholecTrack20_VID07_q3_dominant-instrument-operator-identificat",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 45,
+    "question_id": "CholecTrack20_VID07_q4_instrument-region-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 46,
+    "question_id": "CholecTrack20_VID07_q5_distinct-instruments-counting",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 47,
+    "question_id": "CholecTrack20_VID07_q6_instrument-region-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 48,
+    "question_id": "CholecTrack20_VID07_q7_dominant-instrument-operator-identificat",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 49,
+    "question_id": "CholecTrack20_VID07_q8_dominant-instrument-operator-identificat",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 50,
+    "question_id": "CholecTrack20_VID07_q9_instrument-not-visible-identification",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 51,
+    "question_id": "CholecTrack20_VID07_q10_instrument-region-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 52,
+    "question_id": "CholecTrack20_VID07_q11_distinct-instruments-counting",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 53,
+    "question_id": "CholecTrack20_VID07_q12_instrument-region-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 54,
+    "question_id": "CholecTrack20_VID110_q1_distinct-instruments-counting",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 55,
+    "question_id": "CholecTrack20_VID110_q2_instrument-not-visible-identification",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 56,
+    "question_id": "CholecTrack20_VID110_q3_distinct-instruments-counting",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 57,
+    "question_id": "CholecTrack20_VID110_q4_instrument-region-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 58,
+    "question_id": "CholecTrack20_VID110_q5_dominant-instrument-operator-identificat",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 59,
+    "question_id": "CholecTrack20_VID110_q6_instrument-not-visible-identification",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 60,
+    "question_id": "CholecTrack20_VID110_q7_distinct-instruments-counting",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 61,
+    "question_id": "CholecTrack20_VID110_q8_instrument-region-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 62,
+    "question_id": "CholecTrack20_VID110_q9_dominant-instrument-operator-identificat",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 63,
+    "question_id": "CholecTrack20_VID110_q10_instrument-region-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 64,
+    "question_id": "CholecTrack20_VID110_q11_instrument-region-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 65,
+    "question_id": "CholecTrack20_VID111_q1_action-temporal-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 66,
+    "question_id": "CholecTrack20_VID111_q2_action-temporal-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 67,
+    "question_id": "CholecTrack20_VID111_q3_action-temporal-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 68,
+    "question_id": "CholecTrack20_VID111_q4_action-temporal-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 69,
+    "question_id": "CholecTrack20_VID111_q5_action-temporal-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 70,
+    "question_id": "CholecTrack20_VID111_q6_next-phase-prediction",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 71,
+    "question_id": "CholecTrack20_VID111_q7_next-action-prediction",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 72,
+    "question_id": "CholecTrack20_VID111_q8_next-phase-prediction",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 73,
+    "question_id": "CholecTrack20_VID111_q9_next-action-prediction",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 74,
+    "question_id": "CholecTrack20_VID111_q10_next-phase-prediction",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 75,
+    "question_id": "CholecTrack20_VID111_q11_next-action-prediction",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 76,
+    "question_id": "CholecTrack20_VID111_q12_next-phase-prediction",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 77,
+    "question_id": "CholecTrack20_VID111_q13_next-action-prediction",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 78,
+    "question_id": "CholecTrack20_VID111_q14_next-phase-prediction",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 79,
+    "question_id": "CholecTrack20_VID111_q15_next-action-prediction",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 80,
+    "question_id": "CholecTrack20_VID111_q16_next-phase-prediction",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 81,
+    "question_id": "CholecTrack20_VID111_q17_next-action-prediction",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 82,
+    "question_id": "CholecTrack20_VID111_q18_dominant-instrument-operator-identificat",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 83,
+    "question_id": "CholecTrack20_VID111_q19_distinct-instruments-counting",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 84,
+    "question_id": "CholecTrack20_VID111_q20_instrument-not-visible-identification",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 85,
+    "question_id": "CholecTrack20_VID111_q21_instrument-region-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 86,
+    "question_id": "CholecTrack20_VID111_q22_instrument-not-visible-identification",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 87,
+    "question_id": "CholecTrack20_VID111_q23_distinct-instruments-counting",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 88,
+    "question_id": "CholecTrack20_VID111_q24_instrument-region-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 89,
+    "question_id": "CholecTrack20_VID111_q25_distinct-instruments-counting",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 90,
+    "question_id": "CholecTrack20_VID111_q26_dominant-instrument-operator-identificat",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 91,
+    "question_id": "CholecTrack20_VID111_q27_instrument-region-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 92,
+    "question_id": "CholecTrack20_VID111_q28_instrument-region-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 93,
+    "question_id": "CholecTrack20_VID12_q1_instrument-not-visible-identification",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 94,
+    "question_id": "CholecTrack20_VID12_q2_dominant-instrument-operator-identificat",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 95,
+    "question_id": "CholecTrack20_VID12_q3_instrument-region-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 96,
+    "question_id": "CholecTrack20_VID12_q4_distinct-instruments-counting",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 97,
+    "question_id": "CholecTrack20_VID12_q5_instrument-region-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 98,
+    "question_id": "CholecTrack20_VID12_q6_dominant-instrument-operator-identificat",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 99,
+    "question_id": "CholecTrack20_VID12_q7_distinct-instruments-counting",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 100,
+    "question_id": "CholecTrack20_VID12_q8_instrument-not-visible-identification",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 101,
+    "question_id": "CholecTrack20_VID12_q9_instrument-region-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 102,
+    "question_id": "CholecTrack20_VID12_q10_distinct-instruments-counting",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 103,
+    "question_id": "CholecTrack20_VID12_q11_instrument-region-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 104,
+    "question_id": "CholecTrack20_VID12_q12_dominant-instrument-operator-identificat",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 105,
+    "question_id": "CholecTrack20_VID25_q1_action-temporal-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 106,
+    "question_id": "CholecTrack20_VID25_q2_action-temporal-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 107,
+    "question_id": "CholecTrack20_VID25_q3_action-temporal-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 108,
+    "question_id": "CholecTrack20_VID25_q4_action-temporal-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 109,
+    "question_id": "CholecTrack20_VID25_q5_next-phase-prediction",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 110,
+    "question_id": "CholecTrack20_VID25_q6_next-action-prediction",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 111,
+    "question_id": "CholecTrack20_VID25_q7_next-phase-prediction",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 112,
+    "question_id": "CholecTrack20_VID25_q8_next-action-prediction",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 113,
+    "question_id": "CholecTrack20_VID25_q9_next-phase-prediction",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 114,
+    "question_id": "CholecTrack20_VID25_q10_next-action-prediction",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 115,
+    "question_id": "CholecTrack20_VID25_q11_next-phase-prediction",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 116,
+    "question_id": "CholecTrack20_VID25_q12_next-action-prediction",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 117,
+    "question_id": "CholecTrack20_VID25_q13_next-phase-prediction",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 118,
+    "question_id": "CholecTrack20_VID25_q14_next-action-prediction",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 119,
+    "question_id": "CholecTrack20_VID25_q15_next-phase-prediction",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 120,
+    "question_id": "CholecTrack20_VID25_q16_next-action-prediction",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 121,
+    "question_id": "CholecTrack20_VID25_q17_dominant-instrument-operator-identificat",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 122,
+    "question_id": "CholecTrack20_VID25_q18_instrument-region-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 123,
+    "question_id": "CholecTrack20_VID25_q19_distinct-instruments-counting",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 124,
+    "question_id": "CholecTrack20_VID25_q20_instrument-not-visible-identification",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 125,
+    "question_id": "CholecTrack20_VID25_q21_instrument-region-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 126,
+    "question_id": "CholecTrack20_VID25_q22_distinct-instruments-counting",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 127,
+    "question_id": "CholecTrack20_VID25_q23_instrument-not-visible-identification",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 128,
+    "question_id": "CholecTrack20_VID25_q24_distinct-instruments-counting",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 129,
+    "question_id": "CholecTrack20_VID25_q25_instrument-region-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 130,
+    "question_id": "CholecTrack20_VID25_q26_instrument-region-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 131,
+    "question_id": "CholecTrack20_VID25_q27_dominant-instrument-operator-identificat",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 132,
+    "question_id": "CholecTrack20_VID30_q1_instrument-region-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 133,
+    "question_id": "CholecTrack20_VID30_q2_distinct-instruments-counting",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 134,
+    "question_id": "CholecTrack20_VID30_q3_dominant-instrument-operator-identificat",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 135,
+    "question_id": "CholecTrack20_VID30_q4_instrument-not-visible-identification",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 136,
+    "question_id": "CholecTrack20_VID30_q5_instrument-region-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 137,
+    "question_id": "CholecTrack20_VID30_q6_dominant-instrument-operator-identificat",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 138,
+    "question_id": "CholecTrack20_VID30_q7_distinct-instruments-counting",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 139,
+    "question_id": "CholecTrack20_VID30_q8_instrument-not-visible-identification",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 140,
+    "question_id": "CholecTrack20_VID30_q9_instrument-region-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 141,
+    "question_id": "CholecTrack20_VID30_q10_distinct-instruments-counting",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 142,
+    "question_id": "CholecTrack20_VID30_q11_instrument-region-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 143,
+    "question_id": "CholecTrack20_VID39_q1_distinct-instruments-counting",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 144,
+    "question_id": "CholecTrack20_VID39_q2_dominant-instrument-operator-identificat",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 145,
+    "question_id": "CholecTrack20_VID39_q3_distinct-instruments-counting",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 146,
+    "question_id": "CholecTrack20_VID39_q4_instrument-region-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 147,
+    "question_id": "CholecTrack20_VID39_q5_instrument-not-visible-identification",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 148,
+    "question_id": "CholecTrack20_VID39_q6_dominant-instrument-operator-identificat",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 149,
+    "question_id": "CholecTrack20_VID39_q7_instrument-region-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 150,
+    "question_id": "CholecTrack20_VID39_q8_instrument-not-visible-identification",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 151,
+    "question_id": "CholecTrack20_VID39_q9_distinct-instruments-counting",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 152,
+    "question_id": "CholecTrack20_VID39_q10_instrument-region-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 153,
+    "question_id": "CholecTrack20_VID39_q11_dominant-instrument-operator-identificat",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 154,
+    "question_id": "CholecTrack20_VID39_q12_instrument-region-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 155,
+    "question_id": "CholecTrack20_VID92_q1_action-temporal-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 156,
+    "question_id": "CholecTrack20_VID92_q2_action-temporal-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 157,
+    "question_id": "CholecTrack20_VID92_q3_action-temporal-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 158,
+    "question_id": "CholecTrack20_VID92_q4_action-temporal-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 159,
+    "question_id": "CholecTrack20_VID92_q5_action-temporal-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 160,
+    "question_id": "CholecTrack20_VID92_q6_next-phase-prediction",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 161,
+    "question_id": "CholecTrack20_VID92_q7_next-action-prediction",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 162,
+    "question_id": "CholecTrack20_VID92_q8_next-phase-prediction",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 163,
+    "question_id": "CholecTrack20_VID92_q9_next-action-prediction",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 164,
+    "question_id": "CholecTrack20_VID92_q10_next-phase-prediction",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 165,
+    "question_id": "CholecTrack20_VID92_q11_next-action-prediction",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 166,
+    "question_id": "CholecTrack20_VID92_q12_next-phase-prediction",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 167,
+    "question_id": "CholecTrack20_VID92_q13_next-action-prediction",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 168,
+    "question_id": "CholecTrack20_VID92_q14_next-phase-prediction",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 169,
+    "question_id": "CholecTrack20_VID92_q15_next-action-prediction",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 170,
+    "question_id": "CholecTrack20_VID92_q16_next-phase-prediction",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 171,
+    "question_id": "CholecTrack20_VID92_q17_next-action-prediction",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 172,
+    "question_id": "CholecTrack20_VID92_q18_dominant-instrument-operator-identificat",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 173,
+    "question_id": "CholecTrack20_VID92_q19_dominant-instrument-operator-identificat",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 174,
+    "question_id": "CholecTrack20_VID92_q20_instrument-not-visible-identification",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 175,
+    "question_id": "CholecTrack20_VID92_q21_instrument-region-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 176,
+    "question_id": "CholecTrack20_VID92_q22_instrument-region-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 177,
+    "question_id": "CholecTrack20_VID92_q23_distinct-instruments-counting",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 178,
+    "question_id": "CholecTrack20_VID92_q24_instrument-not-visible-identification",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 179,
+    "question_id": "CholecTrack20_VID92_q25_distinct-instruments-counting",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 180,
+    "question_id": "CholecTrack20_VID92_q26_instrument-region-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 181,
+    "question_id": "CholecTrack20_VID92_q27_distinct-instruments-counting",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 182,
+    "question_id": "CholecTrack20_VID92_q28_instrument-region-localization",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 183,
+    "question_id": "CholecTrack20_VID92_q29_dominant-instrument-operator-identificat",
+    "dataset": "CholecTrack20",
+    "answer": ""
+  },
+  {
+    "id": 184,
+    "question_id": "EgoPet_809_q1_animal-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 185,
+    "question_id": "EgoPet_809_q2_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 186,
+    "question_id": "EgoPet_812_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 187,
+    "question_id": "EgoPet_812_q2_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 188,
+    "question_id": "EgoPet_815_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 189,
+    "question_id": "EgoPet_815_q2_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 190,
+    "question_id": "EgoPet_815_q3_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 191,
+    "question_id": "EgoPet_808_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 192,
+    "question_id": "EgoPet_808_q2_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 193,
+    "question_id": "EgoPet_808_q3_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 194,
+    "question_id": "EgoPet_808_q4_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 195,
+    "question_id": "EgoPet_807_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 196,
+    "question_id": "EgoPet_807_q2_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 197,
+    "question_id": "EgoPet_805_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 198,
+    "question_id": "EgoPet_805_q2_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 199,
+    "question_id": "EgoPet_805_q3_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 200,
+    "question_id": "EgoPet_805_q4_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 201,
+    "question_id": "EgoPet_804_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 202,
+    "question_id": "EgoPet_804_q2_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 203,
+    "question_id": "EgoPet_804_q3_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 204,
+    "question_id": "EgoPet_804_q4_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 205,
+    "question_id": "EgoPet_803_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 206,
+    "question_id": "EgoPet_803_q2_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 207,
+    "question_id": "EgoPet_801_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 208,
+    "question_id": "EgoPet_801_q2_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 209,
+    "question_id": "EgoPet_802_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 210,
+    "question_id": "EgoPet_799_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 211,
+    "question_id": "EgoPet_799_q2_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 212,
+    "question_id": "EgoPet_796_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 213,
+    "question_id": "EgoPet_796_q2_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 214,
+    "question_id": "EgoPet_797_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 215,
+    "question_id": "EgoPet_795_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 216,
+    "question_id": "EgoPet_795_q2_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 217,
+    "question_id": "EgoPet_765_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 218,
+    "question_id": "EgoPet_765_q2_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 219,
+    "question_id": "EgoPet_765_q3_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 220,
+    "question_id": "EgoPet_765_q4_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 221,
+    "question_id": "EgoPet_789_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 222,
+    "question_id": "EgoPet_741_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 223,
+    "question_id": "EgoPet_778_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 224,
+    "question_id": "EgoPet_778_q2_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 225,
+    "question_id": "EgoPet_750_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 226,
+    "question_id": "EgoPet_750_q2_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 227,
+    "question_id": "EgoPet_742_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 228,
+    "question_id": "EgoPet_772_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 229,
+    "question_id": "EgoPet_772_q2_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 230,
+    "question_id": "EgoPet_768_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 231,
+    "question_id": "EgoPet_768_q2_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 232,
+    "question_id": "EgoPet_768_q3_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 233,
+    "question_id": "EgoPet_768_q4_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 234,
+    "question_id": "EgoPet_768_q5_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 235,
+    "question_id": "EgoPet_758_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 236,
+    "question_id": "EgoPet_758_q2_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 237,
+    "question_id": "EgoPet_758_q3_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 238,
+    "question_id": "EgoPet_779_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 239,
+    "question_id": "EgoPet_743_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 240,
+    "question_id": "EgoPet_744_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 241,
+    "question_id": "EgoPet_745_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 242,
+    "question_id": "EgoPet_748_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 243,
+    "question_id": "EgoPet_739_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 244,
+    "question_id": "EgoPet_754_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 245,
+    "question_id": "EgoPet_754_q2_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 246,
+    "question_id": "EgoPet_761_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 247,
+    "question_id": "EgoPet_762_q1_animal-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 248,
+    "question_id": "EgoPet_774_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 249,
+    "question_id": "EgoPet_775_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 250,
+    "question_id": "EgoPet_775_q2_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 251,
+    "question_id": "EgoPet_775_q3_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 252,
+    "question_id": "EgoPet_775_q4_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 253,
+    "question_id": "EgoPet_775_q5_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 254,
+    "question_id": "EgoPet_776_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 255,
+    "question_id": "EgoPet_781_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 256,
+    "question_id": "EgoPet_781_q2_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 257,
+    "question_id": "EgoPet_781_q3_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 258,
+    "question_id": "EgoPet_781_q4_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 259,
+    "question_id": "EgoPet_782_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 260,
+    "question_id": "EgoPet_782_q2_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 261,
+    "question_id": "EgoPet_782_q3_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 262,
+    "question_id": "EgoPet_782_q4_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 263,
+    "question_id": "EgoPet_783_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 264,
+    "question_id": "EgoPet_783_q2_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 265,
+    "question_id": "EgoPet_783_q3_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 266,
+    "question_id": "EgoPet_794_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 267,
+    "question_id": "EgoPet_794_q2_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 268,
+    "question_id": "EgoPet_751_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 269,
+    "question_id": "EgoPet_751_q2_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 270,
+    "question_id": "EgoPet_763_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 271,
+    "question_id": "EgoPet_769_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 272,
+    "question_id": "EgoPet_771_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 273,
+    "question_id": "EgoPet_771_q2_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 274,
+    "question_id": "EgoPet_784_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 275,
+    "question_id": "EgoPet_784_q2_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 276,
+    "question_id": "EgoPet_784_q3_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 277,
+    "question_id": "EgoPet_785_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 278,
+    "question_id": "EgoPet_785_q2_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 279,
+    "question_id": "EgoPet_785_q3_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 280,
+    "question_id": "EgoPet_785_q4_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 281,
+    "question_id": "EgoPet_757_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 282,
+    "question_id": "EgoPet_757_q2_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 283,
+    "question_id": "EgoPet_752_q1_animal-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 284,
+    "question_id": "EgoPet_747_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 285,
+    "question_id": "EgoPet_747_q2_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 286,
+    "question_id": "EgoPet_747_q3_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 287,
+    "question_id": "EgoPet_747_q4_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 288,
+    "question_id": "EgoPet_747_q5_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 289,
+    "question_id": "EgoPet_749_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 290,
+    "question_id": "EgoPet_749_q2_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 291,
+    "question_id": "EgoPet_818_q1_animal-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 292,
+    "question_id": "EgoPet_818_q2_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 293,
+    "question_id": "EgoPet_818_q3_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 294,
+    "question_id": "EgoPet_818_q4_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 295,
+    "question_id": "EgoPet_818_q5_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 296,
+    "question_id": "EgoPet_818_q6_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 297,
+    "question_id": "EgoPet_753_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 298,
+    "question_id": "EgoPet_753_q2_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 299,
+    "question_id": "EgoPet_756_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 300,
+    "question_id": "EgoPet_756_q2_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 301,
+    "question_id": "EgoPet_756_q3_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 302,
+    "question_id": "EgoPet_756_q4_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 303,
+    "question_id": "EgoPet_756_q5_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 304,
+    "question_id": "EgoPet_786_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 305,
+    "question_id": "EgoPet_786_q2_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 306,
+    "question_id": "EgoPet_786_q3_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 307,
+    "question_id": "EgoPet_786_q4_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 308,
+    "question_id": "EgoPet_786_q5_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 309,
+    "question_id": "EgoPet_817_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 310,
+    "question_id": "EgoPet_816_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 311,
+    "question_id": "EgoPet_780_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 312,
+    "question_id": "EgoPet_780_q2_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 313,
+    "question_id": "EgoPet_780_q3_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 314,
+    "question_id": "EgoPet_780_q4_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 315,
+    "question_id": "EgoPet_780_q5_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 316,
+    "question_id": "EgoPet_792_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 317,
+    "question_id": "EgoPet_792_q2_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 318,
+    "question_id": "EgoPet_792_q3_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 319,
+    "question_id": "EgoPet_792_q4_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 320,
+    "question_id": "EgoPet_793_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 321,
+    "question_id": "EgoPet_793_q2_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 322,
+    "question_id": "EgoPet_793_q3_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 323,
+    "question_id": "EgoPet_793_q4_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 324,
+    "question_id": "EgoPet_793_q5_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 325,
+    "question_id": "EgoPet_738_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 326,
+    "question_id": "EgoPet_738_q2_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 327,
+    "question_id": "EgoPet_738_q3_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 328,
+    "question_id": "EgoPet_738_q4_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 329,
+    "question_id": "EgoPet_746_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 330,
+    "question_id": "EgoPet_746_q2_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 331,
+    "question_id": "EgoPet_746_q3_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 332,
+    "question_id": "EgoPet_746_q4_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 333,
+    "question_id": "EgoPet_746_q5_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 334,
+    "question_id": "EgoPet_766_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 335,
+    "question_id": "EgoPet_790_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 336,
+    "question_id": "EgoPet_790_q2_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 337,
+    "question_id": "EgoPet_787_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 338,
+    "question_id": "EgoPet_787_q2_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 339,
+    "question_id": "EgoPet_787_q3_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 340,
+    "question_id": "EgoPet_787_q4_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 341,
+    "question_id": "EgoPet_787_q5_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 342,
+    "question_id": "EgoPet_777_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 343,
+    "question_id": "EgoPet_777_q2_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 344,
+    "question_id": "EgoPet_777_q3_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 345,
+    "question_id": "EgoPet_800_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 346,
+    "question_id": "EgoPet_800_q2_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 347,
+    "question_id": "EgoPet_800_q3_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 348,
+    "question_id": "EgoPet_800_q4_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 349,
+    "question_id": "EgoPet_813_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 350,
+    "question_id": "EgoPet_813_q2_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 351,
+    "question_id": "EgoPet_813_q3_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 352,
+    "question_id": "EgoPet_813_q4_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 353,
+    "question_id": "EgoPet_814_q1_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 354,
+    "question_id": "EgoPet_814_q2_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 355,
+    "question_id": "EgoPet_767_q1_animal-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 356,
+    "question_id": "EgoPet_767_q2_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 357,
+    "question_id": "EgoPet_767_q3_interaction-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 358,
+    "question_id": "EgoPet_767_q4_interaction-temporal-localization",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 359,
+    "question_id": "EgoPet_798_q1_animal-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 360,
+    "question_id": "EgoPet_125_q1_animal-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 361,
+    "question_id": "EgoPet_466_q1_animal-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 362,
+    "question_id": "EgoPet_301_q1_animal-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 363,
+    "question_id": "EgoPet_227_q1_animal-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 364,
+    "question_id": "EgoPet_316_q1_animal-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 365,
+    "question_id": "EgoPet_734_q1_animal-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 366,
+    "question_id": "EgoPet_232_q1_animal-identification",
+    "dataset": "EgoPet",
+    "answer": ""
+  },
+  {
+    "id": 367,
+    "question_id": "EgoSurgery_04_q1_dominant-tool-operator-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 368,
+    "question_id": "EgoSurgery_04_q2_held-object-region-localization",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 369,
+    "question_id": "EgoSurgery_04_q3_dominant-tool-operator-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 370,
+    "question_id": "EgoSurgery_04_q4_distinct-object-types-counting",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 371,
+    "question_id": "EgoSurgery_04_q5_held-object-region-localization",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 372,
+    "question_id": "EgoSurgery_04_q6_dominant-tool-operator-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 373,
+    "question_id": "EgoSurgery_04_q7_object-not-visible-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 374,
+    "question_id": "EgoSurgery_04_q8_distinct-object-types-counting",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 375,
+    "question_id": "EgoSurgery_04_q9_object-not-visible-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 376,
+    "question_id": "EgoSurgery_04_q10_object-not-visible-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 377,
+    "question_id": "EgoSurgery_04_q11_held-object-region-localization",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 378,
+    "question_id": "EgoSurgery_04_q12_dominant-tool-operator-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 379,
+    "question_id": "EgoSurgery_04_q13_distinct-object-types-counting",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 380,
+    "question_id": "EgoSurgery_04_q14_dominant-tool-operator-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 381,
+    "question_id": "EgoSurgery_04_q15_dominant-tool-operator-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 382,
+    "question_id": "EgoSurgery_04_q16_dominant-tool-operator-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 383,
+    "question_id": "EgoSurgery_04_q17_distinct-object-types-counting",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 384,
+    "question_id": "EgoSurgery_04_q18_held-object-region-localization",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 385,
+    "question_id": "EgoSurgery_04_q19_dominant-tool-operator-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 386,
+    "question_id": "EgoSurgery_04_q20_object-not-visible-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 387,
+    "question_id": "EgoSurgery_05_q1_held-object-region-localization",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 388,
+    "question_id": "EgoSurgery_05_q2_object-not-visible-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 389,
+    "question_id": "EgoSurgery_05_q3_distinct-object-types-counting",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 390,
+    "question_id": "EgoSurgery_05_q4_distinct-object-types-counting",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 391,
+    "question_id": "EgoSurgery_05_q5_distinct-object-types-counting",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 392,
+    "question_id": "EgoSurgery_05_q6_dominant-tool-operator-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 393,
+    "question_id": "EgoSurgery_05_q7_dominant-tool-operator-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 394,
+    "question_id": "EgoSurgery_05_q8_dominant-tool-operator-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 395,
+    "question_id": "EgoSurgery_05_q9_distinct-object-types-counting",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 396,
+    "question_id": "EgoSurgery_05_q10_dominant-tool-operator-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 397,
+    "question_id": "EgoSurgery_05_q11_object-not-visible-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 398,
+    "question_id": "EgoSurgery_05_q12_object-not-visible-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 399,
+    "question_id": "EgoSurgery_05_q13_dominant-tool-operator-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 400,
+    "question_id": "EgoSurgery_05_q14_dominant-tool-operator-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 401,
+    "question_id": "EgoSurgery_05_q15_held-object-region-localization",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 402,
+    "question_id": "EgoSurgery_05_q16_object-not-visible-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 403,
+    "question_id": "EgoSurgery_05_q17_held-object-region-localization",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 404,
+    "question_id": "EgoSurgery_05_q18_dominant-tool-operator-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 405,
+    "question_id": "EgoSurgery_05_q19_dominant-tool-operator-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 406,
+    "question_id": "EgoSurgery_05_q20_held-object-region-localization",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 407,
+    "question_id": "EgoSurgery_07_q1_object-not-visible-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 408,
+    "question_id": "EgoSurgery_07_q2_dominant-tool-operator-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 409,
+    "question_id": "EgoSurgery_07_q3_distinct-object-types-counting",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 410,
+    "question_id": "EgoSurgery_07_q4_held-object-region-localization",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 411,
+    "question_id": "EgoSurgery_07_q5_object-not-visible-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 412,
+    "question_id": "EgoSurgery_07_q6_dominant-tool-operator-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 413,
+    "question_id": "EgoSurgery_07_q7_held-object-region-localization",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 414,
+    "question_id": "EgoSurgery_07_q8_object-not-visible-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 415,
+    "question_id": "EgoSurgery_07_q9_distinct-object-types-counting",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 416,
+    "question_id": "EgoSurgery_07_q10_dominant-tool-operator-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 417,
+    "question_id": "EgoSurgery_07_q11_dominant-tool-operator-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 418,
+    "question_id": "EgoSurgery_07_q12_object-not-visible-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 419,
+    "question_id": "EgoSurgery_07_q13_dominant-tool-operator-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 420,
+    "question_id": "EgoSurgery_07_q14_dominant-tool-operator-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 421,
+    "question_id": "EgoSurgery_07_q15_distinct-object-types-counting",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 422,
+    "question_id": "EgoSurgery_07_q16_held-object-region-localization",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 423,
+    "question_id": "EgoSurgery_07_q17_held-object-region-localization",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 424,
+    "question_id": "EgoSurgery_07_q18_dominant-tool-operator-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 425,
+    "question_id": "EgoSurgery_07_q19_dominant-tool-operator-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 426,
+    "question_id": "EgoSurgery_07_q20_distinct-object-types-counting",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 427,
+    "question_id": "EgoSurgery_09_q1_dominant-tool-operator-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 428,
+    "question_id": "EgoSurgery_09_q2_distinct-object-types-counting",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 429,
+    "question_id": "EgoSurgery_09_q3_object-not-visible-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 430,
+    "question_id": "EgoSurgery_09_q4_held-object-region-localization",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 431,
+    "question_id": "EgoSurgery_09_q5_dominant-tool-operator-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 432,
+    "question_id": "EgoSurgery_09_q6_held-object-region-localization",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 433,
+    "question_id": "EgoSurgery_09_q7_dominant-tool-operator-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 434,
+    "question_id": "EgoSurgery_09_q8_dominant-tool-operator-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 435,
+    "question_id": "EgoSurgery_09_q9_distinct-object-types-counting",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 436,
+    "question_id": "EgoSurgery_09_q10_object-not-visible-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 437,
+    "question_id": "EgoSurgery_09_q11_held-object-region-localization",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 438,
+    "question_id": "EgoSurgery_09_q12_dominant-tool-operator-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 439,
+    "question_id": "EgoSurgery_09_q13_distinct-object-types-counting",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 440,
+    "question_id": "EgoSurgery_09_q14_object-not-visible-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 441,
+    "question_id": "EgoSurgery_09_q15_dominant-tool-operator-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 442,
+    "question_id": "EgoSurgery_09_q16_dominant-tool-operator-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 443,
+    "question_id": "EgoSurgery_09_q17_held-object-region-localization",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 444,
+    "question_id": "EgoSurgery_09_q18_distinct-object-types-counting",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 445,
+    "question_id": "EgoSurgery_09_q19_dominant-tool-operator-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 446,
+    "question_id": "EgoSurgery_09_q20_object-not-visible-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 447,
+    "question_id": "EgoSurgery_10_q1_object-not-visible-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 448,
+    "question_id": "EgoSurgery_10_q2_dominant-tool-operator-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 449,
+    "question_id": "EgoSurgery_10_q3_dominant-tool-operator-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 450,
+    "question_id": "EgoSurgery_10_q4_distinct-object-types-counting",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 451,
+    "question_id": "EgoSurgery_10_q5_object-not-visible-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 452,
+    "question_id": "EgoSurgery_10_q6_held-object-region-localization",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 453,
+    "question_id": "EgoSurgery_10_q7_held-object-region-localization",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 454,
+    "question_id": "EgoSurgery_10_q8_dominant-tool-operator-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 455,
+    "question_id": "EgoSurgery_10_q9_distinct-object-types-counting",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 456,
+    "question_id": "EgoSurgery_10_q10_distinct-object-types-counting",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 457,
+    "question_id": "EgoSurgery_10_q11_dominant-tool-operator-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 458,
+    "question_id": "EgoSurgery_10_q12_distinct-object-types-counting",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 459,
+    "question_id": "EgoSurgery_10_q13_held-object-region-localization",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 460,
+    "question_id": "EgoSurgery_10_q14_dominant-tool-operator-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 461,
+    "question_id": "EgoSurgery_10_q15_dominant-tool-operator-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 462,
+    "question_id": "EgoSurgery_10_q16_dominant-tool-operator-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 463,
+    "question_id": "EgoSurgery_10_q17_object-not-visible-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 464,
+    "question_id": "EgoSurgery_10_q18_dominant-tool-operator-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 465,
+    "question_id": "EgoSurgery_10_q19_held-object-region-localization",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 466,
+    "question_id": "EgoSurgery_10_q20_object-not-visible-identification",
+    "dataset": "EgoSurgery",
+    "answer": ""
+  },
+  {
+    "id": 467,
+    "question_id": "ENIGMA_107_q1_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 468,
+    "question_id": "ENIGMA_107_q2_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 469,
+    "question_id": "ENIGMA_107_q3_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 470,
+    "question_id": "ENIGMA_107_q4_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 471,
+    "question_id": "ENIGMA_107_q5_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 472,
+    "question_id": "ENIGMA_107_q6_dominant-tool-operator-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 473,
+    "question_id": "ENIGMA_107_q7_dominant-tool-operator-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 474,
+    "question_id": "ENIGMA_107_q8_object-not-visible-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 475,
+    "question_id": "ENIGMA_107_q9_object-not-visible-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 476,
+    "question_id": "ENIGMA_107_q10_held-object-region-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 477,
+    "question_id": "ENIGMA_107_q11_held-object-region-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 478,
+    "question_id": "ENIGMA_107_q12_temporal-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 479,
+    "question_id": "ENIGMA_107_q13_temporal-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 480,
+    "question_id": "ENIGMA_107_q14_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 481,
+    "question_id": "ENIGMA_107_q15_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 482,
+    "question_id": "ENIGMA_107_q16_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 483,
+    "question_id": "ENIGMA_107_q17_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 484,
+    "question_id": "ENIGMA_131_q1_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 485,
+    "question_id": "ENIGMA_131_q2_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 486,
+    "question_id": "ENIGMA_131_q3_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 487,
+    "question_id": "ENIGMA_131_q4_dominant-tool-operator-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 488,
+    "question_id": "ENIGMA_131_q5_dominant-tool-operator-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 489,
+    "question_id": "ENIGMA_131_q6_object-not-visible-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 490,
+    "question_id": "ENIGMA_131_q7_object-not-visible-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 491,
+    "question_id": "ENIGMA_131_q8_held-object-region-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 492,
+    "question_id": "ENIGMA_131_q9_held-object-region-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 493,
+    "question_id": "ENIGMA_131_q10_temporal-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 494,
+    "question_id": "ENIGMA_131_q11_temporal-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 495,
+    "question_id": "ENIGMA_131_q12_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 496,
+    "question_id": "ENIGMA_131_q13_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 497,
+    "question_id": "ENIGMA_131_q14_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 498,
+    "question_id": "ENIGMA_131_q15_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 499,
+    "question_id": "ENIGMA_141_q1_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 500,
+    "question_id": "ENIGMA_141_q2_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 501,
+    "question_id": "ENIGMA_141_q3_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 502,
+    "question_id": "ENIGMA_141_q4_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 503,
+    "question_id": "ENIGMA_141_q5_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 504,
+    "question_id": "ENIGMA_141_q6_dominant-tool-operator-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 505,
+    "question_id": "ENIGMA_141_q7_dominant-tool-operator-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 506,
+    "question_id": "ENIGMA_141_q8_object-not-visible-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 507,
+    "question_id": "ENIGMA_141_q9_object-not-visible-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 508,
+    "question_id": "ENIGMA_141_q10_held-object-region-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 509,
+    "question_id": "ENIGMA_141_q11_held-object-region-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 510,
+    "question_id": "ENIGMA_141_q12_temporal-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 511,
+    "question_id": "ENIGMA_141_q13_temporal-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 512,
+    "question_id": "ENIGMA_141_q14_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 513,
+    "question_id": "ENIGMA_141_q15_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 514,
+    "question_id": "ENIGMA_141_q16_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 515,
+    "question_id": "ENIGMA_141_q17_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 516,
+    "question_id": "ENIGMA_143_q1_dominant-tool-operator-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 517,
+    "question_id": "ENIGMA_143_q2_dominant-tool-operator-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 518,
+    "question_id": "ENIGMA_143_q3_object-not-visible-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 519,
+    "question_id": "ENIGMA_143_q4_object-not-visible-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 520,
+    "question_id": "ENIGMA_143_q5_held-object-region-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 521,
+    "question_id": "ENIGMA_143_q6_held-object-region-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 522,
+    "question_id": "ENIGMA_143_q7_temporal-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 523,
+    "question_id": "ENIGMA_143_q8_temporal-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 524,
+    "question_id": "ENIGMA_143_q9_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 525,
+    "question_id": "ENIGMA_143_q10_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 526,
+    "question_id": "ENIGMA_143_q11_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 527,
+    "question_id": "ENIGMA_143_q12_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 528,
+    "question_id": "ENIGMA_144_q1_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 529,
+    "question_id": "ENIGMA_144_q2_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 530,
+    "question_id": "ENIGMA_144_q3_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 531,
+    "question_id": "ENIGMA_144_q4_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 532,
+    "question_id": "ENIGMA_144_q5_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 533,
+    "question_id": "ENIGMA_144_q6_dominant-tool-operator-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 534,
+    "question_id": "ENIGMA_144_q7_dominant-tool-operator-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 535,
+    "question_id": "ENIGMA_144_q8_object-not-visible-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 536,
+    "question_id": "ENIGMA_144_q9_object-not-visible-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 537,
+    "question_id": "ENIGMA_144_q10_held-object-region-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 538,
+    "question_id": "ENIGMA_144_q11_held-object-region-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 539,
+    "question_id": "ENIGMA_144_q12_temporal-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 540,
+    "question_id": "ENIGMA_144_q13_temporal-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 541,
+    "question_id": "ENIGMA_144_q14_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 542,
+    "question_id": "ENIGMA_144_q15_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 543,
+    "question_id": "ENIGMA_144_q16_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 544,
+    "question_id": "ENIGMA_144_q17_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 545,
+    "question_id": "ENIGMA_46_q1_dominant-tool-operator-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 546,
+    "question_id": "ENIGMA_46_q2_dominant-tool-operator-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 547,
+    "question_id": "ENIGMA_46_q3_object-not-visible-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 548,
+    "question_id": "ENIGMA_46_q4_object-not-visible-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 549,
+    "question_id": "ENIGMA_46_q5_held-object-region-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 550,
+    "question_id": "ENIGMA_46_q6_held-object-region-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 551,
+    "question_id": "ENIGMA_46_q7_temporal-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 552,
+    "question_id": "ENIGMA_46_q8_temporal-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 553,
+    "question_id": "ENIGMA_46_q9_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 554,
+    "question_id": "ENIGMA_46_q10_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 555,
+    "question_id": "ENIGMA_46_q11_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 556,
+    "question_id": "ENIGMA_46_q12_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 557,
+    "question_id": "ENIGMA_47_q1_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 558,
+    "question_id": "ENIGMA_47_q2_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 559,
+    "question_id": "ENIGMA_47_q3_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 560,
+    "question_id": "ENIGMA_47_q4_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 561,
+    "question_id": "ENIGMA_47_q5_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 562,
+    "question_id": "ENIGMA_47_q6_dominant-tool-operator-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 563,
+    "question_id": "ENIGMA_47_q7_dominant-tool-operator-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 564,
+    "question_id": "ENIGMA_47_q8_object-not-visible-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 565,
+    "question_id": "ENIGMA_47_q9_object-not-visible-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 566,
+    "question_id": "ENIGMA_47_q10_held-object-region-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 567,
+    "question_id": "ENIGMA_47_q11_held-object-region-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 568,
+    "question_id": "ENIGMA_47_q12_temporal-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 569,
+    "question_id": "ENIGMA_47_q13_temporal-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 570,
+    "question_id": "ENIGMA_47_q14_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 571,
+    "question_id": "ENIGMA_47_q15_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 572,
+    "question_id": "ENIGMA_47_q16_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 573,
+    "question_id": "ENIGMA_47_q17_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 574,
+    "question_id": "ENIGMA_49_q1_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 575,
+    "question_id": "ENIGMA_49_q2_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 576,
+    "question_id": "ENIGMA_49_q3_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 577,
+    "question_id": "ENIGMA_49_q4_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 578,
+    "question_id": "ENIGMA_49_q5_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 579,
+    "question_id": "ENIGMA_49_q6_dominant-tool-operator-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 580,
+    "question_id": "ENIGMA_49_q7_dominant-tool-operator-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 581,
+    "question_id": "ENIGMA_49_q8_object-not-visible-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 582,
+    "question_id": "ENIGMA_49_q9_object-not-visible-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 583,
+    "question_id": "ENIGMA_49_q10_held-object-region-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 584,
+    "question_id": "ENIGMA_49_q11_held-object-region-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 585,
+    "question_id": "ENIGMA_49_q12_temporal-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 586,
+    "question_id": "ENIGMA_49_q13_temporal-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 587,
+    "question_id": "ENIGMA_49_q14_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 588,
+    "question_id": "ENIGMA_49_q15_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 589,
+    "question_id": "ENIGMA_49_q16_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 590,
+    "question_id": "ENIGMA_49_q17_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 591,
+    "question_id": "ENIGMA_53_q1_dominant-tool-operator-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 592,
+    "question_id": "ENIGMA_53_q2_dominant-tool-operator-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 593,
+    "question_id": "ENIGMA_53_q3_object-not-visible-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 594,
+    "question_id": "ENIGMA_53_q4_object-not-visible-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 595,
+    "question_id": "ENIGMA_53_q5_held-object-region-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 596,
+    "question_id": "ENIGMA_53_q6_held-object-region-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 597,
+    "question_id": "ENIGMA_53_q7_temporal-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 598,
+    "question_id": "ENIGMA_53_q8_temporal-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 599,
+    "question_id": "ENIGMA_53_q9_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 600,
+    "question_id": "ENIGMA_53_q10_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 601,
+    "question_id": "ENIGMA_53_q11_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 602,
+    "question_id": "ENIGMA_53_q12_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 603,
+    "question_id": "ENIGMA_65_q1_dominant-tool-operator-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 604,
+    "question_id": "ENIGMA_65_q2_dominant-tool-operator-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 605,
+    "question_id": "ENIGMA_65_q3_object-not-visible-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 606,
+    "question_id": "ENIGMA_65_q4_object-not-visible-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 607,
+    "question_id": "ENIGMA_65_q5_held-object-region-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 608,
+    "question_id": "ENIGMA_65_q6_held-object-region-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 609,
+    "question_id": "ENIGMA_65_q7_temporal-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 610,
+    "question_id": "ENIGMA_65_q8_temporal-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 611,
+    "question_id": "ENIGMA_65_q9_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 612,
+    "question_id": "ENIGMA_65_q10_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 613,
+    "question_id": "ENIGMA_65_q11_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 614,
+    "question_id": "ENIGMA_65_q12_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 615,
+    "question_id": "ENIGMA_66_q1_dominant-tool-operator-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 616,
+    "question_id": "ENIGMA_66_q2_dominant-tool-operator-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 617,
+    "question_id": "ENIGMA_66_q3_object-not-visible-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 618,
+    "question_id": "ENIGMA_66_q4_object-not-visible-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 619,
+    "question_id": "ENIGMA_66_q5_held-object-region-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 620,
+    "question_id": "ENIGMA_66_q6_held-object-region-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 621,
+    "question_id": "ENIGMA_66_q7_temporal-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 622,
+    "question_id": "ENIGMA_66_q8_temporal-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 623,
+    "question_id": "ENIGMA_66_q9_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 624,
+    "question_id": "ENIGMA_66_q10_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 625,
+    "question_id": "ENIGMA_66_q11_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 626,
+    "question_id": "ENIGMA_66_q12_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 627,
+    "question_id": "ENIGMA_85_q1_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 628,
+    "question_id": "ENIGMA_85_q2_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 629,
+    "question_id": "ENIGMA_85_q3_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 630,
+    "question_id": "ENIGMA_85_q4_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 631,
+    "question_id": "ENIGMA_85_q5_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 632,
+    "question_id": "ENIGMA_85_q6_dominant-tool-operator-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 633,
+    "question_id": "ENIGMA_85_q7_dominant-tool-operator-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 634,
+    "question_id": "ENIGMA_85_q8_object-not-visible-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 635,
+    "question_id": "ENIGMA_85_q9_object-not-visible-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 636,
+    "question_id": "ENIGMA_85_q10_held-object-region-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 637,
+    "question_id": "ENIGMA_85_q11_held-object-region-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 638,
+    "question_id": "ENIGMA_85_q12_temporal-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 639,
+    "question_id": "ENIGMA_85_q13_temporal-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 640,
+    "question_id": "ENIGMA_85_q14_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 641,
+    "question_id": "ENIGMA_85_q15_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 642,
+    "question_id": "ENIGMA_85_q16_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 643,
+    "question_id": "ENIGMA_85_q17_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 644,
+    "question_id": "ENIGMA_86_q1_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 645,
+    "question_id": "ENIGMA_86_q2_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 646,
+    "question_id": "ENIGMA_86_q3_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 647,
+    "question_id": "ENIGMA_86_q4_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 648,
+    "question_id": "ENIGMA_86_q5_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 649,
+    "question_id": "ENIGMA_86_q6_dominant-tool-operator-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 650,
+    "question_id": "ENIGMA_86_q7_dominant-tool-operator-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 651,
+    "question_id": "ENIGMA_86_q8_object-not-visible-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 652,
+    "question_id": "ENIGMA_86_q9_object-not-visible-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 653,
+    "question_id": "ENIGMA_86_q10_held-object-region-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 654,
+    "question_id": "ENIGMA_86_q11_held-object-region-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 655,
+    "question_id": "ENIGMA_86_q12_temporal-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 656,
+    "question_id": "ENIGMA_86_q13_temporal-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 657,
+    "question_id": "ENIGMA_86_q14_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 658,
+    "question_id": "ENIGMA_86_q15_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 659,
+    "question_id": "ENIGMA_86_q16_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 660,
+    "question_id": "ENIGMA_86_q17_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 661,
+    "question_id": "ENIGMA_88_q1_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 662,
+    "question_id": "ENIGMA_88_q2_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 663,
+    "question_id": "ENIGMA_88_q3_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 664,
+    "question_id": "ENIGMA_88_q4_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 665,
+    "question_id": "ENIGMA_88_q5_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 666,
+    "question_id": "ENIGMA_88_q6_dominant-tool-operator-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 667,
+    "question_id": "ENIGMA_88_q7_dominant-tool-operator-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 668,
+    "question_id": "ENIGMA_88_q8_object-not-visible-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 669,
+    "question_id": "ENIGMA_88_q9_object-not-visible-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 670,
+    "question_id": "ENIGMA_88_q10_held-object-region-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 671,
+    "question_id": "ENIGMA_88_q11_held-object-region-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 672,
+    "question_id": "ENIGMA_88_q12_temporal-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 673,
+    "question_id": "ENIGMA_88_q13_temporal-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 674,
+    "question_id": "ENIGMA_88_q14_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 675,
+    "question_id": "ENIGMA_88_q15_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 676,
+    "question_id": "ENIGMA_88_q16_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 677,
+    "question_id": "ENIGMA_88_q17_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 678,
+    "question_id": "ENIGMA_89_q1_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 679,
+    "question_id": "ENIGMA_89_q2_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 680,
+    "question_id": "ENIGMA_89_q3_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 681,
+    "question_id": "ENIGMA_89_q4_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 682,
+    "question_id": "ENIGMA_89_q5_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 683,
+    "question_id": "ENIGMA_89_q6_dominant-tool-operator-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 684,
+    "question_id": "ENIGMA_89_q7_dominant-tool-operator-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 685,
+    "question_id": "ENIGMA_89_q8_object-not-visible-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 686,
+    "question_id": "ENIGMA_89_q9_object-not-visible-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 687,
+    "question_id": "ENIGMA_89_q10_held-object-region-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 688,
+    "question_id": "ENIGMA_89_q11_held-object-region-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 689,
+    "question_id": "ENIGMA_89_q12_temporal-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 690,
+    "question_id": "ENIGMA_89_q13_temporal-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 691,
+    "question_id": "ENIGMA_89_q14_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 692,
+    "question_id": "ENIGMA_89_q15_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 693,
+    "question_id": "ENIGMA_89_q16_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 694,
+    "question_id": "ENIGMA_89_q17_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 695,
+    "question_id": "ENIGMA_95_q1_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 696,
+    "question_id": "ENIGMA_95_q2_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 697,
+    "question_id": "ENIGMA_95_q3_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 698,
+    "question_id": "ENIGMA_95_q4_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 699,
+    "question_id": "ENIGMA_95_q5_next-interaction-prediction",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 700,
+    "question_id": "ENIGMA_95_q6_dominant-tool-operator-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 701,
+    "question_id": "ENIGMA_95_q7_dominant-tool-operator-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 702,
+    "question_id": "ENIGMA_95_q8_object-not-visible-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 703,
+    "question_id": "ENIGMA_95_q9_object-not-visible-identification",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 704,
+    "question_id": "ENIGMA_95_q10_held-object-region-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 705,
+    "question_id": "ENIGMA_95_q11_held-object-region-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 706,
+    "question_id": "ENIGMA_95_q12_temporal-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 707,
+    "question_id": "ENIGMA_95_q13_temporal-localization",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 708,
+    "question_id": "ENIGMA_95_q14_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 709,
+    "question_id": "ENIGMA_95_q15_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 710,
+    "question_id": "ENIGMA_95_q16_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 711,
+    "question_id": "ENIGMA_95_q17_distinct-object-types-counting",
+    "dataset": "ENIGMA",
+    "answer": ""
+  },
+  {
+    "id": 712,
+    "question_id": "ExtrameSportFPV_VID001_q1_special-action-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 713,
+    "question_id": "ExtrameSportFPV_VID001_q2_special-action-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 714,
+    "question_id": "ExtrameSportFPV_VID001_q3_special-action-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 715,
+    "question_id": "ExtrameSportFPV_VID001_q4_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 716,
+    "question_id": "ExtrameSportFPV_VID001_q5_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 717,
+    "question_id": "ExtrameSportFPV_VID001_q6_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 718,
+    "question_id": "ExtrameSportFPV_VID001_q7_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 719,
+    "question_id": "ExtrameSportFPV_VID001_q8_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 720,
+    "question_id": "ExtrameSportFPV_VID001_q9_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 721,
+    "question_id": "ExtrameSportFPV_VID001_q10_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 722,
+    "question_id": "ExtrameSportFPV_VID001_q11_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 723,
+    "question_id": "ExtrameSportFPV_VID006_q1_sport-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 724,
+    "question_id": "ExtrameSportFPV_VID006_q2_special-action-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 725,
+    "question_id": "ExtrameSportFPV_VID006_q3_special-action-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 726,
+    "question_id": "ExtrameSportFPV_VID006_q4_special-action-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 727,
+    "question_id": "ExtrameSportFPV_VID006_q5_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 728,
+    "question_id": "ExtrameSportFPV_VID006_q6_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 729,
+    "question_id": "ExtrameSportFPV_VID006_q7_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 730,
+    "question_id": "ExtrameSportFPV_VID006_q8_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 731,
+    "question_id": "ExtrameSportFPV_VID006_q9_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 732,
+    "question_id": "ExtrameSportFPV_VID006_q10_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 733,
+    "question_id": "ExtrameSportFPV_VID006_q11_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 734,
+    "question_id": "ExtrameSportFPV_VID006_q12_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 735,
+    "question_id": "ExtrameSportFPV_VID007_q1_sport-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 736,
+    "question_id": "ExtrameSportFPV_VID007_q2_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 737,
+    "question_id": "ExtrameSportFPV_VID007_q3_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 738,
+    "question_id": "ExtrameSportFPV_VID007_q4_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 739,
+    "question_id": "ExtrameSportFPV_VID007_q5_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 740,
+    "question_id": "ExtrameSportFPV_VID007_q6_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 741,
+    "question_id": "ExtrameSportFPV_VID007_q7_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 742,
+    "question_id": "ExtrameSportFPV_VID007_q8_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 743,
+    "question_id": "ExtrameSportFPV_VID007_q9_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 744,
+    "question_id": "ExtrameSportFPV_VID010_q1_sport-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 745,
+    "question_id": "ExtrameSportFPV_VID010_q2_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 746,
+    "question_id": "ExtrameSportFPV_VID010_q3_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 747,
+    "question_id": "ExtrameSportFPV_VID010_q4_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 748,
+    "question_id": "ExtrameSportFPV_VID010_q5_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 749,
+    "question_id": "ExtrameSportFPV_VID010_q6_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 750,
+    "question_id": "ExtrameSportFPV_VID010_q7_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 751,
+    "question_id": "ExtrameSportFPV_VID010_q8_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 752,
+    "question_id": "ExtrameSportFPV_VID010_q9_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 753,
+    "question_id": "ExtrameSportFPV_VID011_q1_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 754,
+    "question_id": "ExtrameSportFPV_VID011_q2_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 755,
+    "question_id": "ExtrameSportFPV_VID011_q3_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 756,
+    "question_id": "ExtrameSportFPV_VID011_q4_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 757,
+    "question_id": "ExtrameSportFPV_VID011_q5_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 758,
+    "question_id": "ExtrameSportFPV_VID011_q6_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 759,
+    "question_id": "ExtrameSportFPV_VID011_q7_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 760,
+    "question_id": "ExtrameSportFPV_VID011_q8_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 761,
+    "question_id": "ExtrameSportFPV_VID016_q1_sport-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 762,
+    "question_id": "ExtrameSportFPV_VID016_q2_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 763,
+    "question_id": "ExtrameSportFPV_VID016_q3_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 764,
+    "question_id": "ExtrameSportFPV_VID016_q4_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 765,
+    "question_id": "ExtrameSportFPV_VID016_q5_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 766,
+    "question_id": "ExtrameSportFPV_VID016_q6_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 767,
+    "question_id": "ExtrameSportFPV_VID016_q7_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 768,
+    "question_id": "ExtrameSportFPV_VID016_q8_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 769,
+    "question_id": "ExtrameSportFPV_VID016_q9_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 770,
+    "question_id": "ExtrameSportFPV_VID017_q1_sport-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 771,
+    "question_id": "ExtrameSportFPV_VID017_q2_special-action-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 772,
+    "question_id": "ExtrameSportFPV_VID017_q3_special-action-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 773,
+    "question_id": "ExtrameSportFPV_VID017_q4_special-action-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 774,
+    "question_id": "ExtrameSportFPV_VID017_q5_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 775,
+    "question_id": "ExtrameSportFPV_VID017_q6_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 776,
+    "question_id": "ExtrameSportFPV_VID017_q7_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 777,
+    "question_id": "ExtrameSportFPV_VID017_q8_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 778,
+    "question_id": "ExtrameSportFPV_VID017_q9_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 779,
+    "question_id": "ExtrameSportFPV_VID017_q10_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 780,
+    "question_id": "ExtrameSportFPV_VID017_q11_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 781,
+    "question_id": "ExtrameSportFPV_VID017_q12_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 782,
+    "question_id": "ExtrameSportFPV_VID021_q1_sport-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 783,
+    "question_id": "ExtrameSportFPV_VID021_q2_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 784,
+    "question_id": "ExtrameSportFPV_VID021_q3_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 785,
+    "question_id": "ExtrameSportFPV_VID021_q4_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 786,
+    "question_id": "ExtrameSportFPV_VID021_q5_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 787,
+    "question_id": "ExtrameSportFPV_VID021_q6_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 788,
+    "question_id": "ExtrameSportFPV_VID021_q7_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 789,
+    "question_id": "ExtrameSportFPV_VID021_q8_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 790,
+    "question_id": "ExtrameSportFPV_VID021_q9_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 791,
+    "question_id": "ExtrameSportFPV_VID022_q1_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 792,
+    "question_id": "ExtrameSportFPV_VID022_q2_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 793,
+    "question_id": "ExtrameSportFPV_VID022_q3_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 794,
+    "question_id": "ExtrameSportFPV_VID022_q4_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 795,
+    "question_id": "ExtrameSportFPV_VID022_q5_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 796,
+    "question_id": "ExtrameSportFPV_VID022_q6_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 797,
+    "question_id": "ExtrameSportFPV_VID022_q7_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 798,
+    "question_id": "ExtrameSportFPV_VID022_q8_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 799,
+    "question_id": "ExtrameSportFPV_VID024_q1_special-action-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 800,
+    "question_id": "ExtrameSportFPV_VID024_q2_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 801,
+    "question_id": "ExtrameSportFPV_VID024_q3_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 802,
+    "question_id": "ExtrameSportFPV_VID024_q4_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 803,
+    "question_id": "ExtrameSportFPV_VID024_q5_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 804,
+    "question_id": "ExtrameSportFPV_VID024_q6_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 805,
+    "question_id": "ExtrameSportFPV_VID024_q7_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 806,
+    "question_id": "ExtrameSportFPV_VID024_q8_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 807,
+    "question_id": "ExtrameSportFPV_VID024_q9_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 808,
+    "question_id": "ExtrameSportFPV_VID026_q1_sport-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 809,
+    "question_id": "ExtrameSportFPV_VID026_q2_special-action-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 810,
+    "question_id": "ExtrameSportFPV_VID026_q3_special-action-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 811,
+    "question_id": "ExtrameSportFPV_VID026_q4_special-action-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 812,
+    "question_id": "ExtrameSportFPV_VID026_q5_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 813,
+    "question_id": "ExtrameSportFPV_VID026_q6_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 814,
+    "question_id": "ExtrameSportFPV_VID026_q7_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 815,
+    "question_id": "ExtrameSportFPV_VID026_q8_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 816,
+    "question_id": "ExtrameSportFPV_VID026_q9_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 817,
+    "question_id": "ExtrameSportFPV_VID026_q10_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 818,
+    "question_id": "ExtrameSportFPV_VID026_q11_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 819,
+    "question_id": "ExtrameSportFPV_VID026_q12_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 820,
+    "question_id": "ExtrameSportFPV_VID027_q1_special-action-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 821,
+    "question_id": "ExtrameSportFPV_VID027_q2_special-action-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 822,
+    "question_id": "ExtrameSportFPV_VID027_q3_special-action-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 823,
+    "question_id": "ExtrameSportFPV_VID027_q4_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 824,
+    "question_id": "ExtrameSportFPV_VID027_q5_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 825,
+    "question_id": "ExtrameSportFPV_VID027_q6_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 826,
+    "question_id": "ExtrameSportFPV_VID027_q7_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 827,
+    "question_id": "ExtrameSportFPV_VID027_q8_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 828,
+    "question_id": "ExtrameSportFPV_VID027_q9_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 829,
+    "question_id": "ExtrameSportFPV_VID027_q10_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 830,
+    "question_id": "ExtrameSportFPV_VID027_q11_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 831,
+    "question_id": "ExtrameSportFPV_VID030_q1_special-action-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 832,
+    "question_id": "ExtrameSportFPV_VID030_q2_special-action-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 833,
+    "question_id": "ExtrameSportFPV_VID030_q3_special-action-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 834,
+    "question_id": "ExtrameSportFPV_VID030_q4_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 835,
+    "question_id": "ExtrameSportFPV_VID030_q5_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 836,
+    "question_id": "ExtrameSportFPV_VID030_q6_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 837,
+    "question_id": "ExtrameSportFPV_VID030_q7_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 838,
+    "question_id": "ExtrameSportFPV_VID030_q8_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 839,
+    "question_id": "ExtrameSportFPV_VID030_q9_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 840,
+    "question_id": "ExtrameSportFPV_VID030_q10_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 841,
+    "question_id": "ExtrameSportFPV_VID030_q11_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 842,
+    "question_id": "ExtrameSportFPV_VID036_q1_sport-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 843,
+    "question_id": "ExtrameSportFPV_VID036_q2_special-action-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 844,
+    "question_id": "ExtrameSportFPV_VID036_q3_special-action-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 845,
+    "question_id": "ExtrameSportFPV_VID036_q4_special-action-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 846,
+    "question_id": "ExtrameSportFPV_VID036_q5_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 847,
+    "question_id": "ExtrameSportFPV_VID036_q6_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 848,
+    "question_id": "ExtrameSportFPV_VID036_q7_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 849,
+    "question_id": "ExtrameSportFPV_VID036_q8_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 850,
+    "question_id": "ExtrameSportFPV_VID036_q9_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 851,
+    "question_id": "ExtrameSportFPV_VID036_q10_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 852,
+    "question_id": "ExtrameSportFPV_VID036_q11_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 853,
+    "question_id": "ExtrameSportFPV_VID036_q12_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 854,
+    "question_id": "ExtrameSportFPV_VID037_q1_sport-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 855,
+    "question_id": "ExtrameSportFPV_VID037_q2_special-action-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 856,
+    "question_id": "ExtrameSportFPV_VID037_q3_special-action-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 857,
+    "question_id": "ExtrameSportFPV_VID037_q4_special-action-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 858,
+    "question_id": "ExtrameSportFPV_VID037_q5_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 859,
+    "question_id": "ExtrameSportFPV_VID037_q6_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 860,
+    "question_id": "ExtrameSportFPV_VID037_q7_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 861,
+    "question_id": "ExtrameSportFPV_VID037_q8_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 862,
+    "question_id": "ExtrameSportFPV_VID037_q9_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 863,
+    "question_id": "ExtrameSportFPV_VID037_q10_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 864,
+    "question_id": "ExtrameSportFPV_VID037_q11_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 865,
+    "question_id": "ExtrameSportFPV_VID037_q12_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 866,
+    "question_id": "ExtrameSportFPV_VID040_q1_sport-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 867,
+    "question_id": "ExtrameSportFPV_VID040_q2_special-action-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 868,
+    "question_id": "ExtrameSportFPV_VID040_q3_special-action-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 869,
+    "question_id": "ExtrameSportFPV_VID040_q4_special-action-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 870,
+    "question_id": "ExtrameSportFPV_VID040_q5_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 871,
+    "question_id": "ExtrameSportFPV_VID040_q6_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 872,
+    "question_id": "ExtrameSportFPV_VID040_q7_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 873,
+    "question_id": "ExtrameSportFPV_VID040_q8_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 874,
+    "question_id": "ExtrameSportFPV_VID040_q9_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 875,
+    "question_id": "ExtrameSportFPV_VID040_q10_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 876,
+    "question_id": "ExtrameSportFPV_VID040_q11_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 877,
+    "question_id": "ExtrameSportFPV_VID040_q12_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 878,
+    "question_id": "ExtrameSportFPV_VID041_q1_sport-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 879,
+    "question_id": "ExtrameSportFPV_VID041_q2_special-action-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 880,
+    "question_id": "ExtrameSportFPV_VID041_q3_special-action-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 881,
+    "question_id": "ExtrameSportFPV_VID041_q4_special-action-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 882,
+    "question_id": "ExtrameSportFPV_VID041_q5_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 883,
+    "question_id": "ExtrameSportFPV_VID041_q6_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 884,
+    "question_id": "ExtrameSportFPV_VID041_q7_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 885,
+    "question_id": "ExtrameSportFPV_VID041_q8_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 886,
+    "question_id": "ExtrameSportFPV_VID041_q9_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 887,
+    "question_id": "ExtrameSportFPV_VID041_q10_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 888,
+    "question_id": "ExtrameSportFPV_VID041_q11_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 889,
+    "question_id": "ExtrameSportFPV_VID041_q12_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 890,
+    "question_id": "ExtrameSportFPV_VID046_q1_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 891,
+    "question_id": "ExtrameSportFPV_VID046_q2_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 892,
+    "question_id": "ExtrameSportFPV_VID046_q3_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 893,
+    "question_id": "ExtrameSportFPV_VID046_q4_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 894,
+    "question_id": "ExtrameSportFPV_VID046_q5_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 895,
+    "question_id": "ExtrameSportFPV_VID046_q6_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 896,
+    "question_id": "ExtrameSportFPV_VID046_q7_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 897,
+    "question_id": "ExtrameSportFPV_VID046_q8_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 898,
+    "question_id": "ExtrameSportFPV_VID047_q1_sport-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 899,
+    "question_id": "ExtrameSportFPV_VID047_q2_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 900,
+    "question_id": "ExtrameSportFPV_VID047_q3_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 901,
+    "question_id": "ExtrameSportFPV_VID047_q4_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 902,
+    "question_id": "ExtrameSportFPV_VID047_q5_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 903,
+    "question_id": "ExtrameSportFPV_VID047_q6_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 904,
+    "question_id": "ExtrameSportFPV_VID047_q7_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 905,
+    "question_id": "ExtrameSportFPV_VID047_q8_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 906,
+    "question_id": "ExtrameSportFPV_VID047_q9_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 907,
+    "question_id": "ExtrameSportFPV_VID050_q1_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 908,
+    "question_id": "ExtrameSportFPV_VID050_q2_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 909,
+    "question_id": "ExtrameSportFPV_VID050_q3_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 910,
+    "question_id": "ExtrameSportFPV_VID050_q4_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 911,
+    "question_id": "ExtrameSportFPV_VID050_q5_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 912,
+    "question_id": "ExtrameSportFPV_VID050_q6_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 913,
+    "question_id": "ExtrameSportFPV_VID050_q7_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 914,
+    "question_id": "ExtrameSportFPV_VID050_q8_direction-prediction",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 915,
+    "question_id": "ExtrameSportFPV_VID051_q1_sport-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 916,
+    "question_id": "ExtrameSportFPV_VID051_q2_special-action-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 917,
+    "question_id": "ExtrameSportFPV_VID051_q3_special-action-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 918,
+    "question_id": "ExtrameSportFPV_VID051_q4_special-action-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 919,
+    "question_id": "ExtrameSportFPV_VID051_q5_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 920,
+    "question_id": "ExtrameSportFPV_VID051_q6_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 921,
+    "question_id": "ExtrameSportFPV_VID051_q7_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 922,
+    "question_id": "ExtrameSportFPV_VID051_q8_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 923,
+    "question_id": "ExtrameSportFPV_VID051_q9_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 924,
+    "question_id": "ExtrameSportFPV_VID052_q1_special-action-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 925,
+    "question_id": "ExtrameSportFPV_VID052_q2_special-action-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 926,
+    "question_id": "ExtrameSportFPV_VID052_q3_special-action-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 927,
+    "question_id": "ExtrameSportFPV_VID052_q4_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 928,
+    "question_id": "ExtrameSportFPV_VID052_q5_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 929,
+    "question_id": "ExtrameSportFPV_VID052_q6_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 930,
+    "question_id": "ExtrameSportFPV_VID052_q7_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 931,
+    "question_id": "ExtrameSportFPV_VID052_q8_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 932,
+    "question_id": "ExtrameSportFPV_VID053_q1_special-action-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 933,
+    "question_id": "ExtrameSportFPV_VID053_q2_special-action-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 934,
+    "question_id": "ExtrameSportFPV_VID053_q3_special-action-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 935,
+    "question_id": "ExtrameSportFPV_VID053_q4_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 936,
+    "question_id": "ExtrameSportFPV_VID053_q5_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 937,
+    "question_id": "ExtrameSportFPV_VID053_q6_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 938,
+    "question_id": "ExtrameSportFPV_VID053_q7_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 939,
+    "question_id": "ExtrameSportFPV_VID053_q8_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 940,
+    "question_id": "ExtrameSportFPV_VID056_q1_sport-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 941,
+    "question_id": "ExtrameSportFPV_VID056_q2_special-action-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 942,
+    "question_id": "ExtrameSportFPV_VID056_q3_special-action-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 943,
+    "question_id": "ExtrameSportFPV_VID056_q4_special-action-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 944,
+    "question_id": "ExtrameSportFPV_VID056_q5_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 945,
+    "question_id": "ExtrameSportFPV_VID056_q6_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 946,
+    "question_id": "ExtrameSportFPV_VID056_q7_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 947,
+    "question_id": "ExtrameSportFPV_VID056_q8_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 948,
+    "question_id": "ExtrameSportFPV_VID056_q9_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 949,
+    "question_id": "ExtrameSportFPV_VID057_q1_sport-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 950,
+    "question_id": "ExtrameSportFPV_VID057_q2_special-action-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 951,
+    "question_id": "ExtrameSportFPV_VID057_q3_special-action-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 952,
+    "question_id": "ExtrameSportFPV_VID057_q4_special-action-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 953,
+    "question_id": "ExtrameSportFPV_VID057_q5_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 954,
+    "question_id": "ExtrameSportFPV_VID057_q6_action-sequence-identification",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 955,
+    "question_id": "ExtrameSportFPV_VID057_q7_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 956,
+    "question_id": "ExtrameSportFPV_VID057_q8_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  },
+  {
+    "id": 957,
+    "question_id": "ExtrameSportFPV_VID057_q9_action-temporal-localization",
+    "dataset": "ExtrameSportFPV",
+    "answer": ""
+  }
+]

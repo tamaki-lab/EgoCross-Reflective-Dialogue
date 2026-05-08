@@ -15,7 +15,7 @@ from google.genai import types
 BASE = Path(__file__).parent
 TEST_JSON = BASE / "EgoCross_test/egocross_testbed/egocross_testbed_imgs.json"
 SUPPORT_JSON = BASE / "data/egocross/train.json"
-SUBMISSION_TEMPLATE = BASE / "../EgoCross_SFT_qwen3vl4b/submission_template.json"
+SUBMISSION_TEMPLATE = BASE / "submission_template.json"
 IMAGE_BASE = BASE / "EgoCross_test"
 OUTPUT_DIR = BASE / "outputs"
 
@@ -379,20 +379,25 @@ def extract_answer(text: str) -> str:
     return matches[-1] if matches else "A"
 
 
-def load_test_items(fewshot: bool = False) -> list[dict]:
+def load_test_items(fewshot: bool = False, visual_fewshot: bool = False) -> list[dict]:
     train_bank: dict[str, list] = {}
-    if fewshot:
+    if fewshot or visual_fewshot:
         with open(SUPPORT_JSON) as f:
             train_raw = json.load(f)
-        for d in train_raw:
+        qt_map_train = _load_support_question_types() if visual_fewshot else {}
+        for idx, d in enumerate(train_raw):
             user_text = re.sub(
                 r"<image>", "", d["messages"][0]["content"]).strip()
-            q_key = user_text.split("\nA.")[0].strip()
-            train_bank.setdefault(q_key, []).append({
+            entry = {
                 "prompt": user_text,
                 "answer": d["messages"][-1]["content"].strip().upper(),
                 "images": d["images"],
-            })
+            }
+            if visual_fewshot:
+                bank_key = f"{d['domain']}::{qt_map_train.get(idx, '')}"
+            else:
+                bank_key = user_text.split("\nA.")[0].strip()
+            train_bank.setdefault(bank_key, []).append(entry)
 
     with open(TEST_JSON) as f:
         raw = json.load(f)
@@ -407,7 +412,10 @@ def load_test_items(fewshot: bool = False) -> list[dict]:
             f"{d['question_text']}\n{options}\n"
             "Output only: 'Final Answer: X' where X is A, B, C, or D. No explanation."
         )
-        q_key = d["question_text"].strip()
+        if visual_fewshot:
+            lookup_key = f"{model_name}::{d.get('question_type', '')}"
+        else:
+            lookup_key = d["question_text"].strip()
         items.append({
             "id": d["id"],
             "images": [str(IMAGE_BASE / p.lstrip("/")) for p in d["video_path"]],
@@ -415,7 +423,7 @@ def load_test_items(fewshot: bool = False) -> list[dict]:
             "domain": model_name,
             "question_type": d.get("question_type", ""),
             "ground_truth": None,
-            "fewshot_examples": train_bank.get(q_key, []),
+            "fewshot_examples": train_bank.get(lookup_key, []),
         })
     return items
 
@@ -432,11 +440,43 @@ def _load_support_question_types() -> dict[int, str]:
     return {entry["index"]: entry["predicted_type"] for entry in data}
 
 
-def load_eval_items(fewshot: bool = False) -> list[dict]:
+def load_eval_items(fewshot: bool = False, visual_fewshot: bool = False) -> list[dict]:
     with open(SUPPORT_JSON) as f:
         raw = json.load(f)
 
     qt_map = _load_support_question_types()
+
+    if visual_fewshot:
+        # 全件評価 + warmupと同じ domain::question_type 単位で leave-one-out few-shot bank を構築
+        by_group: dict[str, list] = defaultdict(list)
+        for i, d in enumerate(raw):
+            user_text = re.sub(r"<image>", "", d["messages"][0]["content"]).strip()
+            group_key = f"{d['domain']}::{qt_map.get(i, '')}"
+            by_group[group_key].append((i, d, user_text))
+
+        items = []
+        for group_key, group in by_group.items():
+            group_examples = [
+                {
+                    "prompt": user_text,
+                    "answer": d["messages"][-1]["content"].strip().upper(),
+                    "images": d["images"],
+                }
+                for (_, d, user_text) in group
+            ]
+            for idx, (i, d, user_text) in enumerate(group):
+                examples = [ex for j, ex in enumerate(group_examples) if j != idx]
+                prompt = user_text + "\nYou MUST pick exactly one option. End your response with a single line: 'Final Answer: X' where X is one of A, B, C, or D."
+                items.append({
+                    "id": i,
+                    "images": d["images"],
+                    "prompt": prompt,
+                    "domain": d["domain"],
+                    "question_type": qt_map.get(i, ""),
+                    "ground_truth": d["messages"][-1]["content"].strip().upper(),
+                    "fewshot_examples": examples,
+                })
+        return items
 
     if fewshot:
         by_question = defaultdict(list)
@@ -837,13 +877,12 @@ def main():
             warmup_contents, warmup_file_names = load_warmup_with_files_api(
                 client, args.warmup_file, max_frames=args.warmup_max_frames, input_mode=args.input_mode)
 
-    need_fewshot_bank = args.fewshot or args.visual_fewshot
     if args.mode == "test":
-        items = load_test_items(fewshot=need_fewshot_bank)
+        items = load_test_items(fewshot=args.fewshot, visual_fewshot=args.visual_fewshot)
         with open(SUBMISSION_TEMPLATE) as f:
             submission = json.load(f)
     else:
-        items = load_eval_items(fewshot=need_fewshot_bank)
+        items = load_eval_items(fewshot=args.fewshot, visual_fewshot=args.visual_fewshot)
 
     if args.resume_from_id:
         ids = [str(it["id"]) for it in items]
