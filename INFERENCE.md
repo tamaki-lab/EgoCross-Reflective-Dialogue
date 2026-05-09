@@ -63,6 +63,7 @@ source .env && python warmup_gemini.py --output outputs/my_warmup.json
 | `--rate-limit-sleep` | `1.0`                                      | リクエスト間 sleep 秒数                 |
 | `--use-vertex`       | off                                        | Vertex AI を使用                        |
 | `--output`           | `outputs/warmup_conversations_gemini.json` | 出力ファイルパス                        |
+| `--explain-correct`  | off                                        | 正解時にも根拠説明をモデルに生成させる  |
 
 ### Qwen で生成 (HuggingFace Hub 指定)
 
@@ -84,14 +85,15 @@ CUDA_VISIBLE_DEVICES=0 python warmup_qwen.py --model-id Qwen/Qwen3-VL-4B-Instruc
 
 主なオプション:
 
-| オプション     | デフォルト                               | 説明                                  |
-| -------------- | ---------------------------------------- | ------------------------------------- |
-| `--model`      | —                                        | `models/` 以下のディレクトリ名        |
-| `--baseline`   | off                                      | `Qwen/Qwen3-VL-4B-Instruct` を使用    |
-| `--model-id`   | —                                        | HuggingFace Hub モデルID (優先度最高) |
-| `--max-pixels` | `128000`                                 | 1フレームあたりの最大ピクセル数       |
-| `--thinking`   | off                                      | thinking モードを有効化               |
-| `--output`     | `outputs/warmup_conversations_qwen.json` | 出力ファイルパス                      |
+| オプション          | デフォルト                               | 説明                                   |
+| ------------------- | ---------------------------------------- | -------------------------------------- |
+| `--model`           | —                                        | `models/` 以下のディレクトリ名         |
+| `--baseline`        | off                                      | `Qwen/Qwen3-VL-4B-Instruct` を使用     |
+| `--model-id`        | —                                        | HuggingFace Hub モデルID (優先度最高)  |
+| `--max-pixels`      | `128000`                                 | 1フレームあたりの最大ピクセル数        |
+| `--thinking`        | off                                      | thinking モードを有効化                |
+| `--output`          | `outputs/warmup_conversations_qwen.json` | 出力ファイルパス                       |
+| `--explain-correct` | off                                      | 正解時にも根拠説明をモデルに生成させる |
 
 ---
 

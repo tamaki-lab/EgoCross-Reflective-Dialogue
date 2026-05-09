@@ -72,6 +72,7 @@ def build_warmup_for_group(
     group_items: list[dict],
     max_pixels: int,
     thinking: bool,
+    explain_correct: bool = False,
 ) -> tuple[list[dict], int, int]:
     """
     1グループ分の warm-up 会話を構築する。
@@ -112,7 +113,13 @@ def build_warmup_for_group(
 
         # フィードバック
         if correct:
-            feedback = "Correct."
+            if explain_correct:
+                feedback = (
+                    f"Correct. Please briefly explain why {gt} is the right answer "
+                    "based on what you observed in the frames."
+                )
+            else:
+                feedback = "Correct."
         else:
             feedback = (
                 f"The correct answer is {gt}. "
@@ -124,18 +131,18 @@ def build_warmup_for_group(
         status = "✓" if correct else f"✗ pred={model_answer} gt={gt}"
         print(f"    {status}  {item['prompt'][:70]}")
 
-        # 不正解の場合は反省を取得
-        if not correct:
+        # 不正解は反省、正解かつ explain_correct は根拠説明を取得
+        if not correct or explain_correct:
             try:
-                reflection = call_model(model, processor, messages,
-                                        max_new_tokens=512, thinking=False)
-                reflection = re.sub(r"<think>.*?</think>", "", reflection, flags=re.DOTALL).strip()
+                response = call_model(model, processor, messages,
+                                      max_new_tokens=512, thinking=False)
+                response = re.sub(r"<think>.*?</think>", "", response, flags=re.DOTALL).strip()
             except torch.OutOfMemoryError:
                 torch.cuda.empty_cache()
-                reflection = "I will be more careful next time."
-            if reflection:
-                messages.append({"role": "assistant", "content": reflection})
-                turns.append({"role": "model", "text": reflection})
+                response = "I will be more careful next time." if not correct else ""
+            if response:
+                messages.append({"role": "assistant", "content": response})
+                turns.append({"role": "model", "text": response})
 
     return turns, n_correct, len(group_items)
 
@@ -154,6 +161,8 @@ def main():
                         help="thinking モードを有効化")
     parser.add_argument("--output", default=str(DEFAULT_OUTPUT),
                         help=f"出力 JSON パス (default: {DEFAULT_OUTPUT})")
+    parser.add_argument("--explain-correct", action="store_true",
+                        help="正解時にも根拠説明をモデルに生成させる (default: off)")
     args = parser.parse_args()
 
     if args.model_id:
@@ -215,7 +224,8 @@ def main():
         key = f"{domain}::{qt}"
         print(f"\n=== {key} ({len(group_items)}問) ===")
         turns, n_correct, n_total = build_warmup_for_group(
-            model, processor, group_items, args.max_pixels, args.thinking)
+            model, processor, group_items, args.max_pixels, args.thinking,
+            explain_correct=args.explain_correct)
         warmup_data[key] = {
             "domain": domain,
             "question_type": qt,

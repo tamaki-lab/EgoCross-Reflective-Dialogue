@@ -85,6 +85,7 @@ def build_warmup_for_group(
     model: str,
     config,
     rate_limit_sleep: float,
+    explain_correct: bool = False,
 ) -> tuple[list[dict], int, int]:
     """
     1グループ分の warm-up 会話を構築する。
@@ -122,7 +123,13 @@ def build_warmup_for_group(
 
         # フィードバック
         if correct:
-            feedback = "Correct."
+            if explain_correct:
+                feedback = (
+                    f"Correct. Please briefly explain why {gt} is the right answer "
+                    "based on what you observed in the frames."
+                )
+            else:
+                feedback = "Correct."
         else:
             feedback = (
                 f"The correct answer is {gt}. "
@@ -135,13 +142,13 @@ def build_warmup_for_group(
         status = "✓" if correct else f"✗ pred={model_answer} gt={gt}"
         print(f"    {status}  {item['prompt'][:70]}")
 
-        # 不正解の場合は反省を取得
-        if not correct:
-            reflection = call_model(client, model, contents, config)
-            if reflection:
+        # 不正解は反省、正解かつ explain_correct は根拠説明を取得
+        if not correct or explain_correct:
+            response = call_model(client, model, contents, config)
+            if response:
                 contents.append(types.Content(role="model", parts=[
-                                types.Part.from_text(text=reflection)]))
-                turns.append({"role": "model", "text": reflection})
+                                types.Part.from_text(text=response)]))
+                turns.append({"role": "model", "text": response})
             time.sleep(rate_limit_sleep)
 
         time.sleep(rate_limit_sleep)
@@ -161,6 +168,8 @@ def main():
                         help="Vertex AI を使用")
     parser.add_argument("--output", default=str(DEFAULT_OUTPUT),
                         help=f"出力 JSON パス (default: {DEFAULT_OUTPUT})")
+    parser.add_argument("--explain-correct", action="store_true",
+                        help="正解時にも根拠説明をモデルに生成させる (default: off)")
     args = parser.parse_args()
 
     # Client setup
@@ -223,7 +232,8 @@ def main():
         key = f"{domain}::{qt}"
         print(f"\n=== {key} ({len(group_items)}問) ===")
         turns, n_correct, n_total = build_warmup_for_group(
-            client, group_items, args.model, config, args.rate_limit_sleep)
+            client, group_items, args.model, config, args.rate_limit_sleep,
+            explain_correct=args.explain_correct)
         warmup_data[key] = {
             "domain": domain,
             "question_type": qt,
