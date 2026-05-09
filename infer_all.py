@@ -536,7 +536,7 @@ def main():
     OUTPUT_DIR.mkdir(exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     log_lines = [
-        f"Run started: {timestamp}  mode={args.mode}  max_pixels={args.max_pixels}  input_mode={args.input_mode}  thinking={args.thinking}  baseline={args.baseline}  prompt_style={args.prompt_style}  fewshot={args.fewshot}  single_model={args.single_model!r}  model_id={args.model_id!r}  warmup_file={args.warmup_file!r}"]
+        f"Run started: {timestamp}  mode={args.mode}  max_pixels={args.max_pixels}  input_mode={args.input_mode}  thinking={args.thinking}  baseline={args.baseline}  prompt_style={args.prompt_style}  fewshot={args.fewshot}  visual_fewshot={args.visual_fewshot}  single_model={args.single_model!r}  model_id={args.model_id!r}  warmup_file={args.warmup_file!r}"]
 
     warmup_contents = None
     if args.warmup_file:
