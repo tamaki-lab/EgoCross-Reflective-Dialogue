@@ -301,12 +301,16 @@ def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 
     torch.cuda.reset_peak_memory_stats()
     domain_t0 = time.time()
     answers = {}
+    total_input_tokens = 0
+    total_output_tokens = 0
     pbar = tqdm(items, desc=model_name, unit="q")
     for item in pbar:
         t0 = time.time()
         image_paths = item["images"]
 
         raw = None
+        n_input = 0
+        n_output = 0
         for attempt in range(3):
             try:
                 # few-shot は warmup/visual_fewshot 未使用時のみ
@@ -385,6 +389,8 @@ def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 
                     output_ids = model.generate(
                         **inputs, max_new_tokens=max_new, do_sample=False, use_cache=True)
                     generated = output_ids[0][inputs.input_ids.shape[1]:]
+                    n_input = inputs.input_ids.shape[1]
+                    n_output = len(generated)
                     raw = processor.decode(
                         generated, skip_special_tokens=True).strip()
                     del output_ids, generated
@@ -454,12 +460,14 @@ def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 
         gc.collect()
         torch.cuda.empty_cache()
 
+        total_input_tokens += n_input
+        total_output_tokens += n_output
         alloc = torch.cuda.memory_allocated() / 1024**3
         reserved = torch.cuda.memory_reserved() / 1024**3
         elapsed = time.time() - t0
         probs_str = " probs=" + \
             str(item.get("_probs", {})) if "_probs" in item else ""
-        line = f"id={item['id']} raw='{raw}' → {answer}{correct}{probs_str} ({elapsed:.1f}s) VRAM alloc={alloc:.1f}GB reserved={reserved:.1f}GB"
+        line = f"id={item['id']} raw='{raw}' → {answer}{correct}{probs_str} ({elapsed:.1f}s) in={n_input} out={n_output} VRAM alloc={alloc:.1f}GB reserved={reserved:.1f}GB"
         pbar.write(line)
         log_lines.append(line)
 
@@ -469,6 +477,8 @@ def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 
         f"  [{model_name}] peak VRAM={peak_vram:.2f}GB"
         f"  total time={domain_elapsed:.1f}s ({domain_elapsed/60:.1f}min)"
         f"  questions={len(items)}"
+        f"  total_input_tokens={total_input_tokens}"
+        f"  total_output_tokens={total_output_tokens}"
     )
     print(summary)
     log_lines.append(summary)
