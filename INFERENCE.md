@@ -193,6 +193,14 @@ PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True CUDA_VISIBLE_DEVICES=0 \
     --model-id Qwen/Qwen3-VL-4B-Instruct \
     --thinking --input-mode video
 
+# Thinking モデル (Qwen3-VL-*-Thinking) を使う場合は --thinking 必須
+# (付けないと max_new_tokens=32 になり思考途中で打ち切られ全問 A にフォールバックする)
+PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True CUDA_VISIBLE_DEVICES=0 \
+    python infer_all.py --mode test \
+    --model-id Qwen/Qwen3-VL-4B-Thinking \
+    --warmup-file outputs/warmup_conversations_qwen.json \
+    --thinking
+
 # ドメイン別プロンプト + few-shot
 PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True CUDA_VISIBLE_DEVICES=0 \
     python infer_all.py --mode eval \
@@ -210,7 +218,7 @@ PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True CUDA_VISIBLE_DEVICES=0 \
 | `--model-id`                  | —          | HuggingFace Hub モデルID (優先度最高)                             |
 | `--max-pixels`                | `128000`   | 1フレームあたりの最大ピクセル数                                   |
 | `--input-mode`                | `image`    | `image` / `video`                                                 |
-| `--thinking`                  | off        | thinking モードを有効化                                           |
+| `--thinking`                  | off        | thinking モードを有効化 (Thinking モデル使用時は必須)             |
 | `--prompt-style`              | `default`  | `default` / `clean` / `domain`                                    |
 | `--fewshot`                   | off        | same-question few-shot を付加                                     |
 | `--single-model`              | —          | 全ドメインで同一モデルを使用                                      |
