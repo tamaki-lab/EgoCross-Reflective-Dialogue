@@ -163,17 +163,21 @@ def main():
                         help="リクエスト間の sleep 秒数 (default: 1.0)")
     parser.add_argument("--use-vertex", action="store_true",
                         help="Vertex AI を使用")
+    parser.add_argument("--project", default="",
+                        help="Vertex AI 使用時のGCPプロジェクトID (GOOGLE_CLOUD_PROJECT 環境変数でも可)")
+    parser.add_argument("--location", default="global",
+                        help="Vertex AI ロケーション (default: global)")
     parser.add_argument("--output", default=str(DEFAULT_OUTPUT),
                         help=f"出力 JSON パス (default: {DEFAULT_OUTPUT})")
     args = parser.parse_args()
 
     # Client setup
     if args.use_vertex:
-        key = os.environ.get("VERTEX_AI_API_KEY", "")
-        if not key:
-            raise ValueError("VERTEX_AI_API_KEY 環境変数が必要です")
-        client = genai.Client(vertexai=True, api_key=key)
-        print("Using Vertex AI")
+        project = args.project or os.environ.get("GOOGLE_CLOUD_PROJECT", "")
+        if not project:
+            raise ValueError("--project または GOOGLE_CLOUD_PROJECT 環境変数が必要です")
+        client = genai.Client(vertexai=True, project=project, location=args.location)
+        print(f"Using Vertex AI (ADC, project={project}, location={args.location})")
     else:
         key = os.environ.get("GEMINI_API_KEY", "")
         if not key:
