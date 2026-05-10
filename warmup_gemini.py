@@ -85,7 +85,6 @@ def build_warmup_for_group(
     model: str,
     config,
     rate_limit_sleep: float,
-    explain_correct: bool = False,
 ) -> tuple[list[dict], int, int]:
     """
     1グループ分の warm-up 会話を構築する。
@@ -123,17 +122,16 @@ def build_warmup_for_group(
 
         # フィードバック
         if correct:
-            if explain_correct:
-                feedback = (
-                    f"Correct. Please briefly explain why {gt} is the right answer "
-                    "based on what you observed in the frames."
-                )
-            else:
-                feedback = "Correct."
+            feedback = (
+                f"Correct. In 1-2 sentences, what key visual evidence from the frames "
+                f"confirmed that {gt} is the right answer?"
+            )
         else:
             feedback = (
-                f"The correct answer is {gt}. "
-                "Please reflect on what you may have missed or misinterpreted in the frames."
+                f"You answered {model_answer}, but the correct answer is {gt}. "
+                f"(1) What specific visual evidence in the frames supports {gt}? "
+                f"(2) Why does that evidence rule out {model_answer}? "
+                f"Answer in 2-3 sentences."
             )
         contents.append(types.Content(role="user", parts=[
                         types.Part.from_text(text=feedback)]))
@@ -142,14 +140,13 @@ def build_warmup_for_group(
         status = "✓" if correct else f"✗ pred={model_answer} gt={gt}"
         print(f"    {status}  {item['prompt'][:70]}")
 
-        # 不正解は反省、正解かつ explain_correct は根拠説明を取得
-        if not correct or explain_correct:
-            response = call_model(client, model, contents, config)
-            if response:
-                contents.append(types.Content(role="model", parts=[
-                                types.Part.from_text(text=response)]))
-                turns.append({"role": "model", "text": response})
-            time.sleep(rate_limit_sleep)
+        # 正解・不正解ともに根拠説明を取得
+        response = call_model(client, model, contents, config)
+        if response:
+            contents.append(types.Content(role="model", parts=[
+                            types.Part.from_text(text=response)]))
+            turns.append({"role": "model", "text": response})
+        time.sleep(rate_limit_sleep)
 
         time.sleep(rate_limit_sleep)
 
@@ -168,8 +165,6 @@ def main():
                         help="Vertex AI を使用")
     parser.add_argument("--output", default=str(DEFAULT_OUTPUT),
                         help=f"出力 JSON パス (default: {DEFAULT_OUTPUT})")
-    parser.add_argument("--explain-correct", action="store_true",
-                        help="正解時にも根拠説明をモデルに生成させる (default: off)")
     args = parser.parse_args()
 
     # Client setup
@@ -232,8 +227,7 @@ def main():
         key = f"{domain}::{qt}"
         print(f"\n=== {key} ({len(group_items)}問) ===")
         turns, n_correct, n_total = build_warmup_for_group(
-            client, group_items, args.model, config, args.rate_limit_sleep,
-            explain_correct=args.explain_correct)
+            client, group_items, args.model, config, args.rate_limit_sleep)
         warmup_data[key] = {
             "domain": domain,
             "question_type": qt,

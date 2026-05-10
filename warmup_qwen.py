@@ -13,6 +13,7 @@ import torch
 from collections import defaultdict
 from pathlib import Path
 from tqdm import tqdm
+from peft import PeftModel
 from transformers import AutoModelForImageTextToText, AutoProcessor
 from qwen_vl_utils import process_vision_info
 
@@ -72,7 +73,6 @@ def build_warmup_for_group(
     group_items: list[dict],
     max_pixels: int,
     thinking: bool,
-    explain_correct: bool = False,
 ) -> tuple[list[dict], int, int]:
     """
     1グループ分の warm-up 会話を構築する。
@@ -113,17 +113,16 @@ def build_warmup_for_group(
 
         # フィードバック
         if correct:
-            if explain_correct:
-                feedback = (
-                    f"Correct. Please briefly explain why {gt} is the right answer "
-                    "based on what you observed in the frames."
-                )
-            else:
-                feedback = "Correct."
+            feedback = (
+                f"Correct. In 1-2 sentences, what key visual evidence from the frames "
+                f"confirmed that {gt} is the right answer?"
+            )
         else:
             feedback = (
-                f"The correct answer is {gt}. "
-                "Please reflect on what you may have missed or misinterpreted in the frames."
+                f"You answered {model_answer}, but the correct answer is {gt}. "
+                f"(1) What specific visual evidence in the frames supports {gt}? "
+                f"(2) Why does that evidence rule out {model_answer}? "
+                f"Answer in 2-3 sentences."
             )
         messages.append({"role": "user", "content": [{"type": "text", "text": feedback}]})
         turns.append({"role": "user", "text": feedback, "images": []})
@@ -131,18 +130,17 @@ def build_warmup_for_group(
         status = "✓" if correct else f"✗ pred={model_answer} gt={gt}"
         print(f"    {status}  {item['prompt'][:70]}")
 
-        # 不正解は反省、正解かつ explain_correct は根拠説明を取得
-        if not correct or explain_correct:
-            try:
-                response = call_model(model, processor, messages,
-                                      max_new_tokens=512, thinking=False)
-                response = re.sub(r"<think>.*?</think>", "", response, flags=re.DOTALL).strip()
-            except torch.OutOfMemoryError:
-                torch.cuda.empty_cache()
-                response = "I will be more careful next time." if not correct else ""
-            if response:
-                messages.append({"role": "assistant", "content": response})
-                turns.append({"role": "model", "text": response})
+        # 正解・不正解ともに根拠説明を取得
+        try:
+            response = call_model(model, processor, messages,
+                                  max_new_tokens=512, thinking=False)
+            response = re.sub(r"<think>.*?</think>", "", response, flags=re.DOTALL).strip()
+        except torch.OutOfMemoryError:
+            torch.cuda.empty_cache()
+            response = "I will pay closer attention to the visual details next time."
+        if response:
+            messages.append({"role": "assistant", "content": response})
+            turns.append({"role": "model", "text": response})
 
     return turns, n_correct, len(group_items)
 
@@ -161,27 +159,38 @@ def main():
                         help="thinking モードを有効化")
     parser.add_argument("--output", default=str(DEFAULT_OUTPUT),
                         help=f"出力 JSON パス (default: {DEFAULT_OUTPUT})")
-    parser.add_argument("--explain-correct", action="store_true",
-                        help="正解時にも根拠説明をモデルに生成させる (default: off)")
+    parser.add_argument("--adapter-path", default="",
+                        help="LoRAアダプタのパスを直接指定（マージ不要, 例: ./output/egocross_lora_XXXX/checkpoint-240）")
     args = parser.parse_args()
 
-    if args.model_id:
-        model_path = args.model_id
-    elif args.baseline:
-        model_path = "Qwen/Qwen3-VL-4B-Instruct"
-    elif args.model:
-        model_path = str(MODEL_BASE / args.model)
+    if args.adapter_path:
+        base_path = args.model_id if args.model_id else "Qwen/Qwen3-VL-4B-Instruct"
+        print(f"Loading model: {base_path} + LoRA: {args.adapter_path}")
+        processor = AutoProcessor.from_pretrained(base_path)
+        base_model = AutoModelForImageTextToText.from_pretrained(
+            base_path,
+            dtype=torch.bfloat16,
+            attn_implementation="sdpa",
+            device_map={"": 0},
+        )
+        model = PeftModel.from_pretrained(base_model, args.adapter_path)
     else:
-        raise ValueError("--model / --baseline / --model-id のいずれかを指定してください")
-
-    print(f"Loading model: {model_path}")
-    processor = AutoProcessor.from_pretrained(model_path)
-    model = AutoModelForImageTextToText.from_pretrained(
-        model_path,
-        dtype=torch.bfloat16,
-        attn_implementation="sdpa",
-        device_map={"": 0},
-    )
+        if args.model_id:
+            model_path = args.model_id
+        elif args.baseline:
+            model_path = "Qwen/Qwen3-VL-4B-Instruct"
+        elif args.model:
+            model_path = str(MODEL_BASE / args.model)
+        else:
+            raise ValueError("--model / --baseline / --model-id / --adapter-path のいずれかを指定してください")
+        print(f"Loading model: {model_path}")
+        processor = AutoProcessor.from_pretrained(model_path)
+        model = AutoModelForImageTextToText.from_pretrained(
+            model_path,
+            dtype=torch.bfloat16,
+            attn_implementation="sdpa",
+            device_map={"": 0},
+        )
     model.eval()
 
     if not CLASSIFY_JSON.exists():
@@ -224,8 +233,7 @@ def main():
         key = f"{domain}::{qt}"
         print(f"\n=== {key} ({len(group_items)}問) ===")
         turns, n_correct, n_total = build_warmup_for_group(
-            model, processor, group_items, args.max_pixels, args.thinking,
-            explain_correct=args.explain_correct)
+            model, processor, group_items, args.max_pixels, args.thinking)
         warmup_data[key] = {
             "domain": domain,
             "question_type": qt,
