@@ -2,13 +2,15 @@
 
 ## ファイル構成
 
-| スクリプト            | 役割                                               |
-| --------------------- | -------------------------------------------------- |
-| `classify_support.py` | support set の問題を question_type に分類 (Step 1) |
-| `warmup_gemini.py`    | Gemini で warmup 会話を生成 (Step 2a)              |
-| `warmup_qwen.py`      | Qwen ローカルモデルで warmup 会話を生成 (Step 2b)  |
-| `infer_gemini.py`     | Gemini で推論                                      |
-| `infer_all.py`        | Qwen ローカルモデルで推論                          |
+| スクリプト                 | 役割                                               |
+| -------------------------- | -------------------------------------------------- |
+| `classify_support.py`      | support set の問題を question_type に分類 (Step 1) |
+| `warmup_gemini.py`         | Gemini で warmup 会話を生成 (Step 2a)              |
+| `warmup_qwen.py`           | Qwen ローカルモデルで warmup 会話を生成 (Step 2b)  |
+| `infer_gemini.py`          | Gemini で推論                                      |
+| `infer_all.py`             | Qwen ローカルモデルで推論                          |
+| `bash/train.sh`            | support set で LoRA fine-tuning                    |
+| `bash/eval_checkpoints.sh` | 各チェックポイントの正解率を一括比較               |
 
 ---
 
@@ -19,6 +21,65 @@
 ```
 GEMINI_API_KEY=...
 GOOGLE_CLOUD_PROJECT=...
+```
+
+---
+
+## LoRA Fine-tuning フロー
+
+support set で fine-tuning してから推論する場合のフロー。
+
+### Step A: LoRA 学習
+
+```bash
+bash bash/train.sh
+```
+
+出力: `output/egocross_lora_YYYYMMDD_HHMMSS/`（実行ごとに別ディレクトリ）
+
+設定は `configs/lora.yaml` で管理。主な設定:
+
+| 設定                          | デフォルト                  | 説明                               |
+| ----------------------------- | --------------------------- | ---------------------------------- |
+| `model_name_or_path`          | `Qwen/Qwen3-VL-4B-Instruct` | ベースモデル                       |
+| `lora_rank`                   | `64`                        | LoRA ランク                        |
+| `num_train_epochs`            | `10`                        | エポック数                         |
+| `learning_rate`               | `1.0e-4`                    | 学習率                             |
+| `per_device_train_batch_size` | `1`                         | バッチサイズ                       |
+| `gradient_accumulation_steps` | `8`                         | 勾配累積ステップ数                 |
+| `save_strategy`               | `epoch`                     | エポックごとにチェックポイント保存 |
+
+### Step B: チェックポイント別正解率の比較
+
+マージ不要で各 epoch のモデルを直接評価できる。
+
+```bash
+# 最新のLoRA出力を自動検出して全チェックポイントを評価
+bash bash/eval_checkpoints.sh
+
+# ディレクトリを明示指定
+bash bash/eval_checkpoints.sh output/egocross_lora_20260510_185322
+```
+
+出力: `outputs/eval_checkpoints_XXXXXX_YYYYMMDD.txt`（チェックポイントごとの Overall 正解率サマリー付き）
+
+特定のチェックポイントだけ評価したい場合は `--adapter-path` を使う:
+
+```bash
+CUDA_VISIBLE_DEVICES=0 python infer_all.py --mode eval \
+    --adapter-path ./output/egocross_lora_20260510_185322/checkpoint-40
+```
+
+### Step C: LoRA マージ → 推論
+
+最良のチェックポイントが決まったら `configs/merge_lora.yaml` の `adapter_name_or_path` を更新してマージ:
+
+```bash
+# LoRAをベースモデルにマージ → models/egocross_XXXXXX/ に出力
+.venv/bin/llamafactory-cli export configs/merge_lora.yaml
+
+# マージ済みモデルで推論
+CUDA_VISIBLE_DEVICES=0 python infer_all.py --mode eval --model egocross_XXXXXX
 ```
 
 ---
@@ -228,6 +289,7 @@ PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True CUDA_VISIBLE_DEVICES=0 \
 | `--warmup-max-frames`         | `0`        | warmup 各ターンのフレーム上限                                     |
 | `--visual-fewshot`            | off        | support set の画像+問題+回答をそのまま visual few-shot として渡す |
 | `--visual-fewshot-max-frames` | `0`        | visual few-shot 各例のフレーム上限                                |
+| `--adapter-path`              | —          | LoRA アダプタのパスを直接指定（マージ不要）                       |
 
 出力: `outputs/predictions_YYYYMMDD_HHMMSS.json`
 

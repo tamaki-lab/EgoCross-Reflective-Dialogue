@@ -4,8 +4,8 @@ trust_remote_code: true
 
 ### Method
 finetuning_type: lora
-adapter_name_or_path: ./output/egocross_lora/checkpoint-100
+adapter_name_or_path: ./output/egocross_lora_20260510_185322
 
 ### Export
-export_dir: ./models/egocross
+export_dir: ./models/egocross_20260510_185322
 export_legacy_format: false

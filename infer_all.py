@@ -8,6 +8,7 @@ from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
 from tqdm import tqdm
+from peft import PeftModel
 from transformers import AutoModelForImageTextToText, AutoProcessor
 from qwen_vl_utils import process_vision_info
 
@@ -273,27 +274,40 @@ def load_eval_items(prompt_style: str = "default", fewshot: bool = False, visual
     return items
 
 
-def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 360000, input_mode: str = "image", thinking: bool = False, baseline: bool = False, prompt_style: str = "default", single_model: str = "", model_id: str = "", warmup_contents: dict | None = None, visual_fewshot: bool = False, visual_fewshot_max_frames: int = 0) -> dict:
-    if model_id:
-        model_path = model_id
-    elif baseline:
-        model_path = "Qwen/Qwen3-VL-4B-Instruct"
-    elif single_model:
-        model_path = str(MODEL_BASE / single_model)
+def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 360000, input_mode: str = "image", thinking: bool = False, baseline: bool = False, prompt_style: str = "default", single_model: str = "", model_id: str = "", adapter_path: str = "", warmup_contents: dict | None = None, visual_fewshot: bool = False, visual_fewshot_max_frames: int = 0) -> dict:
+    if adapter_path:
+        base_path = model_id if model_id else "Qwen/Qwen3-VL-4B-Instruct"
+        msg = f"\n=== Loading model: {base_path} + LoRA: {adapter_path} ({len(items)} questions) ==="
+        print(msg)
+        log_lines.append(msg)
+        processor = AutoProcessor.from_pretrained(base_path)
+        base_model = AutoModelForImageTextToText.from_pretrained(
+            base_path,
+            dtype=torch.bfloat16,
+            attn_implementation="sdpa",
+            device_map={"": 0},
+        )
+        model = PeftModel.from_pretrained(base_model, adapter_path)
     else:
-        model_path = str(MODEL_BASE / model_name)
-    msg = f"\n=== Loading model: {model_path} ({len(items)} questions) ==="
-    print(msg)
-    log_lines.append(msg)
-
-    processor = AutoProcessor.from_pretrained(model_path)
-    model = AutoModelForImageTextToText.from_pretrained(
-        model_path,
-        dtype=torch.bfloat16,
-        attn_implementation="sdpa",
-        # force single GPU; multi-GPU split causes NaN on Turing
-        device_map={"": 0},
-    )
+        if model_id:
+            model_path = model_id
+        elif baseline:
+            model_path = "Qwen/Qwen3-VL-4B-Instruct"
+        elif single_model:
+            model_path = str(MODEL_BASE / single_model)
+        else:
+            model_path = str(MODEL_BASE / model_name)
+        msg = f"\n=== Loading model: {model_path} ({len(items)} questions) ==="
+        print(msg)
+        log_lines.append(msg)
+        processor = AutoProcessor.from_pretrained(model_path)
+        model = AutoModelForImageTextToText.from_pretrained(
+            model_path,
+            dtype=torch.bfloat16,
+            attn_implementation="sdpa",
+            # force single GPU; multi-GPU split causes NaN on Turing
+            device_map={"": 0},
+        )
     model.eval()
     print(
         f"Model: {model.__class__.__name__}, device_map: {getattr(model, 'hf_device_map', None)}")
@@ -541,12 +555,14 @@ def main():
                         help="support setの画像+問題+回答をそのままvisual few-shotとして渡す (reflection/thinkingなし)")
     parser.add_argument("--visual-fewshot-max-frames", type=int, default=0,
                         help="visual few-shot 各例の画像フレーム上限 (0=制限なし, default: 0)")
+    parser.add_argument("--adapter-path", default="",
+                        help="LoRAアダプタのパスを直接指定 (マージ不要, 例: ./output/egocross_lora_20260510/checkpoint-40)")
     args = parser.parse_args()
 
     OUTPUT_DIR.mkdir(exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     log_lines = [
-        f"Run started: {timestamp}  mode={args.mode}  max_pixels={args.max_pixels}  input_mode={args.input_mode}  thinking={args.thinking}  baseline={args.baseline}  prompt_style={args.prompt_style}  fewshot={args.fewshot}  visual_fewshot={args.visual_fewshot}  single_model={args.single_model!r}  model_id={args.model_id!r}  warmup_file={args.warmup_file!r}"]
+        f"Run started: {timestamp}  mode={args.mode}  max_pixels={args.max_pixels}  input_mode={args.input_mode}  thinking={args.thinking}  baseline={args.baseline}  prompt_style={args.prompt_style}  fewshot={args.fewshot}  visual_fewshot={args.visual_fewshot}  single_model={args.single_model!r}  model_id={args.model_id!r}  adapter_path={args.adapter_path!r}  warmup_file={args.warmup_file!r}"]
 
     warmup_contents = None
     if args.warmup_file:
@@ -573,7 +589,7 @@ def main():
         domain_answers, peak_vram, domain_elapsed = run_domain(
             model_name, domain_items, log_lines, args.max_pixels, args.input_mode,
             thinking=args.thinking, baseline=args.baseline, prompt_style=args.prompt_style,
-            single_model=args.single_model, model_id=args.model_id,
+            single_model=args.single_model, model_id=args.model_id, adapter_path=args.adapter_path,
             warmup_contents=warmup_contents,
             visual_fewshot=args.visual_fewshot,
             visual_fewshot_max_frames=args.visual_fewshot_max_frames)
