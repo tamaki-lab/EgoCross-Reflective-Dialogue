@@ -32,8 +32,15 @@ support set で fine-tuning してから推論する場合のフロー。
 ### Step A: LoRA 学習
 
 ```bash
+# 通常
 bash bash/train.sh
+
+# フレームタイムスタンプあり（temporal問題のみ [Frame at X.Xs] を追加）
+bash bash/train.sh --frame-timestamps
 ```
+
+`--frame-timestamps` を指定すると `prepare_train_data.py` が自動実行され、
+temporal問題の `<image>` を `[Frame at X.Xs]<image>` に置換したデータで学習する。
 
 出力: `output/egocross_lora_YYYYMMDD_HHMMSS/`（実行ごとに別ディレクトリ）
 
@@ -126,35 +133,48 @@ source .env && python warmup_gemini.py --output outputs/my_warmup.json
 | `--output`           | `outputs/warmup_conversations_gemini.json` | 出力ファイルパス                        |
 | `--explain-correct`  | off                                        | 正解時にも根拠説明をモデルに生成させる  |
 
-### Qwen で生成 (HuggingFace Hub 指定)
+### Qwen で生成 (HuggingFace Hub 指定 / LoRA アダプタ指定)
 
 ```bash
 # HuggingFace Hub モデルID で指定
 CUDA_VISIBLE_DEVICES=0 python warmup_qwen.py --model-id Qwen/Qwen3-VL-4B-Instruct
+
+# LoRA アダプタ指定（マージ不要）
+CUDA_VISIBLE_DEVICES=0 python warmup_qwen.py \
+    --adapter-path output/egocross_lora_YYYYMMDD_HHMMSS/checkpoint-480 \
+    --output outputs/warmup_ckpt480.json
+
+# LoRA + フレームタイムスタンプあり（学習時と統一する場合）
+CUDA_VISIBLE_DEVICES=0 python warmup_qwen.py \
+    --adapter-path output/egocross_lora_YYYYMMDD_HHMMSS/checkpoint-480 \
+    --frame-timestamps \
+    --output outputs/warmup_ckpt480_frame_ts.json
 
 # ベースモデル使用
 CUDA_VISIBLE_DEVICES=0 python warmup_qwen.py --baseline
 
 # thinking モード有効
 CUDA_VISIBLE_DEVICES=0 python warmup_qwen.py --model-id Qwen/Qwen3-VL-4B-Instruct --thinking
-
-# 出力先変更
-CUDA_VISIBLE_DEVICES=0 python warmup_qwen.py --model-id Qwen/Qwen3-VL-4B-Instruct --output outputs/my_warmup.json
 ```
 
 出力: `outputs/warmup_conversations_qwen.json`
 
+`--frame-timestamps` を使うと、temporal問題のターンに `"timestamps"` フィールドが保存される。
+ロード時に自動で `[Frame at X.Xs]` が差し込まれるため、推論側でフラグ指定は不要。
+
 主なオプション:
 
-| オプション          | デフォルト                               | 説明                                   |
-| ------------------- | ---------------------------------------- | -------------------------------------- |
-| `--model`           | —                                        | `models/` 以下のディレクトリ名         |
-| `--baseline`        | off                                      | `Qwen/Qwen3-VL-4B-Instruct` を使用     |
-| `--model-id`        | —                                        | HuggingFace Hub モデルID (優先度最高)  |
-| `--max-pixels`      | `128000`                                 | 1フレームあたりの最大ピクセル数        |
-| `--thinking`        | off                                      | thinking モードを有効化                |
-| `--output`          | `outputs/warmup_conversations_qwen.json` | 出力ファイルパス                       |
-| `--explain-correct` | off                                      | 正解時にも根拠説明をモデルに生成させる |
+| オプション           | デフォルト                               | 説明                                                |
+| -------------------- | ---------------------------------------- | --------------------------------------------------- |
+| `--model`            | —                                        | `models/` 以下のディレクトリ名                      |
+| `--baseline`         | off                                      | `Qwen/Qwen3-VL-4B-Instruct` を使用                  |
+| `--model-id`         | —                                        | HuggingFace Hub モデルID (優先度最高)               |
+| `--adapter-path`     | —                                        | LoRA アダプタのパス（マージ不要）                   |
+| `--frame-timestamps` | off                                      | temporal問題に `[Frame at X.Xs]` を追加してJSON保存 |
+| `--max-pixels`       | `128000`                                 | 1フレームあたりの最大ピクセル数                     |
+| `--thinking`         | off                                      | thinking モードを有効化                             |
+| `--output`           | `outputs/warmup_conversations_qwen.json` | 出力ファイルパス                                    |
+| `--explain-correct`  | off                                      | 正解時にも根拠説明をモデルに生成させる              |
 
 ---
 
@@ -290,6 +310,7 @@ PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True CUDA_VISIBLE_DEVICES=0 \
 | `--visual-fewshot`            | off        | support set の画像+問題+回答をそのまま visual few-shot として渡す |
 | `--visual-fewshot-max-frames` | `0`        | visual few-shot 各例のフレーム上限                                |
 | `--adapter-path`              | —          | LoRA アダプタのパスを直接指定（マージ不要）                       |
+| `--frame-timestamps`          | off        | temporal問題のフレームに `[Frame at X.Xs]` を追加                 |
 
 出力: `outputs/predictions_YYYYMMDD_HHMMSS.json`
 
@@ -321,6 +342,35 @@ PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True CUDA_VISIBLE_DEVICES=0 \
 source .env && python infer_gemini.py --mode test \
     --warmup-file outputs/warmup_conversations_gemini.json
 ```
+
+---
+
+## LoRA + フレームタイムスタンプ フルパイプライン
+
+学習・warmup・推論すべてでタイムスタンプを一致させる場合のフロー。
+
+```bash
+# Step 1: 学習（temporal問題にタイムスタンプ付き）
+bash bash/train.sh --frame-timestamps
+# → output/egocross_lora_YYYYMMDD_HHMMSS/ に checkpoint-80〜800 が保存される
+
+# Step 2: warmup 生成（6epoch = checkpoint-480）
+CUDA_VISIBLE_DEVICES=0 python warmup_qwen.py \
+    --adapter-path output/egocross_lora_YYYYMMDD_HHMMSS/checkpoint-480 \
+    --frame-timestamps \
+    --output outputs/warmup_ckpt480_frame_ts.json
+
+# Step 3: test 推論
+PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True CUDA_VISIBLE_DEVICES=0 \
+    python infer_all.py --mode test \
+    --adapter-path output/egocross_lora_YYYYMMDD_HHMMSS/checkpoint-480 \
+    --warmup-file outputs/warmup_ckpt480_frame_ts.json \
+    --frame-timestamps
+```
+
+> **注意**: `--frame-timestamps` は学習・warmup・推論で必ず統一すること。
+> warmup の JSON にタイムスタンプが保存されているため、
+> ロード時に自動で差し込まれる（warmupは推論側でフラグ不要だが、本問には必要）。
 
 ---
 
