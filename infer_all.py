@@ -130,10 +130,17 @@ def load_warmup_contents(path: str, max_frames: int = 0, max_pixels: int = 36000
                 if max_frames > 0 and len(images) > max_frames:
                     step = (len(images) - 1) / (max_frames - 1) if max_frames > 1 else 0
                     images = [images[round(i * step)] for i in range(max_frames)]
-                content = [
-                    {"type": "image", "image": p, "min_pixels": 50176, "max_pixels": max_pixels}
-                    for p in images
-                ]
+                timestamps = turn.get("timestamps")
+                if timestamps and images:
+                    content = []
+                    for i, p in enumerate(images):
+                        content.append({"type": "text", "text": f"[Frame at {timestamps[i]:.1f}s]"})
+                        content.append({"type": "image", "image": p, "min_pixels": 50176, "max_pixels": max_pixels})
+                else:
+                    content = [
+                        {"type": "image", "image": p, "min_pixels": 50176, "max_pixels": max_pixels}
+                        for p in images
+                    ]
                 if turn.get("text"):
                     content.append({"type": "text", "text": turn["text"]})
                 messages.append({"role": "user", "content": content})

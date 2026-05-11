@@ -183,11 +183,17 @@ def load_warmup_contents(path: str, max_frames: int = 0, input_mode: str = "imag
                         (max_frames - 1) if max_frames > 1 else 0
                     images = [images[round(i * step)]
                               for i in range(max_frames)]
+                timestamps = turn.get("timestamps")
                 if input_mode == "video" and len(images) > 1:
                     video_path = frames_to_video(images)
                     parts = [types.Part.from_bytes(
                         data=Path(video_path).read_bytes(), mime_type="video/mp4")]
                     os.unlink(video_path)
+                elif timestamps and images:
+                    parts = []
+                    for i, p in enumerate(images):
+                        parts.append(types.Part.from_text(text=f"[Frame at {timestamps[i]:.1f}s]"))
+                        parts.append(load_image_part(p))
                 else:
                     parts = [load_image_part(p) for p in images]
                 if turn.get("text"):

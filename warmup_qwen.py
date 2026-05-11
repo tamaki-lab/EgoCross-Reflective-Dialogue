@@ -23,6 +23,17 @@ CLASSIFY_JSON = BASE / "outputs/support_question_types.json"
 DEFAULT_OUTPUT = BASE / "outputs/warmup_conversations_qwen.json"
 MODEL_BASE = BASE / "models"
 
+DOMAIN_ORIG_FPS = {"surgery": 25.0, "industry": 30.0, "xsports": 30.0, "animal": 30.0}
+
+
+def _compute_eval_timestamps(frame_paths: list[str], orig_fps: float) -> list[float]:
+    try:
+        nums = [int(re.findall(r"\d+", Path(p).stem)[-1]) for p in frame_paths]
+        min_n = min(nums)
+        return [(n - min_n) / orig_fps for n in nums]
+    except Exception:
+        return [i * 2.0 for i in range(len(frame_paths))]
+
 
 def extract_answer(text: str) -> str:
     for pat in (
@@ -73,6 +84,8 @@ def build_warmup_for_group(
     group_items: list[dict],
     max_pixels: int,
     thinking: bool,
+    frame_timestamps: bool = False,
+    orig_fps: float = 30.0,
 ) -> tuple[list[dict], int, int]:
     """
     1グループ分の warm-up 会話を構築する。
@@ -88,13 +101,24 @@ def build_warmup_for_group(
 
     for item in group_items:
         # User turn: 画像 + 問題文
-        content = [
-            {"type": "image", "image": p, "min_pixels": 50176, "max_pixels": max_pixels}
-            for p in item["images"]
-        ]
+        if frame_timestamps and item["images"]:
+            timestamps = _compute_eval_timestamps(item["images"], orig_fps)
+            content = []
+            for i, p in enumerate(item["images"]):
+                content.append({"type": "text", "text": f"[Frame at {timestamps[i]:.1f}s]"})
+                content.append({"type": "image", "image": p, "min_pixels": 50176, "max_pixels": max_pixels})
+        else:
+            timestamps = None
+            content = [
+                {"type": "image", "image": p, "min_pixels": 50176, "max_pixels": max_pixels}
+                for p in item["images"]
+            ]
         content.append({"type": "text", "text": item["prompt"]})
         messages.append({"role": "user", "content": content})
-        turns.append({"role": "user", "text": item["prompt"], "images": item["images"]})
+        turn = {"role": "user", "text": item["prompt"], "images": item["images"]}
+        if timestamps is not None:
+            turn["timestamps"] = timestamps
+        turns.append(turn)
 
         # Model の回答
         raw = call_model(model, processor, messages,
@@ -161,6 +185,8 @@ def main():
                         help=f"出力 JSON パス (default: {DEFAULT_OUTPUT})")
     parser.add_argument("--adapter-path", default="",
                         help="LoRAアダプタのパスを直接指定（マージ不要, 例: ./output/egocross_lora_XXXX/checkpoint-240）")
+    parser.add_argument("--frame-timestamps", action="store_true",
+                        help="temporal問題のフレームに '[Frame at X.Xs]' を追加する")
     args = parser.parse_args()
 
     if args.adapter_path:
@@ -232,8 +258,10 @@ def main():
     for (domain, qt), group_items in sorted(groups.items()):
         key = f"{domain}::{qt}"
         print(f"\n=== {key} ({len(group_items)}問) ===")
+        use_ts = args.frame_timestamps and "temporal" in qt.lower()
         turns, n_correct, n_total = build_warmup_for_group(
-            model, processor, group_items, args.max_pixels, args.thinking)
+            model, processor, group_items, args.max_pixels, args.thinking,
+            frame_timestamps=use_ts, orig_fps=DOMAIN_ORIG_FPS.get(domain, 30.0))
         warmup_data[key] = {
             "domain": domain,
             "question_type": qt,
