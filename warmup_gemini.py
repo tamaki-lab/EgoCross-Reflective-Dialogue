@@ -21,6 +21,17 @@ TRAIN_JSON = BASE / "data/egocross/train.json"
 CLASSIFY_JSON = BASE / "outputs/support_question_types.json"
 DEFAULT_OUTPUT = BASE / "outputs/warmup_conversations_gemini.json"
 
+DOMAIN_ORIG_FPS = {"surgery": 25.0, "industry": 30.0, "xsports": 30.0, "animal": 30.0}
+
+
+def _compute_eval_timestamps(frame_paths: list[str], orig_fps: float) -> list[float]:
+    try:
+        nums = [int(re.findall(r"\d+", Path(p).stem)[-1]) for p in frame_paths]
+        min_n = min(nums)
+        return [(n - min_n) / orig_fps for n in nums]
+    except Exception:
+        return [i * 2.0 for i in range(len(frame_paths))]
+
 DEFAULT_MODEL = "gemini-3.1-flash-image-preview"
 
 MIME_MAP = {
@@ -85,6 +96,8 @@ def build_warmup_for_group(
     model: str,
     config,
     rate_limit_sleep: float,
+    frame_timestamps: bool = False,
+    orig_fps: float = 30.0,
 ) -> tuple[list[dict], int, int]:
     """
     1グループ分の warm-up 会話を構築する。
@@ -100,11 +113,21 @@ def build_warmup_for_group(
 
     for item in group_items:
         # User turn: 画像 + 問題文
-        parts = [load_image_part(p) for p in item["images"]]
+        if frame_timestamps and item["images"]:
+            timestamps = _compute_eval_timestamps(item["images"], orig_fps)
+            parts = []
+            for i, p in enumerate(item["images"]):
+                parts.append(types.Part.from_text(text=f"[Frame at {timestamps[i]:.1f}s]"))
+                parts.append(load_image_part(p))
+        else:
+            timestamps = None
+            parts = [load_image_part(p) for p in item["images"]]
         parts.append(types.Part.from_text(text=item["prompt"]))
         contents.append(types.Content(role="user", parts=parts))
-        turns.append(
-            {"role": "user", "text": item["prompt"], "images": item["images"]})
+        turn = {"role": "user", "text": item["prompt"], "images": item["images"]}
+        if timestamps is not None:
+            turn["timestamps"] = timestamps
+        turns.append(turn)
 
         # Model の回答
         model_text = call_model(client, model, contents, config)
@@ -169,6 +192,8 @@ def main():
                         help="Vertex AI ロケーション (default: global)")
     parser.add_argument("--output", default=str(DEFAULT_OUTPUT),
                         help=f"出力 JSON パス (default: {DEFAULT_OUTPUT})")
+    parser.add_argument("--frame-timestamps", action="store_true",
+                        help="temporal問題のフレームに '[Frame at X.Xs]' を追加してJSON保存")
     args = parser.parse_args()
 
     # Client setup
@@ -230,8 +255,10 @@ def main():
     for (domain, qt), group_items in sorted(groups.items()):
         key = f"{domain}::{qt}"
         print(f"\n=== {key} ({len(group_items)}問) ===")
+        use_ts = args.frame_timestamps and "temporal" in qt.lower()
         turns, n_correct, n_total = build_warmup_for_group(
-            client, group_items, args.model, config, args.rate_limit_sleep)
+            client, group_items, args.model, config, args.rate_limit_sleep,
+            frame_timestamps=use_ts, orig_fps=DOMAIN_ORIG_FPS.get(domain, 30.0))
         warmup_data[key] = {
             "domain": domain,
             "question_type": qt,
