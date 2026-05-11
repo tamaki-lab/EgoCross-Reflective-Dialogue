@@ -366,6 +366,37 @@ def _subsample_frames(images: list[str], max_frames: int) -> list[str]:
     return [images[round(i * step)] for i in range(max_frames)]
 
 
+DOMAIN_ORIG_FPS = {"surgery": 25.0, "industry": 30.0, "xsports": 30.0, "animal": 30.0}
+
+TEST_SAMPLING_INTERVAL = 2.0  # 0.5 fps
+
+
+def _compute_eval_timestamps(frame_paths: list[str], orig_fps: float) -> list[float]:
+    """eval用: フレーム名の元インデックスからclip相対タイムスタンプを計算する。"""
+    try:
+        nums = [int(re.findall(r"\d+", Path(p).stem)[-1]) for p in frame_paths]
+        min_n = min(nums)
+        return [(n - min_n) / orig_fps for n in nums]
+    except Exception:
+        return [i * TEST_SAMPLING_INTERVAL for i in range(len(frame_paths))]
+
+
+def _compute_test_timestamps(n_frames: int, interval: float = TEST_SAMPLING_INTERVAL) -> list[float]:
+    """test用: サンプリング間隔からclip相対タイムスタンプを計算する。"""
+    return [i * interval for i in range(n_frames)]
+
+
+def _test_sampling_interval(dataset: str, video_paths: list[str]) -> float:
+    """EgoSurgery と CholecTrack20 VID25/VID111 は 1fps (1.0s/frame)、それ以外は 0.5fps (2.0s)。"""
+    if dataset == "EgoSurgery":
+        return 1.0
+    if dataset == "CholecTrack20":
+        joined = "/".join(video_paths)
+        if "VID25" in joined or "VID111" in joined:
+            return 1.0
+    return TEST_SAMPLING_INTERVAL
+
+
 def extract_answer(text: str) -> str:
     for pat in (
         r"Final\s*Answer\s*[:：]\s*\**\s*\(?\s*([A-D])",
@@ -416,9 +447,12 @@ def load_test_items(fewshot: bool = False, visual_fewshot: bool = False) -> list
             lookup_key = f"{model_name}::{d.get('question_type', '')}"
         else:
             lookup_key = d["question_text"].strip()
+        images = [str(IMAGE_BASE / p.lstrip("/")) for p in d["video_path"]]
+        interval = _test_sampling_interval(d["dataset"], d["video_path"])
         items.append({
             "id": d["id"],
-            "images": [str(IMAGE_BASE / p.lstrip("/")) for p in d["video_path"]],
+            "images": images,
+            "timestamps": _compute_test_timestamps(len(images), interval),
             "prompt": prompt,
             "domain": model_name,
             "question_type": d.get("question_type", ""),
@@ -470,6 +504,7 @@ def load_eval_items(fewshot: bool = False, visual_fewshot: bool = False) -> list
                 items.append({
                     "id": i,
                     "images": d["images"],
+                    "timestamps": _compute_eval_timestamps(d["images"], DOMAIN_ORIG_FPS.get(d["domain"], 30.0)),
                     "prompt": prompt,
                     "domain": d["domain"],
                     "question_type": qt_map.get(i, ""),
@@ -506,6 +541,7 @@ def load_eval_items(fewshot: bool = False, visual_fewshot: bool = False) -> list
             items.append({
                 "id": i,
                 "images": d["images"],
+                "timestamps": _compute_eval_timestamps(d["images"], DOMAIN_ORIG_FPS.get(d["domain"], 30.0)),
                 "prompt": prompt,
                 "domain": d["domain"],
                 "question_type": qt_map.get(i, ""),
@@ -521,6 +557,7 @@ def load_eval_items(fewshot: bool = False, visual_fewshot: bool = False) -> list
         items.append({
             "id": i,
             "images": d["images"],
+            "timestamps": _compute_eval_timestamps(d["images"], DOMAIN_ORIG_FPS.get(d["domain"], 30.0)),
             "prompt": prompt,
             "domain": d["domain"],
             "question_type": qt_map.get(i, ""),
@@ -544,6 +581,7 @@ def run_domain(
     warmup_contents: dict | None = None,
     visual_fewshot: bool = False,
     visual_fewshot_max_frames: int = 0,
+    frame_timestamps: bool = False,
 ) -> dict:
     msg = f"\n=== Domain: {domain} ({len(items)} questions) ==="
     print(msg)
@@ -626,6 +664,12 @@ def run_domain(
                                     client, video_path)
                                 parts.append(types.Part.from_uri(
                                     file_uri=file_uri, mime_type="video/mp4"))
+                        elif frame_timestamps and item.get("timestamps") and "temporal" in item.get("question_type", "").lower():
+                            ts = item["timestamps"]
+                            for i, img_path in enumerate(item["images"]):
+                                if i < len(ts):
+                                    parts.append(types.Part.from_text(text=f"[Frame at {ts[i]:.1f}s]"))
+                                parts.append(load_image_part(img_path))
                         else:
                             for img_path in item["images"]:
                                 parts.append(load_image_part(img_path))
@@ -839,6 +883,8 @@ def main():
                         help="support setの画像+問題+回答をそのままvisual few-shotとして渡す (reflection/thinkingなし)")
     parser.add_argument("--visual-fewshot-max-frames", type=int, default=0,
                         help="visual few-shot 各例の画像フレーム上限 (0=制限なし, default: 0)")
+    parser.add_argument("--frame-timestamps", action="store_true",
+                        help="各フレームの時刻 '[Frame at X.Xs]' をプロンプトに追加する")
     args = parser.parse_args()
 
     # Client setup
@@ -863,7 +909,7 @@ def main():
         f"Run started: {timestamp}  mode={args.mode}  model={args.model}"
         f"  prompt_style={args.prompt_style}  thinking_budget={args.thinking_budget}"
         f"  fewshot={args.fewshot}  use_vertex={args.use_vertex}"
-        f"  warmup_file={args.warmup_file}"
+        f"  warmup_file={args.warmup_file}  frame_timestamps={args.frame_timestamps}"
     ]
 
     warmup_contents = None
@@ -922,6 +968,7 @@ def main():
             warmup_contents=warmup_contents,
             visual_fewshot=args.visual_fewshot,
             visual_fewshot_max_frames=args.visual_fewshot_max_frames,
+            frame_timestamps=args.frame_timestamps,
         )
         all_answers.update(domain_answers)
         grand_in += in_tok

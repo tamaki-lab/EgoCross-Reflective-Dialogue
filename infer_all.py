@@ -63,6 +63,37 @@ def _subsample_frames(images: list[str], max_frames: int) -> list[str]:
     return [images[round(i * step)] for i in range(max_frames)]
 
 
+DOMAIN_ORIG_FPS = {"surgery": 25.0, "industry": 30.0, "xsports": 30.0, "animal": 30.0}
+
+TEST_SAMPLING_INTERVAL = 2.0  # 0.5 fps
+
+
+def _compute_eval_timestamps(frame_paths: list[str], orig_fps: float) -> list[float]:
+    """eval用: フレーム名の元インデックスからclip相対タイムスタンプを計算する。"""
+    try:
+        nums = [int(re.findall(r"\d+", Path(p).stem)[-1]) for p in frame_paths]
+        min_n = min(nums)
+        return [(n - min_n) / orig_fps for n in nums]
+    except Exception:
+        return [i * TEST_SAMPLING_INTERVAL for i in range(len(frame_paths))]
+
+
+def _compute_test_timestamps(n_frames: int, interval: float = TEST_SAMPLING_INTERVAL) -> list[float]:
+    """test用: サンプリング間隔からclip相対タイムスタンプを計算する。"""
+    return [i * interval for i in range(n_frames)]
+
+
+def _test_sampling_interval(dataset: str, video_paths: list[str]) -> float:
+    """EgoSurgery と CholecTrack20 VID25/VID111 は 1fps (1.0s/frame)、それ以外は 0.5fps (2.0s)。"""
+    if dataset == "EgoSurgery":
+        return 1.0
+    if dataset == "CholecTrack20":
+        joined = "/".join(video_paths)
+        if "VID25" in joined or "VID111" in joined:
+            return 1.0
+    return TEST_SAMPLING_INTERVAL
+
+
 CLASSIFY_JSON = BASE / "outputs/support_question_types.json"
 
 
@@ -152,9 +183,12 @@ def load_test_items(fewshot: bool = False, visual_fewshot: bool = False) -> list
             lookup_key = f"{model_name}::{d.get('question_type', '')}"
         else:
             lookup_key = d["question_text"].strip()
+        images = [str(IMAGE_BASE / p.lstrip("/")) for p in d["video_path"]]
+        interval = _test_sampling_interval(d["dataset"], d["video_path"])
         items.append({
             "id": d["id"],
-            "images": [str(IMAGE_BASE / p.lstrip("/")) for p in d["video_path"]],
+            "images": images,
+            "timestamps": _compute_test_timestamps(len(images), interval),
             "prompt": prompt,
             "domain": model_name,
             "question_type": d.get("question_type", ""),
@@ -200,6 +234,7 @@ def load_eval_items(prompt_style: str = "default", fewshot: bool = False, visual
                 items.append({
                     "id": i,
                     "images": d["images"],
+                    "timestamps": _compute_eval_timestamps(d["images"], DOMAIN_ORIG_FPS.get(d["domain"], 30.0)),
                     "prompt": prompt,
                     "domain": d["domain"],
                     "question_type": qt_map.get(i, ""),
@@ -243,6 +278,7 @@ def load_eval_items(prompt_style: str = "default", fewshot: bool = False, visual
             items.append({
                 "id": i,
                 "images": d["images"],
+                "timestamps": _compute_eval_timestamps(d["images"], DOMAIN_ORIG_FPS.get(d["domain"], 30.0)),
                 "prompt": prompt,
                 "domain": d["domain"],
                 "question_type": qt_map.get(i, ""),
@@ -264,6 +300,7 @@ def load_eval_items(prompt_style: str = "default", fewshot: bool = False, visual
         items.append({
             "id": i,
             "images": d["images"],
+            "timestamps": _compute_eval_timestamps(d["images"], DOMAIN_ORIG_FPS.get(d["domain"], 30.0)),
             "prompt": prompt,
             "domain": d["domain"],
             "question_type": qt_map.get(i, ""),
@@ -274,7 +311,7 @@ def load_eval_items(prompt_style: str = "default", fewshot: bool = False, visual
     return items
 
 
-def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 360000, input_mode: str = "image", thinking: bool = False, baseline: bool = False, prompt_style: str = "default", single_model: str = "", model_id: str = "", adapter_path: str = "", warmup_contents: dict | None = None, visual_fewshot: bool = False, visual_fewshot_max_frames: int = 0) -> dict:
+def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 360000, input_mode: str = "image", thinking: bool = False, baseline: bool = False, prompt_style: str = "default", single_model: str = "", model_id: str = "", adapter_path: str = "", warmup_contents: dict | None = None, visual_fewshot: bool = False, visual_fewshot_max_frames: int = 0, frame_timestamps: bool = False) -> dict:
     if adapter_path:
         base_path = model_id if model_id else "Qwen/Qwen3-VL-4B-Instruct"
         msg = f"\n=== Loading model: {base_path} + LoRA: {adapter_path} ({len(items)} questions) ==="
@@ -321,6 +358,7 @@ def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 
     for item in pbar:
         t0 = time.time()
         image_paths = item["images"]
+        item_timestamps = list(item.get("timestamps", []))
 
         raw = None
         n_input = 0
@@ -339,6 +377,12 @@ def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 
                         "fps": item.get("fps", 1.0),
                         "min_pixels": 50176, "max_pixels": max_pixels,
                     }]
+                elif frame_timestamps and item_timestamps and "temporal" in item.get("question_type", "").lower():
+                    content = []
+                    for i, p in enumerate(image_paths):
+                        if i < len(item_timestamps):
+                            content.append({"type": "text", "text": f"[Frame at {item_timestamps[i]:.1f}s]"})
+                        content.append({"type": "image", "image": p, "min_pixels": 50176, "max_pixels": max_pixels})
                 else:
                     content = [{
                         "type": "image", "image": p,
@@ -413,6 +457,7 @@ def run_domain(model_name: str, items: list, log_lines: list, max_pixels: int = 
             except torch.OutOfMemoryError:
                 torch.cuda.empty_cache()
                 image_paths = image_paths[::2] or image_paths[:1]  # フレームを半分に
+                item_timestamps = item_timestamps[::2] if item_timestamps else []
                 pbar.write(
                     f"  OOM id={item['id']}, retry with {len(image_paths)} frames")
 
@@ -557,12 +602,14 @@ def main():
                         help="visual few-shot 各例の画像フレーム上限 (0=制限なし, default: 0)")
     parser.add_argument("--adapter-path", default="",
                         help="LoRAアダプタのパスを直接指定 (マージ不要, 例: ./output/egocross_lora_20260510/checkpoint-40)")
+    parser.add_argument("--frame-timestamps", action="store_true",
+                        help="各フレームの時刻 '[Frame at X.Xs]' をプロンプトに追加する")
     args = parser.parse_args()
 
     OUTPUT_DIR.mkdir(exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     log_lines = [
-        f"Run started: {timestamp}  mode={args.mode}  max_pixels={args.max_pixels}  input_mode={args.input_mode}  thinking={args.thinking}  baseline={args.baseline}  prompt_style={args.prompt_style}  fewshot={args.fewshot}  visual_fewshot={args.visual_fewshot}  single_model={args.single_model!r}  model_id={args.model_id!r}  adapter_path={args.adapter_path!r}  warmup_file={args.warmup_file!r}"]
+        f"Run started: {timestamp}  mode={args.mode}  max_pixels={args.max_pixels}  input_mode={args.input_mode}  thinking={args.thinking}  baseline={args.baseline}  prompt_style={args.prompt_style}  fewshot={args.fewshot}  visual_fewshot={args.visual_fewshot}  single_model={args.single_model!r}  model_id={args.model_id!r}  adapter_path={args.adapter_path!r}  warmup_file={args.warmup_file!r}  frame_timestamps={args.frame_timestamps}"]
 
     warmup_contents = None
     if args.warmup_file:
@@ -592,7 +639,8 @@ def main():
             single_model=args.single_model, model_id=args.model_id, adapter_path=args.adapter_path,
             warmup_contents=warmup_contents,
             visual_fewshot=args.visual_fewshot,
-            visual_fewshot_max_frames=args.visual_fewshot_max_frames)
+            visual_fewshot_max_frames=args.visual_fewshot_max_frames,
+            frame_timestamps=args.frame_timestamps)
         all_answers.update(domain_answers)
         grand_peak_vram = max(grand_peak_vram, peak_vram)
         grand_elapsed += domain_elapsed
