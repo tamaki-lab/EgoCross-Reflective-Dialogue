@@ -1,22 +1,22 @@
-# EgoCross 推論・Warmup 実行ガイド
+# EgoCross Inference & Warmup Guide
 
-## ファイル構成
+## Scripts
 
-| スクリプト                 | 役割                                               |
-| -------------------------- | -------------------------------------------------- |
-| `classify_support.py`      | support set の問題を question_type に分類 (Step 1) |
-| `warmup_gemini.py`         | Gemini で warmup 会話を生成 (Step 2a)              |
-| `warmup_qwen.py`           | Qwen ローカルモデルで warmup 会話を生成 (Step 2b)  |
-| `infer_gemini.py`          | Gemini で推論                                      |
-| `infer_all.py`             | Qwen ローカルモデルで推論                          |
-| `bash/train.sh`            | support set で LoRA fine-tuning                    |
-| `bash/eval_checkpoints.sh` | 各チェックポイントの正解率を一括比較               |
+| Script                     | Role                                                     |
+| -------------------------- | -------------------------------------------------------- |
+| `classify_support.py`      | Classify support set questions by question type (Step 1) |
+| `warmup_gemini.py`         | Generate warmup conversations with Gemini (Step 2a)      |
+| `warmup_qwen.py`           | Generate warmup conversations with local Qwen (Step 2b)  |
+| `infer_gemini.py`          | Run inference with Gemini                                |
+| `infer_all.py`             | Run inference with local Qwen                            |
+| `bash/train.sh`            | LoRA fine-tuning on the support set                      |
+| `bash/eval_checkpoints.sh` | Evaluate all checkpoints and compare accuracy            |
 
 ---
 
-## 事前準備
+## Prerequisites
 
-`.env` に API キーを設定:
+Set API keys in `.env`:
 
 ```
 GEMINI_API_KEY=...
@@ -25,76 +25,75 @@ GOOGLE_CLOUD_PROJECT=...
 
 ---
 
-## LoRA Fine-tuning フロー
+## LoRA Fine-tuning Flow
 
-support set で fine-tuning してから推論する場合のフロー。
+Use this flow when fine-tuning on the support set before inference.
 
-### Step A: LoRA 学習
+### Step A: LoRA Training
 
 ```bash
-# 通常
+# Standard
 bash bash/train.sh
 
-# フレームタイムスタンプあり（temporal問題のみ [Frame at X.Xs] を追加）
+# With frame timestamps (adds [Frame at X.Xs] to temporal questions only)
 bash bash/train.sh --frame-timestamps
 ```
 
-`--frame-timestamps` を指定すると `prepare_train_data.py` が自動実行され、
-temporal問題の `<image>` を `[Frame at X.Xs]<image>` に置換したデータで学習する。
+With `--frame-timestamps`, `prepare_train_data.py` runs automatically and replaces `<image>` tags with `[Frame at X.Xs]<image>` for temporal questions before training.
 
-出力: `output/egocross_lora_YYYYMMDD_HHMMSS/`（実行ごとに別ディレクトリ）
+Output: `output/egocross_lora_YYYYMMDD_HHMMSS/` (new directory per run)
 
-設定は `configs/lora.yaml` で管理。主な設定:
+Key settings in `configs/lora.yaml`:
 
-| 設定                          | デフォルト                  | 説明                               |
-| ----------------------------- | --------------------------- | ---------------------------------- |
-| `model_name_or_path`          | `Qwen/Qwen3-VL-4B-Instruct` | ベースモデル                       |
-| `lora_rank`                   | `64`                        | LoRA ランク                        |
-| `num_train_epochs`            | `10`                        | エポック数                         |
-| `learning_rate`               | `1.0e-4`                    | 学習率                             |
-| `per_device_train_batch_size` | `1`                         | バッチサイズ                       |
-| `gradient_accumulation_steps` | `8`                         | 勾配累積ステップ数                 |
-| `save_strategy`               | `epoch`                     | エポックごとにチェックポイント保存 |
+| Parameter                     | Default                     | Description                         |
+| ----------------------------- | --------------------------- | ----------------------------------- |
+| `model_name_or_path`          | `Qwen/Qwen3-VL-4B-Instruct` | Base model                          |
+| `lora_rank`                   | `64`                        | LoRA rank                           |
+| `num_train_epochs`            | `10`                        | Number of epochs                    |
+| `learning_rate`               | `1.0e-5`                    | Learning rate                       |
+| `per_device_train_batch_size` | `1`                         | Batch size per GPU                  |
+| `gradient_accumulation_steps` | `1`                         | Gradient accumulation steps         |
+| `save_strategy`               | `epoch`                     | Save a checkpoint after every epoch |
 
-### Step B: チェックポイント別正解率の比較
+### Step B: Compare Checkpoints
 
-マージ不要で各 epoch のモデルを直接評価できる。
+Adapters can be loaded directly — no merge required.
 
 ```bash
-# 最新のLoRA出力を自動検出して全チェックポイントを評価
+# Auto-detect latest LoRA output and evaluate all checkpoints
 bash bash/eval_checkpoints.sh
 
-# ディレクトリを明示指定
+# Specify directory explicitly
 bash bash/eval_checkpoints.sh output/egocross_lora_20260510_185322
 ```
 
-出力: `outputs/eval_checkpoints_XXXXXX_YYYYMMDD.txt`（チェックポイントごとの Overall 正解率サマリー付き）
+Output: `outputs/eval_checkpoints_XXXXXX_YYYYMMDD.txt` (with per-checkpoint Overall accuracy summary)
 
-特定のチェックポイントだけ評価したい場合は `--adapter-path` を使う:
+To evaluate a single checkpoint:
 
 ```bash
 CUDA_VISIBLE_DEVICES=0 python infer_all.py --mode eval \
     --adapter-path ./output/egocross_lora_20260510_185322/checkpoint-40
 ```
 
-### Step C: LoRA マージ → 推論
+### Step C: LoRA Merge → Inference (Optional)
 
-最良のチェックポイントが決まったら `configs/merge_lora.yaml` の `adapter_name_or_path` を更新してマージ:
+Merging is only needed when using the merged model path via `--model`. Skip this step if using `--adapter-path`.
 
 ```bash
-# LoRAをベースモデルにマージ → models/egocross_XXXXXX/ に出力
+# Merge LoRA into base model → output to models/egocross_XXXXXX/
 .venv/bin/llamafactory-cli export configs/merge_lora.yaml
 
-# マージ済みモデルで推論
+# Inference with merged model
 CUDA_VISIBLE_DEVICES=0 python infer_all.py --mode eval --model egocross_XXXXXX
 ```
 
 ---
 
-## Step 1: 問題タイプ分類
+## Step 1: Question Type Classification
 
-support set の各問題を question_type に分類し、`outputs/support_question_types.json` を生成する。  
-warmup を使う場合は事前に必須。既にファイルがあればスキップ可。
+Classify each support set question by question type and save to `outputs/support_question_types.json`.
+Required before running warmup. Can be skipped if the file already exists.
 
 ```bash
 source .env && python classify_support.py
@@ -102,260 +101,248 @@ source .env && python classify_support.py
 
 ---
 
-## Step 2: Warmup 会話生成
+## Step 2: Warmup Conversation Generation
 
-### Gemini で生成
+### Generate with Gemini
 
 ```bash
-# AI Studio (API Key)
+# AI Studio (API key)
 source .env && python warmup_gemini.py
 
 # Vertex AI
 source .env && python warmup_gemini.py --use-vertex
 
-# モデル指定
+# Specify model
 source .env && python warmup_gemini.py --model gemini-3.1-flash-image-preview
 
-# 出力先変更
+# Change output path
 source .env && python warmup_gemini.py --output outputs/my_warmup.json
 ```
 
-出力: `outputs/warmup_conversations_gemini.json`
+Output: `outputs/warmup_conversations_gemini.json`
 
-主なオプション:
+Key options:
 
-| オプション           | デフォルト                                 | 説明                                    |
-| -------------------- | ------------------------------------------ | --------------------------------------- |
-| `--model`            | `gemini-3.1-flash-image-preview`           | 使用モデル                              |
-| `--thinking-budget`  | `0`                                        | thinking トークン上限 (0=無効, -1=動的) |
-| `--rate-limit-sleep` | `1.0`                                      | リクエスト間 sleep 秒数                 |
-| `--use-vertex`       | off                                        | Vertex AI を使用                        |
-| `--output`           | `outputs/warmup_conversations_gemini.json` | 出力ファイルパス                        |
+| Option               | Default                                    | Description                               |
+| -------------------- | ------------------------------------------ | ----------------------------------------- |
+| `--model`            | `gemini-3.1-flash-image-preview`           | Model to use                              |
+| `--thinking-budget`  | `0`                                        | Thinking token budget (0=off, -1=dynamic) |
+| `--rate-limit-sleep` | `1.0`                                      | Sleep seconds between requests            |
+| `--use-vertex`       | off                                        | Use Vertex AI instead of AI Studio        |
+| `--output`           | `outputs/warmup_conversations_gemini.json` | Output file path                          |
 
-### Qwen で生成 (HuggingFace Hub 指定 / LoRA アダプタ指定)
+### Generate with Qwen (HuggingFace Hub / LoRA adapter)
 
 ```bash
-# HuggingFace Hub モデルID で指定
+# HuggingFace Hub model ID
 CUDA_VISIBLE_DEVICES=0 python warmup_qwen.py --model-id Qwen/Qwen3-VL-4B-Instruct
 
-# LoRA アダプタ指定（マージ不要）
+# LoRA adapter (no merge required)
 CUDA_VISIBLE_DEVICES=0 python warmup_qwen.py \
     --adapter-path output/egocross_lora_YYYYMMDD_HHMMSS/checkpoint-480 \
     --output outputs/warmup_ckpt480.json
 
-# LoRA + フレームタイムスタンプあり（学習時と統一する場合）
+# LoRA + frame timestamps (use when training used --frame-timestamps)
 CUDA_VISIBLE_DEVICES=0 python warmup_qwen.py \
     --adapter-path output/egocross_lora_YYYYMMDD_HHMMSS/checkpoint-480 \
     --frame-timestamps \
     --output outputs/warmup_ckpt480_frame_ts.json
 
-# ベースモデル使用
+# Base model
 CUDA_VISIBLE_DEVICES=0 python warmup_qwen.py --baseline
 
-# thinking モード有効
+# Enable thinking mode
 CUDA_VISIBLE_DEVICES=0 python warmup_qwen.py --model-id Qwen/Qwen3-VL-4B-Instruct --thinking
 ```
 
-出力: `outputs/warmup_conversations_qwen.json`
+Output: `outputs/warmup_conversations_qwen.json`
 
-`--frame-timestamps` を使うと、temporal問題のターンに `"timestamps"` フィールドが保存される。
-ロード時に自動で `[Frame at X.Xs]` が差し込まれるため、推論側でフラグ指定は不要。
+With `--frame-timestamps`, a `"timestamps"` field is saved in each warmup turn. These are automatically injected as `[Frame at X.Xs]` when loading — no flag needed on the inference side for warmup turns (but `--frame-timestamps` is still required for the main question).
 
-主なオプション:
+Key options:
 
-| オプション           | デフォルト                               | 説明                                                |
-| -------------------- | ---------------------------------------- | --------------------------------------------------- |
-| `--model`            | —                                        | `models/` 以下のディレクトリ名                      |
-| `--baseline`         | off                                      | `Qwen/Qwen3-VL-4B-Instruct` を使用                  |
-| `--model-id`         | —                                        | HuggingFace Hub モデルID (優先度最高)               |
-| `--adapter-path`     | —                                        | LoRA アダプタのパス（マージ不要）                   |
-| `--frame-timestamps` | off                                      | temporal問題に `[Frame at X.Xs]` を追加してJSON保存 |
-| `--max-pixels`       | `128000`                                 | 1フレームあたりの最大ピクセル数                     |
-| `--thinking`         | off                                      | thinking モードを有効化                             |
-| `--output`           | `outputs/warmup_conversations_qwen.json` | 出力ファイルパス                                    |
+| Option               | Default                                  | Description                                          |
+| -------------------- | ---------------------------------------- | ---------------------------------------------------- |
+| `--model`            | —                                        | Directory name under `models/`                       |
+| `--baseline`         | off                                      | Use `Qwen/Qwen3-VL-4B-Instruct`                      |
+| `--model-id`         | —                                        | HuggingFace Hub model ID (highest priority)          |
+| `--adapter-path`     | —                                        | Path to LoRA adapter (no merge required)             |
+| `--frame-timestamps` | off                                      | Add `[Frame at X.Xs]` to temporal questions and save |
+| `--max-pixels`       | `128000`                                 | Max pixels per frame                                 |
+| `--thinking`         | off                                      | Enable thinking mode                                 |
+| `--output`           | `outputs/warmup_conversations_qwen.json` | Output file path                                     |
 
 ---
 
-## Step 3: 推論
+## Step 3: Inference
 
-### Gemini 推論
+### Gemini Inference
 
 ```bash
-# eval (support set で正解率確認)
+# eval (check accuracy on support set)
 source .env && python infer_gemini.py --mode eval
 
-# test (提出用予測を生成)
+# test (generate submission predictions)
 source .env && python infer_gemini.py --mode test
 
-# Vertex AI 使用
+# Use Vertex AI
 source .env && python infer_gemini.py --mode test --use-vertex
 
-# warmup あり
+# With warmup
 source .env && python infer_gemini.py --mode eval \
     --warmup-file outputs/warmup_conversations_gemini.json
 
-# warmup + フレーム数制限
+# With warmup + frame limit per turn
 source .env && python infer_gemini.py --mode eval \
     --warmup-file outputs/warmup_conversations_gemini.json \
     --warmup-max-frames 5
 
-# visual few-shot (support setの画像+問題+回答をそのまま渡す、reflection/thinkingなし)
+# Visual few-shot (pass support set images+questions+answers directly, no reflection)
 source .env && python infer_gemini.py --mode eval --visual-fewshot
 
-# visual few-shot + フレーム数制限
+# Visual few-shot + frame limit
 source .env && python infer_gemini.py --mode eval \
     --visual-fewshot --visual-fewshot-max-frames 5
 
-# モデル・プロンプト変更
-source .env && python infer_gemini.py --mode eval \
-    --model gemini-3.1-flash-image-preview \
-    --prompt-style domain
-
-# 動画入力モード
+# Video input mode
 source .env && python infer_gemini.py --mode eval --input-mode video
 
-# 件数制限・ドメイン絞り込み・途中再開
+# Limit items / filter domain / resume from ID
 source .env && python infer_gemini.py --mode eval --limit 50
 source .env && python infer_gemini.py --mode eval --domain surgery
 source .env && python infer_gemini.py --mode eval --resume-from-id 42
 ```
 
-主なオプション:
+Key options:
 
-| オプション                    | デフォルト                       | 説明                                                              |
-| ----------------------------- | -------------------------------- | ----------------------------------------------------------------- |
-| `--mode`                      | `eval`                           | `eval`: 正解率確認 / `test`: 提出用予測                           |
-| `--model`                     | `gemini-3.1-flash-image-preview` | 使用モデル                                                        |
-| `--prompt-style`              | `domain`                         | `default` / `domain` (ドメイン別システムプロンプト)               |
-| `--thinking-budget`           | `0`                              | thinking トークン上限 (0=無効, -1=動的)                           |
-| `--input-mode`                | `image`                          | `image` / `video`                                                 |
-| `--fewshot`                   | off                              | same-question few-shot を付加                                     |
-| `--rate-limit-sleep`          | `0.5`                            | リクエスト間 sleep 秒数                                           |
-| `--use-vertex`                | off                              | Vertex AI を使用                                                  |
-| `--warmup-file`               | —                                | warmup 会話 JSON のパス                                           |
-| `--warmup-max-frames`         | `0`                              | warmup 各ターンのフレーム上限                                     |
-| `--visual-fewshot`            | off                              | support set の画像+問題+回答をそのまま visual few-shot として渡す |
-| `--visual-fewshot-max-frames` | `0`                              | visual few-shot 各例のフレーム上限                                |
-| `--limit`                     | `0`                              | 先頭 N 件のみ処理                                                 |
-| `--domain`                    | —                                | 特定ドメインのみ処理                                              |
-| `--resume-from-id`            | —                                | 指定 ID から末尾まで処理                                          |
+| Option                        | Default                          | Description                                                  |
+| ----------------------------- | -------------------------------- | ------------------------------------------------------------ |
+| `--mode`                      | `eval`                           | `eval`: accuracy check / `test`: generate submission         |
+| `--model`                     | `gemini-3.1-flash-image-preview` | Model to use                                                 |
+| `--prompt-style`              | `domain`                         | `default` / `domain` (domain-specific system prompt)         |
+| `--thinking-budget`           | `0`                              | Thinking token budget (0=off, -1=dynamic)                    |
+| `--input-mode`                | `image`                          | `image` / `video`                                            |
+| `--fewshot`                   | off                              | Prepend same-question few-shot examples                      |
+| `--rate-limit-sleep`          | `0.5`                            | Sleep seconds between requests                               |
+| `--use-vertex`                | off                              | Use Vertex AI                                                |
+| `--warmup-file`               | —                                | Path to warmup conversation JSON                             |
+| `--warmup-max-frames`         | `0`                              | Max frames per warmup turn (0=unlimited)                     |
+| `--visual-fewshot`            | off                              | Pass support set images+questions+answers as visual few-shot |
+| `--visual-fewshot-max-frames` | `0`                              | Max frames per visual few-shot example (0=unlimited)         |
+| `--limit`                     | `0`                              | Process only the first N items                               |
+| `--domain`                    | —                                | Process a specific domain only                               |
+| `--resume-from-id`            | —                                | Resume processing from the specified item ID                 |
 
-出力: `outputs/predictions_gemini_YYYYMMDD_HHMMSS.json`
+Output: `outputs/predictions_gemini_YYYYMMDD_HHMMSS.json`
 
-### Qwen ローカルモデル推論
+### Qwen Local Model Inference
 
 ```bash
 # eval
 PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True CUDA_VISIBLE_DEVICES=0 \
     python infer_all.py --mode eval --model-id Qwen/Qwen3-VL-4B-Instruct
 
-# test (提出用予測を生成)
+# test (generate submission predictions)
 PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True CUDA_VISIBLE_DEVICES=0 \
     python infer_all.py --mode test --model-id Qwen/Qwen3-VL-4B-Instruct
 
-# warmup あり
+# With warmup
 PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True CUDA_VISIBLE_DEVICES=0 \
     python infer_all.py --mode eval \
     --model-id Qwen/Qwen3-VL-4B-Instruct \
     --warmup-file outputs/warmup_conversations_qwen.json
 
-# visual few-shot (support setの画像+問題+回答をそのまま渡す、reflection/thinkingなし)
+# Visual few-shot
 PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True CUDA_VISIBLE_DEVICES=0 \
     python infer_all.py --mode eval \
     --model-id Qwen/Qwen3-VL-4B-Instruct \
     --visual-fewshot --visual-fewshot-max-frames 5
 
-# thinking 有効 + 動画入力
+# Enable thinking + video input
 PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True CUDA_VISIBLE_DEVICES=0 \
     python infer_all.py --mode eval \
     --model-id Qwen/Qwen3-VL-4B-Instruct \
     --thinking --input-mode video
 
-# Thinking モデル (Qwen3-VL-*-Thinking) を使う場合は --thinking 必須
-# (付けないと max_new_tokens=32 になり思考途中で打ち切られ全問 A にフォールバックする)
+# Thinking model — --thinking is required
+# (without it, max_new_tokens=32 cuts off mid-thought and all answers fall back to "A")
 PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True CUDA_VISIBLE_DEVICES=0 \
     python infer_all.py --mode test \
     --model-id Qwen/Qwen3-VL-4B-Thinking \
     --warmup-file outputs/warmup_conversations_qwen.json \
     --thinking
-
-# ドメイン別プロンプト + few-shot
-PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True CUDA_VISIBLE_DEVICES=0 \
-    python infer_all.py --mode eval \
-    --model-id Qwen/Qwen3-VL-4B-Instruct \
-    --prompt-style domain --fewshot
 ```
 
-主なオプション:
+Key options:
 
-| オプション                    | デフォルト | 説明                                                              |
-| ----------------------------- | ---------- | ----------------------------------------------------------------- |
-| `--mode`                      | `test`     | `eval`: 正解率確認 / `test`: 提出用予測                           |
-| `--model`                     | —          | `models/` 以下のディレクトリ名                                    |
-| `--baseline`                  | off        | `Qwen/Qwen3-VL-4B-Instruct` を使用                                |
-| `--model-id`                  | —          | HuggingFace Hub モデルID (優先度最高)                             |
-| `--max-pixels`                | `128000`   | 1フレームあたりの最大ピクセル数                                   |
-| `--input-mode`                | `image`    | `image` / `video`                                                 |
-| `--thinking`                  | off        | thinking モードを有効化 (Thinking モデル使用時は必須)             |
-| `--prompt-style`              | `default`  | `default` / `clean` / `domain`                                    |
-| `--fewshot`                   | off        | same-question few-shot を付加                                     |
-| `--single-model`              | —          | 全ドメインで同一モデルを使用                                      |
-| `--warmup-file`               | —          | warmup 会話 JSON のパス                                           |
-| `--warmup-max-frames`         | `0`        | warmup 各ターンのフレーム上限                                     |
-| `--visual-fewshot`            | off        | support set の画像+問題+回答をそのまま visual few-shot として渡す |
-| `--visual-fewshot-max-frames` | `0`        | visual few-shot 各例のフレーム上限                                |
-| `--adapter-path`              | —          | LoRA アダプタのパスを直接指定（マージ不要）                       |
-| `--frame-timestamps`          | off        | temporal問題のフレームに `[Frame at X.Xs]` を追加                 |
+| Option                        | Default   | Description                                                  |
+| ----------------------------- | --------- | ------------------------------------------------------------ |
+| `--mode`                      | `test`    | `eval`: accuracy check / `test`: generate submission         |
+| `--model`                     | —         | Directory name under `models/`                               |
+| `--baseline`                  | off       | Use `Qwen/Qwen3-VL-4B-Instruct`                              |
+| `--model-id`                  | —         | HuggingFace Hub model ID (highest priority)                  |
+| `--adapter-path`              | —         | Path to LoRA adapter (no merge required)                     |
+| `--max-pixels`                | `128000`  | Max pixels per frame                                         |
+| `--input-mode`                | `image`   | `image` / `video`                                            |
+| `--thinking`                  | off       | Enable thinking mode (required for Thinking models)          |
+| `--prompt-style`              | `default` | `default` / `clean` / `domain`                               |
+| `--fewshot`                   | off       | Prepend same-question few-shot examples                      |
+| `--single-model`              | —         | Use one model for all domains                                |
+| `--warmup-file`               | —         | Path to warmup conversation JSON                             |
+| `--warmup-max-frames`         | `0`       | Max frames per warmup turn (0=unlimited)                     |
+| `--visual-fewshot`            | off       | Pass support set images+questions+answers as visual few-shot |
+| `--visual-fewshot-max-frames` | `0`       | Max frames per visual few-shot example (0=unlimited)         |
+| `--frame-timestamps`          | off       | Add `[Frame at X.Xs]` to temporal question frames            |
 
-出力: `outputs/predictions_YYYYMMDD_HHMMSS.json`
+Output: `outputs/predictions_YYYYMMDD_HHMMSS.json`
 
 ---
 
-## 典型的なフロー
+## Typical Flow
 
 ```bash
-# 1. 問題分類
+# 1. Classify question types
 source .env && python classify_support.py
 
-# 2a. Gemini で warmup 生成
+# 2a. Generate warmup with Gemini
 source .env && python warmup_gemini.py
 
-# 2b. Qwen で warmup 生成
+# 2b. Generate warmup with Qwen
 CUDA_VISIBLE_DEVICES=0 python warmup_qwen.py --model-id Qwen/Qwen3-VL-4B-Instruct
 
-# 3a. Gemini で推論 (eval)
+# 3a. Gemini inference (eval)
 source .env && python infer_gemini.py --mode eval \
     --warmup-file outputs/warmup_conversations_gemini.json
 
-# 3b. Qwen で推論 (eval)
+# 3b. Qwen inference (eval)
 PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True CUDA_VISIBLE_DEVICES=0 \
     python infer_all.py --mode eval \
     --model-id Qwen/Qwen3-VL-4B-Instruct \
     --warmup-file outputs/warmup_conversations_qwen.json
 
-# 4. テスト用予測を生成して提出
+# 4. Generate test predictions and submit
 source .env && python infer_gemini.py --mode test \
     --warmup-file outputs/warmup_conversations_gemini.json
 ```
 
 ---
 
-## LoRA + フレームタイムスタンプ フルパイプライン
+## Full Pipeline with Frame Timestamps
 
-学習・warmup・推論すべてでタイムスタンプを一致させる場合のフロー。
+Use this flow to keep timestamps consistent across training, warmup, and inference.
 
 ```bash
-# Step 1: 学習（temporal問題にタイムスタンプ付き）
+# Step 1: Train with frame timestamps
 bash bash/train.sh --frame-timestamps
-# → output/egocross_lora_YYYYMMDD_HHMMSS/ に checkpoint-80〜800 が保存される
+# → checkpoints saved to output/egocross_lora_YYYYMMDD_HHMMSS/
 
-# Step 2: warmup 生成（6epoch = checkpoint-480）
+# Step 2: Generate warmup (e.g. epoch 6 = checkpoint-480)
 CUDA_VISIBLE_DEVICES=0 python warmup_qwen.py \
     --adapter-path output/egocross_lora_YYYYMMDD_HHMMSS/checkpoint-480 \
     --frame-timestamps \
     --output outputs/warmup_ckpt480_frame_ts.json
 
-# Step 3: test 推論
+# Step 3: Test inference
 PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True CUDA_VISIBLE_DEVICES=0 \
     python infer_all.py --mode test \
     --adapter-path output/egocross_lora_YYYYMMDD_HHMMSS/checkpoint-480 \
@@ -363,19 +350,17 @@ PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True CUDA_VISIBLE_DEVICES=0 \
     --frame-timestamps
 ```
 
-> **注意**: `--frame-timestamps` は学習・warmup・推論で必ず統一すること。
-> warmup の JSON にタイムスタンプが保存されているため、
-> ロード時に自動で差し込まれる（warmupは推論側でフラグ不要だが、本問には必要）。
+> **Note**: Keep `--frame-timestamps` consistent across training, warmup, and inference. Timestamps are stored inside the warmup JSON and injected automatically when loading, so the flag is not needed on the inference side for warmup turns — but it is still required for the main question.
 
 ---
 
-## outputs/ ディレクトリ
+## outputs/ Directory
 
-| ファイル                                  | 生成元                | 内容                     |
-| ----------------------------------------- | --------------------- | ------------------------ |
-| `support_question_types.json`             | `classify_support.py` | 問題タイプ分類結果       |
-| `warmup_conversations_gemini.json`        | `warmup_gemini.py`    | Gemini 生成 warmup 会話  |
-| `warmup_conversations_qwen.json`          | `warmup_qwen.py`      | Qwen 生成 warmup 会話    |
-| `predictions_YYYYMMDD_HHMMSS.json`        | `infer_all.py`        | Qwen 推論結果 (提出用)   |
-| `predictions_gemini_YYYYMMDD_HHMMSS.json` | `infer_gemini.py`     | Gemini 推論結果 (提出用) |
-| `log_*.txt`                               | 各推論スクリプト      | 推論ログ                 |
+| File                                      | Generated by          | Contents                            |
+| ----------------------------------------- | --------------------- | ----------------------------------- |
+| `support_question_types.json`             | `classify_support.py` | Question type classification        |
+| `warmup_conversations_gemini.json`        | `warmup_gemini.py`    | Gemini warmup conversations         |
+| `warmup_conversations_qwen.json`          | `warmup_qwen.py`      | Qwen warmup conversations           |
+| `predictions_YYYYMMDD_HHMMSS.json`        | `infer_all.py`        | Qwen predictions (for submission)   |
+| `predictions_gemini_YYYYMMDD_HHMMSS.json` | `infer_gemini.py`     | Gemini predictions (for submission) |
+| `log_*.txt`                               | inference scripts     | Inference logs                      |
