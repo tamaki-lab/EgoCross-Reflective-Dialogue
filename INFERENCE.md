@@ -114,7 +114,7 @@ source .env && python warmup_gemini.py
 source .env && python warmup_gemini.py --use-vertex
 
 # モデル指定
-source .env && python warmup_gemini.py --model gemini-2.5-flash
+source .env && python warmup_gemini.py --model gemini-3.1-flash-image-preview
 
 # 出力先変更
 source .env && python warmup_gemini.py --output outputs/my_warmup.json
@@ -131,7 +131,6 @@ source .env && python warmup_gemini.py --output outputs/my_warmup.json
 | `--rate-limit-sleep` | `1.0`                                      | リクエスト間 sleep 秒数                 |
 | `--use-vertex`       | off                                        | Vertex AI を使用                        |
 | `--output`           | `outputs/warmup_conversations_gemini.json` | 出力ファイルパス                        |
-| `--explain-correct`  | off                                        | 正解時にも根拠説明をモデルに生成させる  |
 
 ### Qwen で生成 (HuggingFace Hub 指定 / LoRA アダプタ指定)
 
@@ -174,7 +173,6 @@ CUDA_VISIBLE_DEVICES=0 python warmup_qwen.py --model-id Qwen/Qwen3-VL-4B-Instruc
 | `--max-pixels`       | `128000`                                 | 1フレームあたりの最大ピクセル数                     |
 | `--thinking`         | off                                      | thinking モードを有効化                             |
 | `--output`           | `outputs/warmup_conversations_qwen.json` | 出力ファイルパス                                    |
-| `--explain-correct`  | off                                      | 正解時にも根拠説明をモデルに生成させる              |
 
 ---
 
@@ -210,11 +208,8 @@ source .env && python infer_gemini.py --mode eval \
 
 # モデル・プロンプト変更
 source .env && python infer_gemini.py --mode eval \
-    --model gemini-2.5-pro \
+    --model gemini-3.1-flash-image-preview \
     --prompt-style domain
-
-# thinking 有効
-source .env && python infer_gemini.py --mode eval --thinking-budget 8192
 
 # 動画入力モード
 source .env && python infer_gemini.py --mode eval --input-mode video
