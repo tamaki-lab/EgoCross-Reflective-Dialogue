@@ -16,51 +16,15 @@ from pathlib import Path
 from google import genai
 from google.genai import types
 
-BASE = Path(__file__).parent
-TRAIN_JSON = BASE / "data/egocross/train.json"
-CLASSIFY_JSON = BASE / "outputs/support_question_types.json"
-DEFAULT_OUTPUT = BASE / "outputs/warmup_conversations_gemini.json"
+from common import (
+    BASE, SUPPORT_JSON, CLASSIFY_JSON, OUTPUT_DIR,
+    DOMAIN_ORIG_FPS, _compute_eval_timestamps,
+    extract_answer, load_image_part, requires_thinking,
+)
 
-DOMAIN_ORIG_FPS = {"surgery": 25.0, "industry": 30.0, "xsports": 30.0, "animal": 30.0}
-
-
-def _compute_eval_timestamps(frame_paths: list[str], orig_fps: float) -> list[float]:
-    try:
-        nums = [int(re.findall(r"\d+", Path(p).stem)[-1]) for p in frame_paths]
-        min_n = min(nums)
-        return [(n - min_n) / orig_fps for n in nums]
-    except Exception:
-        return [i * 2.0 for i in range(len(frame_paths))]
-
+TRAIN_JSON = SUPPORT_JSON
+DEFAULT_OUTPUT = OUTPUT_DIR / "warmup_conversations_gemini.json"
 DEFAULT_MODEL = "gemini-3.1-flash-image-preview"
-
-MIME_MAP = {
-    ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
-    ".png": "image/png", ".gif": "image/gif", ".webp": "image/webp",
-}
-
-
-def requires_thinking(model: str) -> bool:
-    return model.startswith("gemini-3")
-
-
-def load_image_part(path: str) -> types.Part:
-    p = Path(path)
-    mime = MIME_MAP.get(p.suffix.lower(), "image/jpeg")
-    return types.Part.from_bytes(data=p.read_bytes(), mime_type=mime)
-
-
-def extract_answer(text: str) -> str:
-    for pat in (
-        r"Final\s*Answer\s*[:：]\s*\**\s*\(?\s*([A-D])",
-        r"answer\s+is\s*[:：]?\s*\**\s*\(?\s*([A-D])",
-        r"correct\s+(?:option|choice)\s+is\s*[:：]?\s*\**\s*\(?\s*([A-D])",
-    ):
-        m = re.search(pat, text, re.IGNORECASE)
-        if m:
-            return m.group(1).upper()
-    matches = re.findall(r"\b([A-D])\b", text)
-    return matches[-1] if matches else "A"
 
 
 def make_config(model: str, thinking_budget: int) -> types.GenerateContentConfig:
@@ -169,8 +133,6 @@ def build_warmup_for_group(
             contents.append(types.Content(role="model", parts=[
                             types.Part.from_text(text=response)]))
             turns.append({"role": "model", "text": response})
-        time.sleep(rate_limit_sleep)
-
         time.sleep(rate_limit_sleep)
 
     return turns, n_correct, len(group_items)

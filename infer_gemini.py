@@ -12,61 +12,24 @@ from tqdm import tqdm
 from google import genai
 from google.genai import types
 
-BASE = Path(__file__).parent
-TEST_JSON = BASE / "EgoCross_test/egocross_testbed/egocross_testbed_imgs.json"
-SUPPORT_JSON = BASE / "data/egocross/train.json"
-SUBMISSION_TEMPLATE = BASE / "submission_template.json"
-IMAGE_BASE = BASE / "EgoCross_test"
-OUTPUT_DIR = BASE / "outputs"
+from common import (
+    BASE, TEST_JSON, SUPPORT_JSON, SUBMISSION_TEMPLATE, IMAGE_BASE, OUTPUT_DIR,
+    CLASSIFY_JSON, DATASET_MODEL, DOMAIN_ORIG_FPS, MIME_MAP, TEST_SAMPLING_INTERVAL,
+    _DOMAIN_BASE, _load_support_question_types, _subsample_frames,
+    _compute_eval_timestamps, _compute_test_timestamps, _test_sampling_interval,
+    build_warmup_system as _build_warmup_system_base,
+    extract_answer, load_image_part, requires_thinking,
+)
 
 _DOMAIN_FORMAT = (
     " Output only: 'Final Answer: X' where X is A, B, C, or D. No explanation."
 )
 
-_DOMAIN_BASE = {
-    "animal":   "You are an expert analyzing egocentric video frames featuring animals. Carefully observe the animal species and behaviors shown.",
-    "industry": "You are an expert analyzing egocentric video frames from industrial or factory settings. Carefully observe the tools, machinery, and work activities shown.",
-    "xsports":  "You are an expert analyzing egocentric video frames from extreme sports. Carefully observe the sport type, actions, and environment shown.",
-    "surgery":  "You are an expert analyzing egocentric video frames from surgical procedures. Carefully observe the instruments, tissues, and surgical actions shown.",
-}
-
 DOMAIN_SYSTEM = {k: v + _DOMAIN_FORMAT for k, v in _DOMAIN_BASE.items()}
 
 
 def build_warmup_system(domain: str, question_type: str) -> str:
-    base = _DOMAIN_BASE.get(
-        domain, f"You are an expert analyzing egocentric video frames from the '{domain}' domain.")
-    return (
-        f"{base}\n\n"
-        f"The conversation begins with warm-up practice questions of type '{question_type}'. "
-        "Each warm-up question is followed by correct/incorrect feedback and, if the answer was wrong, "
-        "a reflection on the mistake. "
-        "Learn from these reflections to improve your performance on similar questions.\n\n"
-        "After the warm-up you will see 'Warm-up complete. Now answer the following question:' — "
-        "that is the actual question you must answer."
-        + _DOMAIN_FORMAT
-    )
-
-
-DATASET_MODEL = {
-    "CholecTrack20":   "surgery",
-    "EgoSurgery":      "surgery",
-    "ENIGMA":          "industry",
-    "ExtrameSportFPV": "xsports",
-    "EgoPet":          "animal",
-}
-
-# Gemini 3.x系はthinking必須 (budget=0はAPI拒否)
-
-
-def requires_thinking(model: str) -> bool:
-    return model.startswith("gemini-3")
-
-
-MIME_MAP = {
-    ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
-    ".png": "image/png", ".gif": "image/gif", ".webp": "image/webp",
-}
+    return _build_warmup_system_base(domain, question_type, _DOMAIN_FORMAT)
 
 DEFAULT_MODEL = "gemini-3.1-flash-image-preview"
 
@@ -101,12 +64,6 @@ def estimate_cost(
         thinking_tokens / 1_000_000 * p["thinking"] +
         cache_storage_token_hours / 1_000_000 * p.get("cache_storage", 1.00)
     )
-
-
-def load_image_part(path: str) -> types.Part:
-    p = Path(path)
-    mime = MIME_MAP.get(p.suffix.lower(), "image/jpeg")
-    return types.Part.from_bytes(data=p.read_bytes(), mime_type=mime)
 
 
 def frames_to_video(frame_paths: list[str], fps: float = 1.0) -> str:
@@ -365,57 +322,6 @@ def load_warmup_with_files_api(
     return result, all_file_names
 
 
-def _subsample_frames(images: list[str], max_frames: int) -> list[str]:
-    if max_frames <= 0 or len(images) <= max_frames:
-        return images
-    step = (len(images) - 1) / (max_frames - 1) if max_frames > 1 else 0
-    return [images[round(i * step)] for i in range(max_frames)]
-
-
-DOMAIN_ORIG_FPS = {"surgery": 25.0, "industry": 30.0, "xsports": 30.0, "animal": 30.0}
-
-TEST_SAMPLING_INTERVAL = 2.0  # 0.5 fps
-
-
-def _compute_eval_timestamps(frame_paths: list[str], orig_fps: float) -> list[float]:
-    """eval用: フレーム名の元インデックスからclip相対タイムスタンプを計算する。"""
-    try:
-        nums = [int(re.findall(r"\d+", Path(p).stem)[-1]) for p in frame_paths]
-        min_n = min(nums)
-        return [(n - min_n) / orig_fps for n in nums]
-    except Exception:
-        return [i * TEST_SAMPLING_INTERVAL for i in range(len(frame_paths))]
-
-
-def _compute_test_timestamps(n_frames: int, interval: float = TEST_SAMPLING_INTERVAL) -> list[float]:
-    """test用: サンプリング間隔からclip相対タイムスタンプを計算する。"""
-    return [i * interval for i in range(n_frames)]
-
-
-def _test_sampling_interval(dataset: str, video_paths: list[str]) -> float:
-    """EgoSurgery と CholecTrack20 VID25/VID111 は 1fps (1.0s/frame)、それ以外は 0.5fps (2.0s)。"""
-    if dataset == "EgoSurgery":
-        return 1.0
-    if dataset == "CholecTrack20":
-        joined = "/".join(video_paths)
-        if "VID25" in joined or "VID111" in joined:
-            return 1.0
-    return TEST_SAMPLING_INTERVAL
-
-
-def extract_answer(text: str) -> str:
-    for pat in (
-        r"Final\s*Answer\s*[:：]\s*\**\s*\(?\s*([A-D])",
-        r"answer\s+is\s*[:：]?\s*\**\s*\(?\s*([A-D])",
-        r"correct\s+(?:option|choice)\s+is\s*[:：]?\s*\**\s*\(?\s*([A-D])",
-    ):
-        m = re.search(pat, text, re.IGNORECASE)
-        if m:
-            return m.group(1).upper()
-    matches = re.findall(r"\b([A-D])\b", text)
-    return matches[-1] if matches else "A"
-
-
 def load_test_items(fewshot: bool = False, visual_fewshot: bool = False) -> list[dict]:
     train_bank: dict[str, list] = {}
     if fewshot or visual_fewshot:
@@ -466,18 +372,6 @@ def load_test_items(fewshot: bool = False, visual_fewshot: bool = False) -> list
             "fewshot_examples": train_bank.get(lookup_key, []),
         })
     return items
-
-
-CLASSIFY_JSON = BASE / "outputs/support_question_types.json"
-
-
-def _load_support_question_types() -> dict[int, str]:
-    """support_question_types.json が存在すれば index→question_type を返す。"""
-    if not CLASSIFY_JSON.exists():
-        return {}
-    with open(CLASSIFY_JSON) as f:
-        data = json.load(f)
-    return {entry["index"]: entry["predicted_type"] for entry in data}
 
 
 def load_eval_items(fewshot: bool = False, visual_fewshot: bool = False) -> list[dict]:

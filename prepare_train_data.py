@@ -4,23 +4,11 @@ data/egocross/train_frame_ts.json を生成する。
 """
 import json
 import re
-from pathlib import Path
 
-BASE = Path(__file__).parent
-TRAIN_JSON = BASE / "data/egocross/train.json"
-CLASSIFY_JSON = BASE / "outputs/support_question_types.json"
+from common import BASE, SUPPORT_JSON, CLASSIFY_JSON, DOMAIN_ORIG_FPS, _compute_eval_timestamps
+
+TRAIN_JSON = SUPPORT_JSON
 OUTPUT_JSON = BASE / "data/egocross/train_frame_ts.json"
-
-DOMAIN_ORIG_FPS = {"surgery": 25.0, "industry": 30.0, "xsports": 30.0, "animal": 30.0}
-
-
-def _compute_eval_timestamps(frame_paths: list[str], orig_fps: float) -> list[float]:
-    try:
-        nums = [int(re.findall(r"\d+", Path(p).stem)[-1]) for p in frame_paths]
-        min_n = min(nums)
-        return [(n - min_n) / orig_fps for n in nums]
-    except Exception:
-        return [i * 2.0 for i in range(len(frame_paths))]
 
 
 def main():

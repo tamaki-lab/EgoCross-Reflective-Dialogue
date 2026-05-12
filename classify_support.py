@@ -7,15 +7,15 @@ import os
 import re
 import time
 from collections import Counter
-from pathlib import Path
 
 from google import genai
 from google.genai import types
 from tqdm import tqdm
 
-BASE = Path(__file__).parent
-TRAIN_JSON = BASE / "data/egocross/train.json"
-OUTPUT_PATH = BASE / "outputs/support_question_types.json"
+from common import SUPPORT_JSON, OUTPUT_DIR
+
+TRAIN_JSON = SUPPORT_JSON
+OUTPUT_PATH = OUTPUT_DIR / "support_question_types.json"
 
 DOMAIN_VALID_TYPES: dict[str, list[str]] = {
     "animal": [

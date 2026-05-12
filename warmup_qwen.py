@@ -17,35 +17,13 @@ from peft import PeftModel
 from transformers import AutoModelForImageTextToText, AutoProcessor
 from qwen_vl_utils import process_vision_info
 
-BASE = Path(__file__).parent
-TRAIN_JSON = BASE / "data/egocross/train.json"
-CLASSIFY_JSON = BASE / "outputs/support_question_types.json"
-DEFAULT_OUTPUT = BASE / "outputs/warmup_conversations_qwen.json"
-MODEL_BASE = BASE / "models"
+from common import (
+    BASE, SUPPORT_JSON, CLASSIFY_JSON, OUTPUT_DIR, MODEL_BASE,
+    DOMAIN_ORIG_FPS, _compute_eval_timestamps, extract_answer,
+)
 
-DOMAIN_ORIG_FPS = {"surgery": 25.0, "industry": 30.0, "xsports": 30.0, "animal": 30.0}
-
-
-def _compute_eval_timestamps(frame_paths: list[str], orig_fps: float) -> list[float]:
-    try:
-        nums = [int(re.findall(r"\d+", Path(p).stem)[-1]) for p in frame_paths]
-        min_n = min(nums)
-        return [(n - min_n) / orig_fps for n in nums]
-    except Exception:
-        return [i * 2.0 for i in range(len(frame_paths))]
-
-
-def extract_answer(text: str) -> str:
-    for pat in (
-        r"Final\s*Answer\s*[:：]\s*\**\s*\(?\s*([A-D])",
-        r"answer\s+is\s*[:：]?\s*\**\s*\(?\s*([A-D])",
-        r"correct\s+(?:option|choice)\s+is\s*[:：]?\s*\**\s*\(?\s*([A-D])",
-    ):
-        m = re.search(pat, text, re.IGNORECASE)
-        if m:
-            return m.group(1).upper()
-    matches = re.findall(r"\b([A-D])\b", text)
-    return matches[-1] if matches else "A"
+TRAIN_JSON = SUPPORT_JSON
+DEFAULT_OUTPUT = OUTPUT_DIR / "warmup_conversations_qwen.json"
 
 
 def call_model(model, processor, messages: list, max_new_tokens: int = 512, thinking: bool = False) -> str:
@@ -105,17 +83,21 @@ def build_warmup_for_group(
             timestamps = _compute_eval_timestamps(item["images"], orig_fps)
             content = []
             for i, p in enumerate(item["images"]):
-                content.append({"type": "text", "text": f"[Frame at {timestamps[i]:.1f}s]"})
-                content.append({"type": "image", "image": p, "min_pixels": 50176, "max_pixels": max_pixels})
+                content.append(
+                    {"type": "text", "text": f"[Frame at {timestamps[i]:.1f}s]"})
+                content.append({"type": "image", "image": p,
+                               "min_pixels": 50176, "max_pixels": max_pixels})
         else:
             timestamps = None
             content = [
-                {"type": "image", "image": p, "min_pixels": 50176, "max_pixels": max_pixels}
+                {"type": "image", "image": p,
+                    "min_pixels": 50176, "max_pixels": max_pixels}
                 for p in item["images"]
             ]
         content.append({"type": "text", "text": item["prompt"]})
         messages.append({"role": "user", "content": content})
-        turn = {"role": "user", "text": item["prompt"], "images": item["images"]}
+        turn = {"role": "user",
+                "text": item["prompt"], "images": item["images"]}
         if timestamps is not None:
             turn["timestamps"] = timestamps
         turns.append(turn)
@@ -123,7 +105,8 @@ def build_warmup_for_group(
         # Model の回答
         raw = call_model(model, processor, messages,
                          max_new_tokens=2048 if thinking else 256, thinking=thinking)
-        answer_text = re.sub(r"<think>.*?</think>", "", raw, flags=re.DOTALL).strip()
+        answer_text = re.sub(r"<think>.*?</think>", "",
+                             raw, flags=re.DOTALL).strip()
         if not answer_text:
             answer_text = "Final Answer: A"
         model_answer = extract_answer(answer_text)
@@ -148,7 +131,8 @@ def build_warmup_for_group(
                 f"(2) Why does that evidence rule out {model_answer}? "
                 f"Answer in 2-3 sentences."
             )
-        messages.append({"role": "user", "content": [{"type": "text", "text": feedback}]})
+        messages.append({"role": "user", "content": [
+                        {"type": "text", "text": feedback}]})
         turns.append({"role": "user", "text": feedback, "images": []})
 
         status = "✓" if correct else f"✗ pred={model_answer} gt={gt}"
@@ -158,7 +142,8 @@ def build_warmup_for_group(
         try:
             response = call_model(model, processor, messages,
                                   max_new_tokens=512, thinking=False)
-            response = re.sub(r"<think>.*?</think>", "", response, flags=re.DOTALL).strip()
+            response = re.sub(r"<think>.*?</think>", "",
+                              response, flags=re.DOTALL).strip()
         except torch.OutOfMemoryError:
             torch.cuda.empty_cache()
             response = "I will pay closer attention to the visual details next time."
@@ -208,7 +193,8 @@ def main():
         elif args.model:
             model_path = str(MODEL_BASE / args.model)
         else:
-            raise ValueError("--model / --baseline / --model-id / --adapter-path のいずれかを指定してください")
+            raise ValueError(
+                "--model / --baseline / --model-id / --adapter-path のいずれかを指定してください")
         print(f"Loading model: {model_path}")
         processor = AutoProcessor.from_pretrained(model_path)
         model = AutoModelForImageTextToText.from_pretrained(
@@ -227,7 +213,8 @@ def main():
     with open(TRAIN_JSON) as f:
         train_data = json.load(f)
 
-    assert len(classify_results) == len(train_data), "classify と train のサイズが一致しません"
+    assert len(classify_results) == len(
+        train_data), "classify と train のサイズが一致しません"
 
     merged = []
     for cr, td in zip(classify_results, train_data):
@@ -278,7 +265,8 @@ def main():
             json.dump(warmup_data, f, ensure_ascii=False, indent=2)
 
     print(f"\n=== 総合 ===")
-    print(f"  Warm-up accuracy: {grand_correct}/{grand_total} = {grand_correct/grand_total*100:.1f}%")
+    print(
+        f"  Warm-up accuracy: {grand_correct}/{grand_total} = {grand_correct/grand_total*100:.1f}%")
     print(f"  Saved → {output_path}")
 
 
