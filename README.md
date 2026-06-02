@@ -23,15 +23,32 @@ We propose **Reflective Dialogue (RD)**, a training-free inference-time adaptati
 
 ## Results
 
-Overall accuracy on the EgoCross test set (957 questions):
+Overall accuracy on the EgoCross test set (957 questions).
 
-| Method                   | Model                  | Overall |
-| ------------------------ | ---------------------- | ------- |
-| Zero-shot                | Qwen3-VL-4B-Instruct   | 42.4%   |
-| Reflective Dialogue (RD) | Qwen3-VL-4B-Instruct   | 48.9%   |
-| Fine-tuning (LoRA SFT)   | Qwen3-VL-4B-Instruct   | 51.4%   |
-| RD + Fine-tuning         | Qwen3-VL-4B-Instruct   | 52.8%   |
-| RD (w/ timestamps)       | Gemini 3.1 Pro Preview | 65.9%   |
+**Qwen3-VL-4B-Instruct (open-weight):**
+
+| Method                 | Animal    | XSports   | Industry  | Surgery   | Overall   |
+| ---------------------- | --------- | --------- | --------- | --------- | --------- |
+| Zero-shot              | 54.1%     | 38.6%     | 33.1%     | 46.3%     | 42.4%     |
+| ICL                    | 61.8%     | 41.1%     | 44.1%     | 44.5%     | 46.8%     |
+| RD                     | 59.0%     | 41.9%     | 45.7%     | **51.2%** | 48.9%     |
+| Fine-tuning (LoRA SFT) | 61.2%     | **43.5%** | 55.5%     | 48.4%     | 51.4%     |
+| RD + Fine-tuning       | **62.8%** | 42.7%     | **58.8%** | 49.8%     | **52.8%** |
+
+**Gemini 3.1 Pro Preview (proprietary):**
+
+| Method          | Animal    | XSports   | Industry  | Surgery   | Overall   |
+| --------------- | --------- | --------- | --------- | --------- | --------- |
+| Zero-shot       | 67.8%     | 45.5%     | 46.9%     | 66.8%     | 56.4%     |
+| RD              | 71.6%     | 50.4%     | 53.5%     | **74.9%** | 62.5%     |
+| RD + timestamps | **79.2%** | **52.4%** | **59.2%** | **74.9%** | **65.9%** |
+
+**Gemini 3.1 Flash Image Preview (proprietary):**
+
+| Method    | Animal | XSports | Industry | Surgery | Overall |
+| --------- | ------ | ------- | -------- | ------- | ------- |
+| Zero-shot | 66.7%  | 45.5%   | 40.0%    | 68.2%   | 54.9%   |
+| RD        | 71.0%  | 47.2%   | 48.2%    | 63.6%   | 56.8%   |
 
 RD consistently outperforms zero-shot baselines, and its benefits are complementary to fine-tuning. Adding frame timestamps provides significant gains in most domains. Context caching with Gemini reduced API cost by ~49%.
 
@@ -127,29 +144,47 @@ Read technical notes:
 
 ## Table of Contents
 
-- [Features](#features)
-- [Blogs](#blogs)
-- [Changelog](#changelog)
-- [Supported Models](#supported-models)
-- [Supported Training Approaches](#supported-training-approaches)
-- [Provided Datasets](#provided-datasets)
-- [Requirement](#requirement)
-- [Getting Started](#getting-started)
-  - [Installation](#installation)
-  - [Data Preparation](#data-preparation)
-  - [Quickstart](#quickstart)
-  - [Fine-Tuning with LLaMA Board GUI](#fine-tuning-with-llama-board-gui-powered-by-gradio)
-  - [LLaMA Factory Online](#llama-factory-online)
-  - [Build Docker](#build-docker)
-  - [Deploy with OpenAI-style API and vLLM](#deploy-with-openai-style-api-and-vllm)
-  - [Download from ModelScope Hub](#download-from-modelscope-hub)
-  - [Download from Modelers Hub](#download-from-modelers-hub)
-  - [Use W&B Logger](#use-wb-logger)
-  - [Use SwanLab Logger](#use-swanlab-logger)
-- [Projects using LLaMA Factory](#projects-using-llama-factory)
-- [License](#license)
-- [Citation](#citation)
-- [Acknowledgement](#acknowledgement)
+- [Reflective Dialogue between Teacher and Solver Agents for Video Question Answering](#reflective-dialogue-between-teacher-and-solver-agents-for-video-question-answering)
+  - [Method](#method)
+  - [Results](#results)
+  - [Getting Started](#getting-started)
+  - [Citation](#citation)
+    - [Used by Amazon, NVIDIA, Aliyun, etc.](#used-by-amazon-nvidia-aliyun-etc)
+    - [Supporters ❤️](#supporters-️)
+    - [Easily fine-tune 100+ large language models with zero-code CLI and Web UI](#easily-fine-tune-100-large-language-models-with-zero-code-cli-and-web-ui)
+  - [Table of Contents](#table-of-contents)
+  - [Features](#features)
+    - [Day-N Support for Fine-Tuning Cutting-Edge Models](#day-n-support-for-fine-tuning-cutting-edge-models)
+  - [Blogs](#blogs)
+  - [Changelog](#changelog)
+  - [Supported Models](#supported-models)
+  - [Supported Training Approaches](#supported-training-approaches)
+  - [Provided Datasets](#provided-datasets)
+  - [Requirement](#requirement)
+    - [Hardware Requirement](#hardware-requirement)
+  - [Getting Started](#getting-started-1)
+    - [Installation](#installation)
+      - [Install from Source](#install-from-source)
+      - [Install from Docker Image](#install-from-docker-image)
+      - [Install PyTorch](#install-pytorch)
+      - [Install BitsAndBytes](#install-bitsandbytes)
+      - [Install Flash Attention-2](#install-flash-attention-2)
+      - [Install BitsAndBytes](#install-bitsandbytes-1)
+    - [Data Preparation](#data-preparation)
+    - [Quickstart](#quickstart)
+    - [Fine-Tuning with LLaMA Board GUI (powered by Gradio)](#fine-tuning-with-llama-board-gui-powered-by-gradio)
+    - [LLaMA Factory Online](#llama-factory-online)
+    - [Build Docker](#build-docker)
+    - [Deploy with OpenAI-style API and vLLM](#deploy-with-openai-style-api-and-vllm)
+    - [Download from ModelScope Hub](#download-from-modelscope-hub)
+    - [Download from Modelers Hub](#download-from-modelers-hub)
+    - [Use W\&B Logger](#use-wb-logger)
+    - [Use SwanLab Logger](#use-swanlab-logger)
+  - [Projects using LLaMA Factory](#projects-using-llama-factory)
+  - [License](#license)
+  - [Citation](#citation-1)
+  - [Acknowledgement](#acknowledgement)
+  - [Star History](#star-history)
 
 ## Features
 
