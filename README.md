@@ -1,4 +1,60 @@
-> **EgoCross Challenge (EgoVis @ CVPR 2026)**: For our competition setup, training pipeline, and inference guide, see [EgoCross/EgoCross.md](EgoCross/EgoCross.md) and [INFERENCE.md](INFERENCE.md).
+# Reflective Dialogue between Teacher and Solver Agents for Video Question Answering
+
+**Takuya Murakawa, Toru Tamaki** (Nagoya Institute of Technology)
+
+[![arXiv](https://img.shields.io/badge/arXiv-2605.27885-b31b1b.svg)](https://arxiv.org/abs/2605.27885) [![EgoVis @ CVPR 2026](https://img.shields.io/badge/EgoVis-CVPR%202026-blue)](https://egovis.github.io/cvpr26/)
+
+This repository contains our submission to the **1st Cross-Domain EgoCross Challenge** at the EgoVis Workshop @ CVPR 2026.
+
+We propose **Reflective Dialogue (RD)**, a training-free inference-time adaptation method for Vision-Language Models on specialized-domain video QA. RD constructs multi-turn conversations between a Teacher agent and a Solver agent using the support set, then prepends this dialogue as static context at test time — combining few-shot in-context learning with verbal reflection without fine-tuning or per-question retry loops.
+
+## Method
+
+**Construction phase** (run once on the support set):
+
+1. Classify each support-set question by domain and question type (Identification / Localization / Prediction / Counting)
+2. For each domain–type pair, conduct four-turn exchanges: Teacher poses question with video frames → Solver answers → Teacher gives correctness feedback → Solver explains visual evidence or reflects on errors
+
+**Inference phase** (test time):
+
+- Retrieve the reflective dialogue matching the test question's domain and type
+- Prepend it as static context before the test question
+- Model generates the final answer using the enriched context
+
+## Results
+
+Overall accuracy on the EgoCross test set (957 questions):
+
+| Method                   | Model                  | Overall |
+| ------------------------ | ---------------------- | ------- |
+| Zero-shot                | Qwen3-VL-4B-Instruct   | 42.4%   |
+| Reflective Dialogue (RD) | Qwen3-VL-4B-Instruct   | 48.9%   |
+| Fine-tuning (LoRA SFT)   | Qwen3-VL-4B-Instruct   | 51.4%   |
+| RD + Fine-tuning         | Qwen3-VL-4B-Instruct   | 52.8%   |
+| RD (w/ timestamps)       | Gemini 3.1 Pro Preview | 65.9%   |
+
+RD consistently outperforms zero-shot baselines, and its benefits are complementary to fine-tuning. Adding frame timestamps provides significant gains in most domains. Context caching with Gemini reduced API cost by ~49%.
+
+## Getting Started
+
+For the training guide, see [EgoCross/EgoCross.md](EgoCross/EgoCross.md). For the full inference pipeline, see [INFERENCE.md](INFERENCE.md).
+
+## Citation
+
+```bibtex
+@article{murakawa2026reflective,
+  title={Reflective Dialogue between Teacher and Solver Agents for Video Question Answering},
+  author={Murakawa, Takuya and Tamaki, Toru},
+  journal={arXiv preprint arXiv:2605.27885},
+  year={2026}
+}
+```
+
+---
+
+This repository is built on [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory). The documentation below covers the base fine-tuning framework.
+
+---
 
 ![# LLaMA Factory](assets/logo.png)
 
@@ -30,9 +86,9 @@
 ### Supporters ❤️
 
 | <div style="text-align: center;"><a href="https://warp.dev/llama-factory"><img alt="Warp sponsorship" width="400" src="assets/sponsors/warp.jpg"></a><br><a href="https://warp.dev/llama-factory" style="font-size:larger;">Warp, the agentic terminal for developers</a><br><a href="https://warp.dev/llama-factory">Available for MacOS, Linux, & Windows</a> | <a href="https://serpapi.com"><img alt="SerpAPI sponsorship" width="250" src="assets/sponsors/serpapi.svg"> </a> |
-| ---- | ---- |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
 
-----
+---
 
 ### Easily fine-tune 100+ large language models with zero-code [CLI](#quickstart) and [Web UI](#fine-tuning-with-llama-board-gui-powered-by-gradio)
 
@@ -49,15 +105,18 @@
 https://github.com/user-attachments/assets/3991a3a8-4276-4d30-9cab-4cb0c4b9b99e
 
 Start local training:
+
 - Please refer to [usage](#getting-started)
 
 Start cloud training:
+
 - **Colab (free)**: https://colab.research.google.com/drive/1eRTPn37ltBbYsISy9Aw2NuI2Aq5CQrD9?usp=sharing
 - **PAI-DSW (free trial)**: https://gallery.pai-ml.com/#/preview/deepLearning/nlp/llama_factory
 - **LLaMA Factory Online**: https://www.llamafactory.com.cn/?utm_source=LLaMA-Factory
 - **Alaya NeW (cloud GPU deal)**: https://docs.alayanew.com/docs/documents/useGuide/LLaMAFactory/mutiple/?utm_source=LLaMA-Factory
 
 Read technical notes:
+
 - **Documentation (WIP)**: https://llamafactory.readthedocs.io/en/latest/
 - **Documentation (AMD GPU)**: https://rocm.docs.amd.com/projects/ai-developer-hub/en/latest/notebooks/fine_tune/llama_factory_llama3.html
 - **Official Blog**: https://blog.llamafactory.net/en/
@@ -278,60 +337,60 @@ Read technical notes:
 
 ## Supported Models
 
-| Model                                                             | Model size                       | Template             |
-| ----------------------------------------------------------------- | -------------------------------- | -------------------- |
-| [BLOOM/BLOOMZ](https://huggingface.co/bigscience)                 | 560M/1.1B/1.7B/3B/7.1B/176B      | -                    |
-| [DeepSeek (LLM/Code/MoE)](https://huggingface.co/deepseek-ai)     | 7B/16B/67B/236B                  | deepseek             |
-| [DeepSeek 3-3.2](https://huggingface.co/deepseek-ai)              | 236B/671B                        | deepseek3            |
-| [DeepSeek R1 (Distill)](https://huggingface.co/deepseek-ai)       | 1.5B/7B/8B/14B/32B/70B/671B      | deepseekr1           |
-| [ERNIE-4.5](https://huggingface.co/baidu)                         | 0.3B/21B/300B                    | ernie_nothink        |
-| [Falcon/Falcon H1](https://huggingface.co/tiiuae)                 | 0.5B/1.5B/3B/7B/11B/34B/40B/180B | falcon/falcon_h1     |
-| [Gemma/Gemma 2/CodeGemma](https://huggingface.co/google)          | 2B/7B/9B/27B                     | gemma/gemma2         |
-| [Gemma 3/Gemma 3n](https://huggingface.co/google)                 | 270M/1B/4B/6B/8B/12B/27B         | gemma3/gemma3n       |
-| [GLM-4/GLM-4-0414/GLM-Z1](https://huggingface.co/zai-org)         | 9B/32B                           | glm4/glmz1           |
-| [GLM-4.5/GLM-4.5(6)V](https://huggingface.co/zai-org)             | 9B/106B/355B                     | glm4_moe/glm4_5v     |
-| [GPT-2](https://huggingface.co/openai-community)                  | 0.1B/0.4B/0.8B/1.5B              | -                    |
-| [GPT-OSS](https://huggingface.co/openai)                          | 20B/120B                         | gpt_oss              |
-| [Granite 3-4](https://huggingface.co/ibm-granite)                 | 1B/2B/3B/7B/8B                   | granite3/granite4    |
-| [Hunyuan/Hunyuan1.5 (MT)](https://huggingface.co/tencent/)        | 0.5B/1.8B/4B/7B/13B              | hunyuan/hunyuan_small|
-| [InternLM 2-3](https://huggingface.co/internlm)                   | 7B/8B/20B                        | intern2              |
-| [InternVL 2.5-3.5](https://huggingface.co/OpenGVLab)              | 1B/2B/4B/8B/14B/30B/38B/78B/241B | intern_vl            |
-| [Intern-S1-mini](https://huggingface.co/internlm/)                | 8B                               | intern_s1            |
-| [Kimi-VL](https://huggingface.co/moonshotai)                      | 16B                              | kimi_vl              |
-| [Ling 2.0 (mini/flash)](https://huggingface.co/inclusionAI)       | 16B/100B                         | bailing_v2           |
-| [LFM 2.5 (VL)](https://huggingface.co/LiquidAI)                   | 1.2B/1.6B                        | lfm2/lfm2_vl         |
-| [Llama](https://github.com/facebookresearch/llama)                | 7B/13B/33B/65B                   | -                    |
-| [Llama 2](https://huggingface.co/meta-llama)                      | 7B/13B/70B                       | llama2               |
-| [Llama 3-3.3](https://huggingface.co/meta-llama)                  | 1B/3B/8B/70B                     | llama3               |
-| [Llama 4](https://huggingface.co/meta-llama)                      | 109B/402B                        | llama4               |
-| [Llama 3.2 Vision](https://huggingface.co/meta-llama)             | 11B/90B                          | mllama               |
-| [LLaVA-1.5](https://huggingface.co/llava-hf)                      | 7B/13B                           | llava                |
-| [LLaVA-NeXT](https://huggingface.co/llava-hf)                     | 7B/8B/13B/34B/72B/110B           | llava_next           |
-| [LLaVA-NeXT-Video](https://huggingface.co/llava-hf)               | 7B/34B                           | llava_next_video     |
-| [MiMo](https://huggingface.co/XiaomiMiMo)                         | 7B/309B                          | mimo/mimo_v2         |
-| [MiniCPM 4](https://huggingface.co/openbmb)                       | 0.5B/8B                          | cpm4                 |
-| [MiniCPM-o/MiniCPM-V 4.5](https://huggingface.co/openbmb)         | 8B/9B                            | minicpm_o/minicpm_v  |
-| [MiniMax-M1/MiniMax-M2](https://huggingface.co/MiniMaxAI/models)  | 229B/456B                        | minimax1/minimax2    |
-| [Ministral 3](https://huggingface.co/mistralai)                   | 3B/8B/14B                        | ministral3           |
-| [Mistral/Mixtral](https://huggingface.co/mistralai)               | 7B/8x7B/8x22B                    | mistral              |
-| [PaliGemma/PaliGemma2](https://huggingface.co/google)             | 3B/10B/28B                       | paligemma            |
-| [Phi-3/Phi-3.5](https://huggingface.co/microsoft)                 | 4B/14B                           | phi                  |
-| [Phi-3-small](https://huggingface.co/microsoft)                   | 7B                               | phi_small            |
-| [Phi-4-mini/Phi-4](https://huggingface.co/microsoft)              | 3.8B/14B                         | phi4_mini/phi4       |
-| [Pixtral](https://huggingface.co/mistralai)                       | 12B                              | pixtral              |
-| [Qwen2 (Code/Math/MoE/QwQ)](https://huggingface.co/Qwen)          | 0.5B/1.5B/3B/7B/14B/32B/72B/110B | qwen                 |
-| [Qwen3 (MoE/Instruct/Thinking/Next)](https://huggingface.co/Qwen) | 0.6B/1.7B/4B/8B/14B/32B/80B/235B | qwen3/qwen3_nothink  |
-| [Qwen3.5](https://huggingface.co/Qwen)                            | 0.8B/2B/4B/9B/27B/35B/122B/397B  | qwen3_5/qwen3_5_nothink              |
-| [Qwen3.6](https://huggingface.co/Qwen)                            | 35B                              | qwen3_6/qwen3_6_nothink              |
-| [Qwen2-Audio](https://huggingface.co/Qwen)                        | 7B                               | qwen2_audio          |
-| [Qwen2.5-Omni](https://huggingface.co/Qwen)                       | 3B/7B                            | qwen2_omni           |
-| [Qwen3-Omni](https://huggingface.co/Qwen)                         | 30B                              | qwen3_omni           |
-| [Qwen2-VL/Qwen2.5-VL/QVQ](https://huggingface.co/Qwen)            | 2B/3B/7B/32B/72B                 | qwen2_vl             |
-| [Qwen3-VL](https://huggingface.co/Qwen)                           | 2B/4B/8B/30B/32B/235B            | qwen3_vl             |
-| [Seed (OSS/Coder)](https://huggingface.co/ByteDance-Seed)         | 8B/36B                           | seed_oss/seed_coder  |
-| [StarCoder 2](https://huggingface.co/bigcode)                     | 3B/7B/15B                        | -                    |
-| [TeleChat 2-2.5](https://huggingface.co/Tele-AI)                  | 3B/7B/35B/115B                   | telechat2            |
-| [Yuan 2](https://huggingface.co/IEITYuan)                         | 2B/51B/102B                      | yuan                 |
+| Model                                                             | Model size                       | Template                |
+| ----------------------------------------------------------------- | -------------------------------- | ----------------------- |
+| [BLOOM/BLOOMZ](https://huggingface.co/bigscience)                 | 560M/1.1B/1.7B/3B/7.1B/176B      | -                       |
+| [DeepSeek (LLM/Code/MoE)](https://huggingface.co/deepseek-ai)     | 7B/16B/67B/236B                  | deepseek                |
+| [DeepSeek 3-3.2](https://huggingface.co/deepseek-ai)              | 236B/671B                        | deepseek3               |
+| [DeepSeek R1 (Distill)](https://huggingface.co/deepseek-ai)       | 1.5B/7B/8B/14B/32B/70B/671B      | deepseekr1              |
+| [ERNIE-4.5](https://huggingface.co/baidu)                         | 0.3B/21B/300B                    | ernie_nothink           |
+| [Falcon/Falcon H1](https://huggingface.co/tiiuae)                 | 0.5B/1.5B/3B/7B/11B/34B/40B/180B | falcon/falcon_h1        |
+| [Gemma/Gemma 2/CodeGemma](https://huggingface.co/google)          | 2B/7B/9B/27B                     | gemma/gemma2            |
+| [Gemma 3/Gemma 3n](https://huggingface.co/google)                 | 270M/1B/4B/6B/8B/12B/27B         | gemma3/gemma3n          |
+| [GLM-4/GLM-4-0414/GLM-Z1](https://huggingface.co/zai-org)         | 9B/32B                           | glm4/glmz1              |
+| [GLM-4.5/GLM-4.5(6)V](https://huggingface.co/zai-org)             | 9B/106B/355B                     | glm4_moe/glm4_5v        |
+| [GPT-2](https://huggingface.co/openai-community)                  | 0.1B/0.4B/0.8B/1.5B              | -                       |
+| [GPT-OSS](https://huggingface.co/openai)                          | 20B/120B                         | gpt_oss                 |
+| [Granite 3-4](https://huggingface.co/ibm-granite)                 | 1B/2B/3B/7B/8B                   | granite3/granite4       |
+| [Hunyuan/Hunyuan1.5 (MT)](https://huggingface.co/tencent/)        | 0.5B/1.8B/4B/7B/13B              | hunyuan/hunyuan_small   |
+| [InternLM 2-3](https://huggingface.co/internlm)                   | 7B/8B/20B                        | intern2                 |
+| [InternVL 2.5-3.5](https://huggingface.co/OpenGVLab)              | 1B/2B/4B/8B/14B/30B/38B/78B/241B | intern_vl               |
+| [Intern-S1-mini](https://huggingface.co/internlm/)                | 8B                               | intern_s1               |
+| [Kimi-VL](https://huggingface.co/moonshotai)                      | 16B                              | kimi_vl                 |
+| [Ling 2.0 (mini/flash)](https://huggingface.co/inclusionAI)       | 16B/100B                         | bailing_v2              |
+| [LFM 2.5 (VL)](https://huggingface.co/LiquidAI)                   | 1.2B/1.6B                        | lfm2/lfm2_vl            |
+| [Llama](https://github.com/facebookresearch/llama)                | 7B/13B/33B/65B                   | -                       |
+| [Llama 2](https://huggingface.co/meta-llama)                      | 7B/13B/70B                       | llama2                  |
+| [Llama 3-3.3](https://huggingface.co/meta-llama)                  | 1B/3B/8B/70B                     | llama3                  |
+| [Llama 4](https://huggingface.co/meta-llama)                      | 109B/402B                        | llama4                  |
+| [Llama 3.2 Vision](https://huggingface.co/meta-llama)             | 11B/90B                          | mllama                  |
+| [LLaVA-1.5](https://huggingface.co/llava-hf)                      | 7B/13B                           | llava                   |
+| [LLaVA-NeXT](https://huggingface.co/llava-hf)                     | 7B/8B/13B/34B/72B/110B           | llava_next              |
+| [LLaVA-NeXT-Video](https://huggingface.co/llava-hf)               | 7B/34B                           | llava_next_video        |
+| [MiMo](https://huggingface.co/XiaomiMiMo)                         | 7B/309B                          | mimo/mimo_v2            |
+| [MiniCPM 4](https://huggingface.co/openbmb)                       | 0.5B/8B                          | cpm4                    |
+| [MiniCPM-o/MiniCPM-V 4.5](https://huggingface.co/openbmb)         | 8B/9B                            | minicpm_o/minicpm_v     |
+| [MiniMax-M1/MiniMax-M2](https://huggingface.co/MiniMaxAI/models)  | 229B/456B                        | minimax1/minimax2       |
+| [Ministral 3](https://huggingface.co/mistralai)                   | 3B/8B/14B                        | ministral3              |
+| [Mistral/Mixtral](https://huggingface.co/mistralai)               | 7B/8x7B/8x22B                    | mistral                 |
+| [PaliGemma/PaliGemma2](https://huggingface.co/google)             | 3B/10B/28B                       | paligemma               |
+| [Phi-3/Phi-3.5](https://huggingface.co/microsoft)                 | 4B/14B                           | phi                     |
+| [Phi-3-small](https://huggingface.co/microsoft)                   | 7B                               | phi_small               |
+| [Phi-4-mini/Phi-4](https://huggingface.co/microsoft)              | 3.8B/14B                         | phi4_mini/phi4          |
+| [Pixtral](https://huggingface.co/mistralai)                       | 12B                              | pixtral                 |
+| [Qwen2 (Code/Math/MoE/QwQ)](https://huggingface.co/Qwen)          | 0.5B/1.5B/3B/7B/14B/32B/72B/110B | qwen                    |
+| [Qwen3 (MoE/Instruct/Thinking/Next)](https://huggingface.co/Qwen) | 0.6B/1.7B/4B/8B/14B/32B/80B/235B | qwen3/qwen3_nothink     |
+| [Qwen3.5](https://huggingface.co/Qwen)                            | 0.8B/2B/4B/9B/27B/35B/122B/397B  | qwen3_5/qwen3_5_nothink |
+| [Qwen3.6](https://huggingface.co/Qwen)                            | 35B                              | qwen3_6/qwen3_6_nothink |
+| [Qwen2-Audio](https://huggingface.co/Qwen)                        | 7B                               | qwen2_audio             |
+| [Qwen2.5-Omni](https://huggingface.co/Qwen)                       | 3B/7B                            | qwen2_omni              |
+| [Qwen3-Omni](https://huggingface.co/Qwen)                         | 30B                              | qwen3_omni              |
+| [Qwen2-VL/Qwen2.5-VL/QVQ](https://huggingface.co/Qwen)            | 2B/3B/7B/32B/72B                 | qwen2_vl                |
+| [Qwen3-VL](https://huggingface.co/Qwen)                           | 2B/4B/8B/30B/32B/235B            | qwen3_vl                |
+| [Seed (OSS/Coder)](https://huggingface.co/ByteDance-Seed)         | 8B/36B                           | seed_oss/seed_coder     |
+| [StarCoder 2](https://huggingface.co/bigcode)                     | 3B/7B/15B                        | -                       |
+| [TeleChat 2-2.5](https://huggingface.co/Tele-AI)                  | 3B/7B/35B/115B                   | telechat2               |
+| [Yuan 2](https://huggingface.co/IEITYuan)                         | 2B/51B/102B                      | yuan                    |
 
 > [!NOTE]
 > For the "base" models, the `template` argument can be chosen from `default`, `alpaca`, `vicuna` etc. But make sure to use the **corresponding template** for the "instruct/chat" models.
@@ -350,7 +409,7 @@ You also can add a custom chat template to [template.py](src/llamafactory/data/t
 
 ## Supported Training Approaches
 
-| Approach               |     Full-tuning    |    Freeze-tuning   |       LoRA         |       QLoRA        |        OFT         |        QOFT        |
+| Approach               | Full-tuning        | Freeze-tuning      | LoRA               | QLoRA              | OFT                | QOFT               |
 | ---------------------- | ------------------ | ------------------ | ------------------ | ------------------ | ------------------ | ------------------ |
 | Pre-Training           | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
 | Supervised Fine-Tuning | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
@@ -476,7 +535,7 @@ huggingface-cli login
 
 | Mandatory    | Minimum | Recommend |
 | ------------ | ------- | --------- |
-| python       | 3.11     | >=3.11   |
+| python       | 3.11    | >=3.11    |
 | torch        | 2.0.0   | 2.6.0     |
 | torchvision  | 0.15.0  | 0.21.0    |
 | transformers | 4.49.0  | 4.50.0    |
@@ -495,16 +554,16 @@ huggingface-cli login
 
 ### Hardware Requirement
 
-\* *estimated*
+\* _estimated_
 
-| Method                              | Bits |   7B  |  14B  |  30B  |   70B  |   `x`B  |
+| Method                              | Bits | 7B    | 14B   | 30B   | 70B    | `x`B    |
 | ----------------------------------- | ---- | ----- | ----- | ----- | ------ | ------- |
-| Full (`bf16` or `fp16`)             |  32  | 120GB | 240GB | 600GB | 1200GB | `18x`GB |
-| Full (`pure_bf16`)                  |  16  |  60GB | 120GB | 300GB |  600GB |  `8x`GB |
-| Freeze/LoRA/GaLore/APOLLO/BAdam/OFT |  16  |  16GB |  32GB |  64GB |  160GB |  `2x`GB |
-| QLoRA / QOFT                        |   8  |  10GB |  20GB |  40GB |   80GB |   `x`GB |
-| QLoRA / QOFT                        |   4  |   6GB |  12GB |  24GB |   48GB | `x/2`GB |
-| QLoRA / QOFT                        |   2  |   4GB |   8GB |  16GB |   24GB | `x/4`GB |
+| Full (`bf16` or `fp16`)             | 32   | 120GB | 240GB | 600GB | 1200GB | `18x`GB |
+| Full (`pure_bf16`)                  | 16   | 60GB  | 120GB | 300GB | 600GB  | `8x`GB  |
+| Freeze/LoRA/GaLore/APOLLO/BAdam/OFT | 16   | 16GB  | 32GB  | 64GB  | 160GB  | `2x`GB  |
+| QLoRA / QOFT                        | 8    | 10GB  | 20GB  | 40GB  | 80GB   | `x`GB   |
+| QLoRA / QOFT                        | 4    | 6GB   | 12GB  | 24GB  | 48GB   | `x/2`GB |
+| QLoRA / QOFT                        | 2    | 4GB   | 8GB   | 16GB  | 24GB   | `x/4`GB |
 
 ## Getting Started
 
@@ -532,7 +591,7 @@ Additional dependencies for specific features are available in `examples/require
 docker run -it --rm --gpus=all --ipc=host hiyouga/llamafactory:latest
 ```
 
-This image is built on Ubuntu 22.04 (x86\_64), CUDA 12.4, Python 3.11, PyTorch 2.6.0, and Flash-attn 2.7.4.
+This image is built on Ubuntu 22.04 (x86_64), CUDA 12.4, Python 3.11, PyTorch 2.6.0, and Flash-attn 2.7.4.
 
 Find the pre-built images: https://hub.docker.com/r/hiyouga/llamafactory/tags
 
@@ -582,7 +641,6 @@ To enable FlashAttention-2 on the Windows platform, please use the script from [
 
 To install LLaMA Factory on Ascend NPU devices, please upgrade Python to version 3.10 or higher: `pip install -r requirements/npu.txt`. Additionally, you need to install the **Ascend CANN Toolkit and Kernels**. Please follow the [installation tutorial](https://llamafactory.readthedocs.io/en/latest/advanced/npu_installation.html).
 
-
 You can also download the pre-built Docker images:
 
 ```bash
@@ -613,7 +671,7 @@ pip install -r requirements-dev.txt
 # Install the dependencies for the compilation tools. Note that the commands for this step may vary depending on the operating system. The following are provided for reference
 apt-get install -y build-essential cmake
 
-# Compile & install  
+# Compile & install
 cmake -DCOMPUTE_BACKEND=npu -S .
 make
 pip install .
